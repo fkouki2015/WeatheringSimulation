@@ -23,32 +23,6 @@ from vlm import vlm_inference
 # ユーティリティ関数
 # ==========================================
 
-def save_gif(frames, out_path, fps=12, loop=0): 
-    """PIL画像のリストをGIFとして保存する。"""
-    if not frames:
-        return
-    
-    base = frames[0]
-    size = base.size
-    proc = []
-    for im in frames:
-        if im.size != size:
-            im = im.resize(size, Image.LANCZOS)
-        if im.mode != "P":
-            im = im.convert("RGB").quantize(colors=256, method=Image.MEDIANCUT)
-        proc.append(im)
-    duration = max(1, int(1000 / max(1, fps)))  # ミリ秒/フレーム
-    proc[0].save(
-        out_path,
-        save_all=True,
-        append_images=proc[1:],
-        duration=duration,
-        loop=loop,
-        optimize=True,
-        disposal=2,
-    )
-
-
 def compute_perceptual_distance(pil_image1: Image.Image, pil_image2: Image.Image, lpips_model, device) -> float:
     """2つの画像間のLPIPS距離を計算"""
     if pil_image1.size != pil_image2.size:
@@ -225,8 +199,8 @@ class WeatheringModel(nn.Module):
     # 推論設定
     INFER_STEPS = 50
     NOISE_RATIO = 1.0
-    RUST_SCALE_MAX = 30.0
-    RUST_ZERO_TO_ONE = False
+    ATTN_SCALE_MAX = 10.0 # アテンション強調最大値
+    ATTN_ZERO_TO_ONE = False # アテンションを0.0から1.0の間で補間
     
     def __init__(self, device: str = None):
         super().__init__()
@@ -258,7 +232,7 @@ class WeatheringModel(nn.Module):
         self.controlnet_canny = ControlNetModel.from_pretrained(
             self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
         )
-        self.controlnets = [self.controlnet_canny]
+        self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
         
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device).eval()
 
@@ -266,21 +240,24 @@ class WeatheringModel(nn.Module):
         self.vae.to(device=self.device, dtype=self.dtype)
         self.text_encoder.to(device=self.device)
         self.unet.to(device=self.device)
-        self.controlnet_canny.to(device=self.device)
+        for c in self.controlnets:
+            c.to(device=self.device)
 
         # デフォルトで重みを固定
         self.unet.requires_grad_(False)
-        self.controlnet_canny.requires_grad_(False)
         self.vae.requires_grad_(False)
         self.text_encoder.requires_grad_(False)
+        for c in self.controlnets:
+            c.requires_grad_(False)
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
         self.unet.requires_grad_(False)
         self.unet.train()
 
-        self.controlnet_canny.requires_grad_(True)
-        self.controlnet_canny.train()
+        for c in self.controlnets:
+            c.requires_grad_(True)
+            c.train()
         
         unet_lora_config = LoraConfig(
             r=self.RANK,
@@ -308,10 +285,11 @@ class WeatheringModel(nn.Module):
             if p.requires_grad:
                 if "attn2" in n:
                     _add_param(p, 1.0)
-
-        for n, p in self.controlnet_canny.named_parameters():
-            if p.requires_grad:
-                _add_param(p, 0.1)
+        
+        for c in self.controlnets:
+            for n, p in c.named_parameters():
+                if p.requires_grad:
+                    _add_param(p, 0.1)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}
@@ -358,8 +336,8 @@ class WeatheringModel(nn.Module):
     def _generate_preview_image(self, latent, prompt, seed, control_images):
         """単一のプレビュー画像を生成"""
         self.unet.eval()
-        for cn in self.controlnets:
-            cn.eval()
+        for c in self.controlnets:
+            c.eval()
             
         height, width = self.RESOLUTION[1], self.RESOLUTION[0]
         h, w = height // 8, width // 8
@@ -421,7 +399,7 @@ class WeatheringModel(nn.Module):
                     latent=latent,
                     prompt=self.train_prompt,
                     seed=step * 100 + k,
-                    control_images=[control_images]
+                    control_images=control_images
                 )
                 # 知覚的距離を計算
                 dist = compute_perceptual_distance(
@@ -434,7 +412,6 @@ class WeatheringModel(nn.Module):
     def train_model(self):
         """LoRAを使用してモデルをファインチューニング"""
         image = self.input_image
-        control_image_canny = self.control_image_canny
         
         trainable_params = self._setup_training()
         
@@ -463,11 +440,8 @@ class WeatheringModel(nn.Module):
             noisy_latent = self.ddpm_scheduler.add_noise(latent, noise, t)
             
             # 2. ControlNet 順伝播
-            down_res, mid_res = self.controlnet_canny(
-                noisy_latent, t,
-                encoder_hidden_states=cond_emb,
-                controlnet_cond=control_image_canny,
-                return_dict=False
+            down_res, mid_res = self._apply_controlnets(
+                noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
             )
             
             # 3. UNet 順伝播
@@ -489,7 +463,7 @@ class WeatheringModel(nn.Module):
             
             # 5. 評価と早期停止
             if step % self.CLIP_EVAL_INTERVAL == 0:
-                avg_dist = self._evaluate(step, latent, control_image_canny, image)
+                avg_dist = self._evaluate(step, latent, self.control_images, image)
                 
                 if prev_lpips is None:
                     improvement_rate = 0.0
@@ -526,8 +500,11 @@ class WeatheringModel(nn.Module):
         self.input_image = input_image
         self.train_prompt = train_prompt
         # 制御画像を前処理
-        self.control_image_canny = canny_process(input_image, self.device, self.dtype)
-        self.control_image_raw = transforms.ToTensor()(input_image).unsqueeze(0).to(device=self.device, dtype=self.dtype)
+        self.control_images = []
+        canny_image = canny_process(input_image, self.device, self.dtype)
+        self.control_images.append(canny_image)
+        # ControlNetの条件画像を追加する場合ここに追加
+        # self.control_image_raw = transforms.ToTensor()(input_image).unsqueeze(0).to(device=self.device, dtype=self.dtype)
         
         # 1. モデルのトレーニング
         self.train_model()
@@ -537,8 +514,8 @@ class WeatheringModel(nn.Module):
         self.vae.eval()
         self.unet.eval()
         self.text_encoder.eval()
-        for cn in self.controlnets:
-            cn.eval()
+        for c in self.controlnets:
+            c.eval()
             
         inference_tokens = self.tokenizer([inference_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
         negative_tokens = self.tokenizer([negative_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
@@ -552,8 +529,8 @@ class WeatheringModel(nn.Module):
             aging_token_indices = find_token_indices(self.tokenizer, inference_tokens.input_ids, attn_word)
             aging_processor = AgingAttentionProcessor(
                 aging_token_indices,
-                scale_max=self.RUST_SCALE_MAX,
-                zero_to_one=self.RUST_ZERO_TO_ONE
+                scale_max=self.ATTN_SCALE_MAX,
+                zero_to_one=self.ATTN_ZERO_TO_ONE
             )
             self.unet.set_attn_processor(aging_processor)
         
@@ -591,7 +568,7 @@ class WeatheringModel(nn.Module):
                         
                         # 制御入力の準備
                         control_imgs_in = []
-                        for ci in [self.control_image_canny]:
+                        for ci in self.control_images:
                             control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
                             
                         down_res, mid_res = self._apply_controlnets(
