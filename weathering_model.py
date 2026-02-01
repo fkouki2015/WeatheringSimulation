@@ -477,13 +477,15 @@ class WeatheringModel(nn.Module):
                     else:
                         no_improve_streak += 1
                         if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
-                            tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} ステップ継続した。")
+                            tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
                             break
                 
                 prev_lpips = avg_dist
-                tqdm.write(f"ステップ {step}: loss={loss.item():.4f}, lpips={avg_dist:.4f}, improve={improvement_rate*100:.2f}%")
+                tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
+                sys.stdout.flush()
+
                 
-            progress_bar.set_postfix({"loss": f"{loss.item():.4f}"})
+            progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
 
     def forward(
         self,    
@@ -525,6 +527,7 @@ class WeatheringModel(nn.Module):
         text_embeddings = torch.cat([uncond_emb, cond_emb], dim=0)
         
         # 経年変化エフェクト用のアテンションプロセッサを設定
+        aging_processor = None
         if attn_word is not None:
             aging_token_indices = find_token_indices(self.tokenizer, inference_tokens.input_ids, attn_word)
             aging_processor = AgingAttentionProcessor(
@@ -554,13 +557,14 @@ class WeatheringModel(nn.Module):
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
             
             # 経年変化の強度を更新
-            aging_processor.current_factor = normalized_i * 0.5
+            if aging_processor is not None:
+                aging_processor.current_factor = math.sin(normalized_i)
             
             # デノイズ
             with torch.no_grad():
                 latents = noisy_latent
                 # タイムステップを反復
-                for t in tqdm(timesteps[t_index:], desc=f"Frame {i+1}/{num_frames}"):
+                for t in tqdm(timesteps[t_index:], desc=f"{i+1}/{num_frames}"):
                     with autocast(device_type=self.device.type, enabled=(self.device.type == "cuda"), dtype=self.dtype):
                         
                         lat_in = torch.cat([latents] * 2, dim=0)

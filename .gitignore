@@ -1,0 +1,7 @@
+outputs/output_image_01.gif
+vlm.py
+lora1.5.out
+outputs/output_image_50.gif
+run.sh
+__pycache__/vlm.cpython-310.pyc
+__pycache__/weathering_model.cpython-310.pyc

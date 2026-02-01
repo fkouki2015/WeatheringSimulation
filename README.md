@@ -49,8 +49,8 @@ python main.py --input_folder "path/to/image_folder" --output_folder "outputs"
 
 デフォルトでは視覚言語モデルが自動で画像の説明と推論プロンプトを生成しますが，手動で指定することも可能です．
 
-- `--train_prompt`: モデルの学習時（入力画像の再構成）に使用するプロンプト
-- `--inference_prompt`: 経年変化後の生成に使用するプロンプト
+- `--train_prompt`: 画像を説明するキャプション
+- `--inference_prompt`: 経年変化後の画像を説明するキャプション
 
 ```bash
 python main.py \
@@ -71,4 +71,18 @@ python main.py \
   --train_prompt "a photo of a sports car" \
   --inference_prompt "a photo of a rusted sports car"\
   --attn_word "rusted"
+```
+
+#### モード指定 (`--mode`)
+
+デフォルトでは経年変化をシミュレーションしますが，劣化した画像からの復元をシミュレーションすることも可能です．
+
+- `--mode`: "age"または"restore"
+- "age"モード（デフォルト）： 経年変化シミュレーション
+- "restore"モード： 劣化した画像からの復元シミュレーション
+
+```bash
+python main.py \
+  --input_image "rusted_car.jpg" \
+  --mode "restore"
 ```

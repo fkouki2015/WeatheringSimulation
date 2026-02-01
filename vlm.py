@@ -81,7 +81,6 @@ def vlm_inference(mode: str = "age", image_path: str = None):
     output_text = processor.batch_decode(
         generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
     )
-    print("Generated Text:", output_text[0])
     
     orig_caption, edited_caption, instruction = output_text[0].split("|")
 
@@ -115,7 +114,7 @@ def build_prompts_json(
     for p in tqdm(images):
         abs_path = os.path.abspath(p)
         try:
-            orig_caption, edited_caption, instruction = vlm_inference(mode="new", image_path=abs_path)
+            orig_caption, edited_caption, instruction = vlm_inference(mode="age", image_path=abs_path)
             sys.stdout.flush()
             rec = {
                 "image_path": abs_path,
