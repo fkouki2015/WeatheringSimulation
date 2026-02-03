@@ -15,7 +15,7 @@ model = Qwen3VLForConditionalGeneration.from_pretrained(
     "Qwen/Qwen3-VL-8B-Instruct", dtype="auto", device_map="auto"
 )
 model.eval()
-processor = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-30B-A3B-Instruct")
+processor = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-8B-Instruct")
 
 
 def vlm_inference(mode: str = "age", image_path: str = None):
