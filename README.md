@@ -48,6 +48,7 @@ python main.py --input_folder "path/to/image_folder" --output_folder "outputs"
 #### 手動プロンプト指定 (`--train_prompt`, `--inference_prompt`)
 
 デフォルトでは視覚言語モデルが自動で画像の説明と推論プロンプトを生成しますが，手動で指定することも可能です．
+※単一画像を処理する場合のみ有効です．
 
 - `--train_prompt`: 画像を説明するキャプション
 - `--inference_prompt`: 経年変化後の画像を説明するキャプション

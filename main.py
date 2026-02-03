@@ -35,7 +35,7 @@ def save_gif(frames, out_path, fps=12, loop=0):
         disposal=2,
     )
 
-def process_folder(input_folder: str, output_folder: str, mode: str, train_prompt: str, inference_prompt: str, attn_word: str):
+def process_folder(input_folder: str, output_folder: str, mode: str):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -46,24 +46,17 @@ def process_folder(input_folder: str, output_folder: str, mode: str, train_promp
         image_path = os.path.join(input_folder, filename)
         input_image = load_image(image_path, resolution=(512, 512))
         
-        current_train_prompt = train_prompt
-        current_inference_prompt = inference_prompt
-
-        if current_train_prompt is None or current_inference_prompt is None:
-            current_train_prompt, current_inference_prompt, instruction = vlm_inference(mode=mode, image_path=image_path)
+        train_prompt, inference_prompt, instruction = vlm_inference(mode=mode, image_path=image_path)
 
         print(f"処理中 {filename}")
-        print(f"  訓練用プロンプト: {current_train_prompt}")
-        print(f"  推論用プロンプト: {current_inference_prompt}")
-        if attn_word is not None:
-            print(f"  強調単語: {attn_word}")
+        print(f"  訓練用プロンプト: {train_prompt}")
+        print(f"  推論用プロンプト: {inference_prompt}")
         
         output_frames = model(
             input_image=input_image,
-            train_prompt=current_train_prompt,
-            inference_prompt=current_inference_prompt,
+            train_prompt=train_prompt,
+            inference_prompt=inference_prompt,
             negative_prompt="",
-            attn_word=attn_word,
             guidance_scale=6.0,
             num_frames=10,
         )
