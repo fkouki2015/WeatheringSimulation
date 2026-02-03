@@ -95,6 +95,47 @@ def latent_to_pil(vae, latents):
     return pil_list
 
 
+def get_highest_frequency_component(tensor: torch.Tensor, levels: int = 6) -> torch.Tensor:
+    """ラプラシアンピラミッドで最高周波数成分を抽出
+    
+    Args:
+        tensor: (B, C, H, W) 形式のテンソル
+        levels: ピラミッドのレベル数
+    
+    Returns:
+        最高周波数成分 (B, C, H, W)
+    """
+    B, C, H, W = tensor.shape
+    device = tensor.device
+    dtype = tensor.dtype
+    
+    # ダウンサンプリング（ガウシアンブラー）
+    def gaussian_blur(x):
+        # 5x5 ガウシアンカーネル
+        kernel = torch.tensor([[1, 4, 6, 4, 1],
+                               [4, 16, 24, 16, 4],
+                               [6, 24, 36, 24, 6],
+                               [4, 16, 24, 16, 4],
+                               [1, 4, 6, 4, 1]], device=device, dtype=dtype) / 256.0
+        kernel = kernel.view(1, 1, 5, 5).repeat(C, 1, 1, 1)
+        return F.conv2d(x, kernel, padding=2, groups=C)
+    
+    def downsample(x):
+        blurred = gaussian_blur(x)
+        return blurred[:, :, ::2, ::2]
+    
+    def upsample(x, target_size):
+        return F.interpolate(x, size=target_size, mode='bilinear', align_corners=False)
+    
+    # 最高周波数成分を抽出（レベル0）
+    current = tensor
+    down = downsample(current)
+    up = upsample(down, (H, W))
+    highest_freq = current - up
+    
+    return highest_freq
+
+
 def find_token_indices(tokenizer, input_ids_tensor, target_word: str):
     """ターゲット単語に対応するトークンのインデックスを検索"""
     ids = input_ids_tensor[0].tolist()
@@ -182,8 +223,8 @@ class WeatheringModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
-    LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 200
+    LEARNING_RATE = 1e-4
+    TRAIN_STEPS = 100
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
@@ -191,7 +232,7 @@ class WeatheringModel(nn.Module):
     LORA_DROPOUT = 0.0
     
     # 評価設定
-    CLIP_EVAL_INTERVAL = 200
+    CLIP_EVAL_INTERVAL = 50
     CLIP_EVAL_STEPS = 20
     PERCEPTUAL_THRESHOLD = 0.05
     PERCEPTUAL_PATIENCE = 2
@@ -235,6 +276,14 @@ class WeatheringModel(nn.Module):
         # )
         # self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
         self.controlnets = []  # ControlNet無効化
+        
+        # 潜在空間での参照画像連結用の射影層 (8ch -> 4ch)
+        self.latent_projection = nn.Conv2d(8, 4, kernel_size=1, bias=False).to(self.device)
+        # 初期化: 最初の4chはそのまま通す、後半の4chは小さい重みで加算
+        with torch.no_grad():
+            self.latent_projection.weight.zero_()
+            self.latent_projection.weight[:, :4, 0, 0] = torch.eye(4)  # ノイズ潜在はそのまま
+            self.latent_projection.weight[:, 4:, 0, 0] = torch.eye(4) * 0.1  # 参照潜在は小さい重み
         
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device).eval()
 
@@ -451,15 +500,20 @@ class WeatheringModel(nn.Module):
             noise = torch.randn_like(latent, device=self.device, dtype=self.dtype)
             noisy_latent = self.ddpm_scheduler.add_noise(latent, noise, t)
             
+            # 参照潜在と連結して射影
+            reference_latent = latent.clone()  # 元の潜在を参照として使用
+            combined_latent = torch.cat([noisy_latent, reference_latent], dim=1)  # (B, 8, H, W)
+            projected_latent = self.latent_projection(combined_latent)  # (B, 4, H, W)
+            
             # ControlNet disabled
             # # 2. ControlNet 順伝播
             # down_res, mid_res = self._apply_controlnets(
             #     noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
             # )
             
-            # 3. UNet 順伝播 (ControlNet disabled)
+            # 3. UNet 順伝播 (with reference latent projection)
             model_pred = self.unet(
-                noisy_latent, t, cond_emb,
+                projected_latent, t, cond_emb,
                 # down_block_additional_residuals=[s.to(dtype=self.dtype) for s in down_res],
                 # mid_block_additional_residual=mid_res.to(dtype=self.dtype),
             ).sample
@@ -467,7 +521,15 @@ class WeatheringModel(nn.Module):
             # 4. 最適化
             # Huber loss (Smooth L1) - 外れ値に対してロバスト
             # loss = F.mse_loss(model_pred.float(), noise.float(), reduction="mean")
-            loss = F.smooth_l1_loss(model_pred.float(), noise.float(), reduction="mean")
+            diffusion_loss = F.mse_loss(model_pred.float(), noise.float(), reduction="mean")
+            
+            # 高周波ロス: 6段階ラプラシアンピラミッドの最高周波数成分でロスを計算
+            pred_hf = get_highest_frequency_component(model_pred.float(), levels=6)
+            target_hf = get_highest_frequency_component(noise.float(), levels=6)
+            hf_loss = F.smooth_l1_loss(pred_hf, target_hf, reduction="mean")
+            
+            # 総合ロス: 拡散ロス + 高周波ロス
+            loss =  1.0 * hf_loss
             
             self.scaler.scale(loss).backward()
             self.scaler.unscale_(self.optimizer)
@@ -557,6 +619,7 @@ class WeatheringModel(nn.Module):
         self.ddim_scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
         timesteps = self.ddim_scheduler.timesteps
         start_latent = pil_to_latent(self.vae, input_image, self.device, self.dtype)
+        reference_latent = start_latent.clone()  # 参照画像の潜在ベクトルを保存
         noise = torch.randn_like(start_latent, device=self.device, dtype=self.dtype)
         
         frames = []
@@ -583,8 +646,16 @@ class WeatheringModel(nn.Module):
                 for t in tqdm(timesteps[t_index:], desc=f"{i+1}/{num_frames}"):
                     with autocast(device_type=self.device.type, enabled=(self.device.type == "cuda"), dtype=self.dtype):
                         
+                        # 参照潜在とノイズ潜在を連結して射影
+                        ref_lat = reference_latent.repeat(2, 1, 1, 1)  # uncond/cond用に複製
                         lat_in = torch.cat([latents] * 2, dim=0)
                         lat_in = self.ddim_scheduler.scale_model_input(lat_in, t)
+                        
+                        # 潜在空間で連結: [noisy_latent, reference_latent] -> (B, 8, H, W)
+                        combined_latent = torch.cat([lat_in, ref_lat], dim=1)
+                        lat_in = self.latent_projection(combined_latent)  # (B, 4, H, W)
+                        # lat_in = torch.cat([latents] * 2, dim=0)
+                        # lat_in = self.ddim_scheduler.scale_model_input(lat_in, t)
                         
                         # ControlNet disabled
                         # # 制御入力の準備
