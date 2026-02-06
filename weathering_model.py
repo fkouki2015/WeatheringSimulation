@@ -96,7 +96,7 @@ def latent_to_pil(vae, latents):
 
 
 def get_highest_frequency_component(tensor: torch.Tensor, levels: int = 6) -> torch.Tensor:
-    """ラプラシアンピラミッドで最高周波数成分を抽出
+    """ラプラシアンピラミッドで最高周波数成分を抽出（より高周波に限定）
     
     Args:
         tensor: (B, C, H, W) 形式のテンソル
@@ -109,29 +109,19 @@ def get_highest_frequency_component(tensor: torch.Tensor, levels: int = 6) -> to
     device = tensor.device
     dtype = tensor.dtype
     
-    # ダウンサンプリング（ガウシアンブラー）
-    def gaussian_blur(x):
-        # 5x5 ガウシアンカーネル
-        kernel = torch.tensor([[1, 4, 6, 4, 1],
-                               [4, 16, 24, 16, 4],
-                               [6, 24, 36, 24, 6],
-                               [4, 16, 24, 16, 4],
-                               [1, 4, 6, 4, 1]], device=device, dtype=dtype) / 256.0
-        kernel = kernel.view(1, 1, 5, 5).repeat(C, 1, 1, 1)
-        return F.conv2d(x, kernel, padding=2, groups=C)
+    # より軽いブラー（3x3ガウシアンカーネル）で高周波成分をより細かく抽出
+    def light_blur(x):
+        # 3x3 ガウシアンカーネル（軽いブラー）
+        kernel = torch.tensor([[1, 2, 1],
+                               [2, 4, 2],
+                               [1, 2, 1]], device=device, dtype=dtype) / 16.0
+        kernel = kernel.view(1, 1, 3, 3).repeat(C, 1, 1, 1)
+        return F.conv2d(x, kernel, padding=1, groups=C)
     
-    def downsample(x):
-        blurred = gaussian_blur(x)
-        return blurred[:, :, ::2, ::2]
-    
-    def upsample(x, target_size):
-        return F.interpolate(x, size=target_size, mode='bilinear', align_corners=False)
-    
-    # 最高周波数成分を抽出（レベル0）
-    current = tensor
-    down = downsample(current)
-    up = upsample(down, (H, W))
-    highest_freq = current - up
+    # 最高周波数成分を抽出（元画像 - 軽くブラーした画像）
+    # ダウンサンプリングなしで純粋な高周波成分を取得
+    blurred = light_blur(tensor)
+    highest_freq = tensor - blurred
     
     return highest_freq
 
@@ -223,8 +213,8 @@ class WeatheringModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
-    LEARNING_RATE = 1e-4
-    TRAIN_STEPS = 100
+    LEARNING_RATE = 1e-5
+    TRAIN_STEPS = 500
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
@@ -232,7 +222,7 @@ class WeatheringModel(nn.Module):
     LORA_DROPOUT = 0.0
     
     # 評価設定
-    CLIP_EVAL_INTERVAL = 50
+    CLIP_EVAL_INTERVAL = 5000
     CLIP_EVAL_STEPS = 20
     PERCEPTUAL_THRESHOLD = 0.05
     PERCEPTUAL_PATIENCE = 2
@@ -318,7 +308,7 @@ class WeatheringModel(nn.Module):
         #     r=self.RANK,
         #     lora_alpha=self.RANK,
         #     init_lora_weights="gaussian",
-        #     target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0"],
+        #     target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0", "attn1.to_k", "attn1.to_q", "attn1.to_v", "attn1.to_out.0"],
         #     lora_dropout=self.LORA_DROPOUT
         # )
         # self.adapter_name = f"train-{uuid.uuid4().hex[:8]}"
@@ -495,7 +485,10 @@ class WeatheringModel(nn.Module):
             # 1. 入力の準備
             latent = pil_to_latent(self.vae, image, self.device, self.dtype)
             bsz = latent.shape[0]
-            t = torch.randint(0, len(timesteps)-1, (bsz,), device=self.device, dtype=torch.long)
+            # 小さいtを重点的にサンプリング（ベータ分布: α=1, β=3で0に近い値を多くサンプル）
+            # t が小さいほど細部構造を決定するため、高周波成分の学習に重要
+            beta_sample = np.random.beta(1, 3, size=(bsz,))  # [0, 1] の範囲で0に偏った分布
+            t = torch.from_numpy((beta_sample * (len(timesteps) - 1)).astype(np.int64)).to(self.device)
             
             noise = torch.randn_like(latent, device=self.device, dtype=self.dtype)
             noisy_latent = self.ddpm_scheduler.add_noise(latent, noise, t)

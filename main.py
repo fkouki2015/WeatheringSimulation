@@ -88,7 +88,7 @@ def process_image(image_path: str, output_folder: str, mode: str, train_prompt: 
         input_image=input_image,
         train_prompt=train_prompt,
         inference_prompt=inference_prompt,
-        negative_prompt="",
+        negative_prompt="clean, new",
         attn_word=attn_word,
         guidance_scale=6.0,
         num_frames=5,

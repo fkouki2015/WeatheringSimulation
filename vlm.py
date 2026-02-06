@@ -34,7 +34,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a brief caption describing the image, and another brief caption describing the same image in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. Do not include color information and textual information. You must use just two '|'s. Here are good examples: 'A sleek car. | A heavily rusted and moss-covered car.' | 'Add rust and moss to the car.'"
+                    "text": "Write a very short caption describing the image, and another brief caption describing the same image in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. Do not include color information and textual information. You must use just two '|'s. Here are good examples: 'A sleek car. | A heavily rusted and moss-covered car.' | 'Add rust and moss to the car.'"
                 },
             ],
         }
@@ -50,7 +50,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a brief caption to describe this image in its aged state, and another to describe its predicted original clean state. And write a simple instruction restoring the image from two captions. Do not include color information, textual information. Separate them with '|'. You must use just two '|'.  Here is good example: A heavily rusted car. | A pristine clean car. | Remove rust from the car."
+                    "text": "Write a very short caption to describe this image in its aged state, and another to describe its predicted original clean state. And write a simple instruction restoring the image from two captions. Do not include color information, textual information. Separate them with '|'. You must use just two '|'.  Here is good example: A heavily rusted car. | A pristine clean car. | Remove rust from the car."
                 }, 
             ],
         }
