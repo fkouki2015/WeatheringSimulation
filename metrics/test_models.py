@@ -15,6 +15,7 @@ from diffusers import (
 )
 sys.path.append("./")
 from weathering_model import WeatheringModel
+import gc
 
 
 def save_gif(frames: List[Image.Image], out_path: str, fps: int = 5, loop: int = 0):
@@ -44,62 +45,69 @@ def save_gif(frames: List[Image.Image], out_path: str, fps: int = 5, loop: int =
 
 
 class ModelProcessor:
-    """Handles loading and inference for multiple diffusion models."""
     
     def __init__(self, models: List[str], device: str = "cuda"):
         self.device = device
         self.models = models
-        self.pipelines = {}
-        self._load_models()
+        self.pipeline = None  # Single pipeline at a time
+        self.current_model = None
     
-    def _load_models(self):
-        """Load requested model pipelines."""
-        if "proposed" in self.models:
+    def _load_model(self, model_name: str):
+        """Load a single model pipeline."""
+        if model_name == "proposed":
             print("Loading Proposed Model...")
-            self.pipelines["proposed"] = WeatheringModel(device="cuda")
-
-        if "flux" in self.models:
+            self.pipeline = WeatheringModel(device="cuda")
+        elif model_name == "flux":
             print("Loading Flux Kontext...")
-            self.pipelines["flux"] = FluxKontextPipeline.from_pretrained(
+            self.pipeline = FluxKontextPipeline.from_pretrained(
                 "black-forest-labs/FLUX.1-Kontext-dev", 
                 torch_dtype=torch.bfloat16
             ).to(self.device)
-        
-        if "qwen" in self.models:
+        elif model_name == "qwen":
             print("Loading Qwen Image Edit...")
-            self.pipelines["qwen"] = QwenImageEditPipeline.from_pretrained(
+            self.pipeline = QwenImageEditPipeline.from_pretrained(
                 "Qwen/Qwen-Image-Edit", 
                 torch_dtype=torch.bfloat16
             ).to(self.device)
-        
-        if "ip2p" in self.models:
+        elif model_name == "ip2p":
             print("Loading InstructPix2Pix...")
-            self.pipelines["ip2p"] = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+            self.pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
                 "timbrooks/instruct-pix2pix", 
                 torch_dtype=torch.float16, 
                 safety_checker=None
             ).to(self.device)
-        
-        if "sd" in self.models:
+        elif model_name == "sd":
             print("Loading Stable Diffusion...")
-            self.pipelines["sd"] = StableDiffusionPipeline.from_pretrained(
+            self.pipeline = StableDiffusionPipeline.from_pretrained(
+                "runwayml/stable-diffusion-v1-5", 
+                torch_dtype=torch.float16, 
+                safety_checker=None
+            ).to(self.device)
+        elif model_name == "sdedit":
+            print("Loading SDEdit (Img2Img)...")
+            self.pipeline = StableDiffusionImg2ImgPipeline.from_pretrained(
                 "runwayml/stable-diffusion-v1-5", 
                 torch_dtype=torch.float16, 
                 safety_checker=None
             ).to(self.device)
         
-        if "sdedit" in self.models:
-            print("Loading SDEdit (Img2Img)...")
-            self.pipelines["sdedit"] = StableDiffusionImg2ImgPipeline.from_pretrained(
-                "runwayml/stable-diffusion-v1-5", 
-                torch_dtype=torch.float16, 
-                safety_checker=None
-            ).to(self.device)
+        self.current_model = model_name
+    
+    def _unload_model(self):
+        """Unload current model and release GPU memory."""
+        if self.pipeline is not None:
+            print(f"Unloading {self.current_model} and releasing memory...")
+            del self.pipeline
+            self.pipeline = None
+            self.current_model = None
+            gc.collect()
+            torch.cuda.empty_cache()
+            print("Memory released.")
 
     
     def process_proposed(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with Proposed Model, varying guidance scale from 1 to 10."""
-        pipe = self.pipelines["proposed"]
+        pipe = self.pipeline
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
@@ -112,7 +120,7 @@ class ModelProcessor:
     
     def process_flux(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with Flux Kontext, varying guidance scale from 1 to 10."""
-        pipe = self.pipelines["flux"]
+        pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
             result = pipe(
@@ -126,7 +134,7 @@ class ModelProcessor:
     
     def process_qwen(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with Qwen Image Edit, varying guidance scale from 1 to 10."""
-        pipe = self.pipelines["qwen"]
+        pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
             result = pipe(
@@ -139,7 +147,7 @@ class ModelProcessor:
     
     def process_ip2p(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with InstructPix2Pix, varying guidance scale from 1 to 10."""
-        pipe = self.pipelines["ip2p"]
+        pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
             result = pipe(
@@ -154,7 +162,7 @@ class ModelProcessor:
     
     def process_sd(self, prompt: str, num_frames: int = 10, height: int = 512, width: int = 512) -> List[Image.Image]:
         """Process with Stable Diffusion (text-to-image), varying guidance scale from 1 to 10."""
-        pipe = self.pipelines["sd"]
+        pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
             result = pipe(
@@ -169,7 +177,7 @@ class ModelProcessor:
     
     def process_sdedit(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with SDEdit (Img2Img), varying strength from 0.1 to 1.0."""
-        pipe = self.pipelines["sdedit"]
+        pipe = self.pipeline
         frames = []
         for i in range(1, num_frames + 1):
             strength = i / num_frames  # 0.1, 0.2, ..., 1.0
@@ -188,9 +196,10 @@ class ModelProcessor:
         sample: dict, 
         output_dir: Path, 
         sample_idx: int, 
+        model_name: str,
         num_frames: int = 10
     ):
-        """Process a single sample with all loaded models."""
+        """Process a single sample with the currently loaded model."""
         image_path = sample["image_path"]
         input_prompt = sample["input_prompt"]
         output_prompt = sample["output_prompt"]
@@ -200,33 +209,30 @@ class ModelProcessor:
         # Resize to 512x512
         image = image.resize((512, 512), Image.LANCZOS)
         
-        for model_name in self.models:
-            if model_name not in self.pipelines:
-                continue
+        model_output_dir = output_dir / model_name
+        model_output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = model_output_dir / f"{sample_idx:05d}.gif"
+        
+        try:
+            if model_name == "proposed":
+                frames = self.process_proposed(image, input_prompt, output_prompt, num_frames)
+            elif model_name == "flux":
+                frames = self.process_flux(image, edit_prompt, num_frames)
+            elif model_name == "qwen":
+                frames = self.process_qwen(image, edit_prompt, num_frames)
+            elif model_name == "ip2p":
+                frames = self.process_ip2p(image, edit_prompt, num_frames)
+            elif model_name == "sd":
+                h, w = image.size
+                frames = self.process_sd(output_prompt, num_frames, h, w)
+            elif model_name == "sdedit":
+                frames = self.process_sdedit(image, output_prompt, num_frames)
             
-            model_output_dir = output_dir / model_name
-            model_output_dir.mkdir(parents=True, exist_ok=True)
-            output_path = model_output_dir / f"{sample_idx:05d}.gif"
-            
-            try:
-                if model_name == "proposed":
-                    frames = self.process_proposed(image, input_prompt, output_prompt, num_frames)
-                elif model_name == "flux":
-                    frames = self.process_flux(image, edit_prompt, num_frames)
-                elif model_name == "qwen":
-                    frames = self.process_qwen(image, edit_prompt, num_frames)
-                elif model_name == "ip2p":
-                    frames = self.process_ip2p(image, edit_prompt, num_frames)
-                elif model_name == "sd":
-                    frames = self.process_sd(output_prompt, num_frames, height, width)
-                elif model_name == "sdedit":
-                    frames = self.process_sdedit(image, output_prompt, num_frames)
-                
-                save_gif(frames, str(output_path), fps=5)
-                print(f"  Saved: {output_path}")
-            
-            except Exception as e:
-                print(f"  Error with {model_name}: {e}")
+            save_gif(frames, str(output_path), fps=5)
+            print(f"  Saved: {output_path}")
+        
+        except Exception as e:
+            print(f"  Error with {model_name}: {e}")
 
 
 def main():
@@ -256,16 +262,27 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Initialize processor with requested models
+    # Initialize processor (no models loaded yet)
     processor = ModelProcessor(args.models, args.device)
     
-    # Process assigned samples
-    for idx, sample in tqdm(my_samples, desc=f"GPU {args.gpu_number}"):
-        print(f"\nProcessing sample {idx}: {sample.get('image_path', 'unknown')}")
-        processor.process_sample(sample, output_dir, idx, args.num_frames)
+    # Process one model at a time: load -> process all images -> unload
+    for model_name in args.models:
+        print(f"Processing with model: {model_name}")
+        
+        # Load the model
+        processor._load_model(model_name)
+        
+        # Process all assigned samples with this model
+        for idx, sample in tqdm(my_samples, desc=f"{model_name}"):
+            print(f"\nProcessing sample {idx}: {sample.get('image_path', 'unknown')}")
+            processor.process_sample(sample, output_dir, idx, model_name, args.num_frames)
+        
+        # Unload the model and release memory
+        processor._unload_model()
     
     print(f"\nGPU {args.gpu_number} done! Results saved to {output_dir}")
 
 
 if __name__ == "__main__":
     main()
+
