@@ -1,0 +1,271 @@
+import json
+import argparse
+from pathlib import Path
+from typing import List, Optional
+import sys
+import torch
+from PIL import Image
+from tqdm.auto import tqdm
+from diffusers import (
+    FluxKontextPipeline,
+    StableDiffusionInstructPix2PixPipeline,
+    StableDiffusionPipeline,
+    StableDiffusionImg2ImgPipeline,
+    QwenImageEditPipeline,
+)
+sys.path.append("./")
+from weathering_model import WeatheringModel
+
+
+def save_gif(frames: List[Image.Image], out_path: str, fps: int = 5, loop: int = 0):
+    """Save a list of PIL images as a GIF file."""
+    if not frames:
+        return
+    
+    base = frames[0]
+    size = base.size
+    proc = []
+    for im in frames:
+        if im.size != size:
+            im = im.resize(size, Image.LANCZOS)
+        if im.mode != "P":
+            im = im.convert("RGB").quantize(colors=256, method=Image.MEDIANCUT)
+        proc.append(im)
+    duration = max(1, int(1000 / max(1, fps)))
+    proc[0].save(
+        out_path,
+        save_all=True,
+        append_images=proc[1:],
+        duration=duration,
+        loop=loop,
+        optimize=True,
+        disposal=2,
+    )
+
+
+class ModelProcessor:
+    """Handles loading and inference for multiple diffusion models."""
+    
+    def __init__(self, models: List[str], device: str = "cuda"):
+        self.device = device
+        self.models = models
+        self.pipelines = {}
+        self._load_models()
+    
+    def _load_models(self):
+        """Load requested model pipelines."""
+        if "proposed" in self.models:
+            print("Loading Proposed Model...")
+            self.pipelines["proposed"] = WeatheringModel(device="cuda")
+
+        if "flux" in self.models:
+            print("Loading Flux Kontext...")
+            self.pipelines["flux"] = FluxKontextPipeline.from_pretrained(
+                "black-forest-labs/FLUX.1-Kontext-dev", 
+                torch_dtype=torch.bfloat16
+            ).to(self.device)
+        
+        if "qwen" in self.models:
+            print("Loading Qwen Image Edit...")
+            self.pipelines["qwen"] = QwenImageEditPipeline.from_pretrained(
+                "Qwen/Qwen-Image-Edit", 
+                torch_dtype=torch.bfloat16
+            ).to(self.device)
+        
+        if "ip2p" in self.models:
+            print("Loading InstructPix2Pix...")
+            self.pipelines["ip2p"] = StableDiffusionInstructPix2PixPipeline.from_pretrained(
+                "timbrooks/instruct-pix2pix", 
+                torch_dtype=torch.float16, 
+                safety_checker=None
+            ).to(self.device)
+        
+        if "sd" in self.models:
+            print("Loading Stable Diffusion...")
+            self.pipelines["sd"] = StableDiffusionPipeline.from_pretrained(
+                "runwayml/stable-diffusion-v1-5", 
+                torch_dtype=torch.float16, 
+                safety_checker=None
+            ).to(self.device)
+        
+        if "sdedit" in self.models:
+            print("Loading SDEdit (Img2Img)...")
+            self.pipelines["sdedit"] = StableDiffusionImg2ImgPipeline.from_pretrained(
+                "runwayml/stable-diffusion-v1-5", 
+                torch_dtype=torch.float16, 
+                safety_checker=None
+            ).to(self.device)
+
+    
+    def process_proposed(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with Proposed Model, varying guidance scale from 1 to 10."""
+        pipe = self.pipelines["proposed"]
+        frames = pipe(input_image=image,
+                        train_prompt=input_prompt, 
+                        inference_prompt=output_prompt, 
+                        # negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        negative_prompt="", 
+                        guidance_scale=6.0,
+                        num_frames=num_frames,
+                    )
+        return frames
+    
+    def process_flux(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with Flux Kontext, varying guidance scale from 1 to 10."""
+        pipe = self.pipelines["flux"]
+        frames = []
+        for scale in range(1, num_frames + 1):
+            result = pipe(
+                image=image,
+                prompt=prompt,
+                guidance_scale=float(scale),
+                num_inference_steps=28,
+            ).images[0]
+            frames.append(result)
+        return frames
+    
+    def process_qwen(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with Qwen Image Edit, varying guidance scale from 1 to 10."""
+        pipe = self.pipelines["qwen"]
+        frames = []
+        for scale in range(1, num_frames + 1):
+            result = pipe(
+                image=image,
+                prompt=prompt,
+                guidance_scale=float(scale),
+            ).images[0]
+            frames.append(result)
+        return frames
+    
+    def process_ip2p(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with InstructPix2Pix, varying guidance scale from 1 to 10."""
+        pipe = self.pipelines["ip2p"]
+        frames = []
+        for scale in range(1, num_frames + 1):
+            result = pipe(
+                image=image,
+                prompt=prompt,
+                guidance_scale=float(scale),
+                image_guidance_scale=1.0,
+                num_inference_steps=50,
+            ).images[0]
+            frames.append(result)
+        return frames
+    
+    def process_sd(self, prompt: str, num_frames: int = 10, height: int = 512, width: int = 512) -> List[Image.Image]:
+        """Process with Stable Diffusion (text-to-image), varying guidance scale from 1 to 10."""
+        pipe = self.pipelines["sd"]
+        frames = []
+        for scale in range(1, num_frames + 1):
+            result = pipe(
+                prompt=prompt,
+                guidance_scale=float(scale),
+                num_inference_steps=50,
+                height=height,
+                width=width,
+            ).images[0]
+            frames.append(result)
+        return frames
+    
+    def process_sdedit(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with SDEdit (Img2Img), varying strength from 0.1 to 1.0."""
+        pipe = self.pipelines["sdedit"]
+        frames = []
+        for i in range(1, num_frames + 1):
+            strength = i / num_frames  # 0.1, 0.2, ..., 1.0
+            result = pipe(
+                image=image,
+                prompt=prompt,
+                strength=strength,
+                guidance_scale=7.5,
+                num_inference_steps=50,
+            ).images[0]
+            frames.append(result)
+        return frames
+    
+    def process_sample(
+        self, 
+        sample: dict, 
+        output_dir: Path, 
+        sample_idx: int, 
+        num_frames: int = 10
+    ):
+        """Process a single sample with all loaded models."""
+        image_path = sample["image_path"]
+        input_prompt = sample["input_prompt"]
+        output_prompt = sample["output_prompt"]
+        edit_prompt = sample["edit"]
+        
+        image = Image.open(image_path).convert("RGB")
+        # Resize to 512x512
+        image = image.resize((512, 512), Image.LANCZOS)
+        
+        for model_name in self.models:
+            if model_name not in self.pipelines:
+                continue
+            
+            model_output_dir = output_dir / model_name
+            model_output_dir.mkdir(parents=True, exist_ok=True)
+            output_path = model_output_dir / f"{sample_idx:05d}.gif"
+            
+            try:
+                if model_name == "proposed":
+                    frames = self.process_proposed(image, input_prompt, output_prompt, num_frames)
+                elif model_name == "flux":
+                    frames = self.process_flux(image, edit_prompt, num_frames)
+                elif model_name == "qwen":
+                    frames = self.process_qwen(image, edit_prompt, num_frames)
+                elif model_name == "ip2p":
+                    frames = self.process_ip2p(image, edit_prompt, num_frames)
+                elif model_name == "sd":
+                    frames = self.process_sd(output_prompt, num_frames, height, width)
+                elif model_name == "sdedit":
+                    frames = self.process_sdedit(image, output_prompt, num_frames)
+                
+                save_gif(frames, str(output_path), fps=5)
+                print(f"  Saved: {output_path}")
+            
+            except Exception as e:
+                print(f"  Error with {model_name}: {e}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Process images with multiple diffusion models")
+    parser.add_argument("--json_path", type=str, required=True)
+    parser.add_argument("--output_dir", type=str, default="./images_out")
+    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit"])
+    parser.add_argument("--num_frames", type=int, default=10)
+    parser.add_argument("--device", type=str, default="cuda")
+    parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")
+    parser.add_argument("--num_gpus", type=int, default=1, help="Total number of GPUs for parallel processing")
+    args = parser.parse_args()
+    
+    # Load JSON data
+    with open(args.json_path, "r") as f:
+        data = json.load(f)
+    
+    # Handle both list and single dict formats
+    if isinstance(data, dict):
+        data = [data]
+    
+    # Filter samples for this GPU (round-robin assignment)
+    my_samples = [(idx, sample) for idx, sample in enumerate(data) if idx % args.num_gpus == args.gpu_number]
+    
+    print(f"GPU {args.gpu_number}/{args.num_gpus}: Processing {len(my_samples)}/{len(data)} samples")
+    
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Initialize processor with requested models
+    processor = ModelProcessor(args.models, args.device)
+    
+    # Process assigned samples
+    for idx, sample in tqdm(my_samples, desc=f"GPU {args.gpu_number}"):
+        print(f"\nProcessing sample {idx}: {sample.get('image_path', 'unknown')}")
+        processor.process_sample(sample, output_dir, idx, args.num_frames)
+    
+    print(f"\nGPU {args.gpu_number} done! Results saved to {output_dir}")
+
+
+if __name__ == "__main__":
+    main()
