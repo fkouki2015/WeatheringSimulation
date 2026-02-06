@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Callable, Iterable, List, Optional, Union, Dict, Any
+from typing import Optional
 import random
 import numpy as np
 import torch
@@ -34,7 +34,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a very short caption describing the image, and another brief caption describing the same image in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. Do not include color information and textual information. You must use just two '|'s. Here are good examples: 'A sleek car. | A heavily rusted and moss-covered car.' | 'Add rust and moss to the car.'"
+                    "text": "Write a very short caption describing the clean state of the image, and another brief caption describing the same image in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. Predict the type of deterioration and do not mention changes in shape. Do not include color information and textual information.  You must use just two '|'s. Here are good examples: 'A clean car. | A heavily rusted and moss-covered car.' | 'Add rust and moss to the car.'"
                 },
             ],
         }
@@ -85,51 +85,4 @@ def vlm_inference(mode: str = "age", image_path: str = None):
     orig_caption, edited_caption, instruction = output_text[0].split("|")
 
     return orig_caption.strip(), edited_caption.strip(), instruction.strip()
-
-
-def build_prompts_json(
-    image_dir: str,
-    json_out: str,
-    image_extensions: Iterable[str] = (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff"),
-    sort_images: bool = True,
-) -> str:
-    """画像ディレクトリ内の画像に対して、VLMを用いて元画像と編集画像のキャプションを生成"""
-
-    # 出力先ディレクトリ作成
-    out_dir = os.path.dirname(json_out)
-    os.makedirs(out_dir, exist_ok=True)
-
-    # 画像列挙
-    names = os.listdir(image_dir)
-    exts = tuple(ext.lower() for ext in image_extensions)
-    images = [
-        os.path.join(image_dir, name)
-        for name in names
-        if os.path.isfile(os.path.join(image_dir, name)) and name.lower().endswith(exts)
-    ]
-    if sort_images:
-        images.sort(key=lambda p: os.path.basename(p))
-    print(len(images))
-    records: List[Dict[str, Any]] = []
-    for p in tqdm(images):
-        abs_path = os.path.abspath(p)
-        try:
-            orig_caption, edited_caption, instruction = vlm_inference(mode="age", image_path=abs_path)
-            sys.stdout.flush()
-            rec = {
-                "image_path": abs_path,
-                "input_prompt": orig_caption,
-                "output_prompt": edited_caption,
-                "edit": instruction,
-            }
-            records.append(rec)
-        except Exception as e:
-            tqdm.write(f"Error processing image {abs_path}: {e}")
-            sys.stdout.flush()
-            
-
-    with open(json_out, "w", encoding="utf-8") as f:
-        json.dump(records, f, ensure_ascii=False, indent=2)
-
-    return json_out
 
