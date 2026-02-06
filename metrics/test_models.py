@@ -57,18 +57,21 @@ class ModelProcessor:
         if model_name == "proposed":
             print("Loading Proposed Model...")
             self.pipeline = WeatheringModel(device="cuda")
+
         elif model_name == "flux":
             print("Loading Flux Kontext...")
             self.pipeline = FluxKontextPipeline.from_pretrained(
                 "black-forest-labs/FLUX.1-Kontext-dev", 
                 torch_dtype=torch.bfloat16
             ).to(self.device)
+
         elif model_name == "qwen":
             print("Loading Qwen Image Edit...")
             self.pipeline = QwenImageEditPipeline.from_pretrained(
                 "Qwen/Qwen-Image-Edit", 
                 torch_dtype=torch.bfloat16
             ).to(self.device)
+
         elif model_name == "ip2p":
             print("Loading InstructPix2Pix...")
             self.pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
@@ -76,6 +79,7 @@ class ModelProcessor:
                 torch_dtype=torch.float16, 
                 safety_checker=None
             ).to(self.device)
+
         elif model_name == "sd":
             print("Loading Stable Diffusion...")
             self.pipeline = StableDiffusionPipeline.from_pretrained(
@@ -83,6 +87,7 @@ class ModelProcessor:
                 torch_dtype=torch.float16, 
                 safety_checker=None
             ).to(self.device)
+
         elif model_name == "sdedit":
             print("Loading SDEdit (Img2Img)...")
             self.pipeline = StableDiffusionImg2ImgPipeline.from_pretrained(
@@ -113,6 +118,7 @@ class ModelProcessor:
                         inference_prompt=output_prompt, 
                         # negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
                         negative_prompt="", 
+                        attn_word=None,
                         guidance_scale=6.0,
                         num_frames=num_frames,
                     )
