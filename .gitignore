@@ -4,3 +4,5 @@ run.sh
 ViT-L-14.pt
 preview
 assets
+images_out
+prompts.json
