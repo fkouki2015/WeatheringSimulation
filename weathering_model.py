@@ -17,7 +17,6 @@ from transformers import CLIPTextModel, CLIPTokenizer, DPTImageProcessor, DPTFor
 from diffusers import AutoencoderKL, DDIMScheduler, UNet2DConditionModel, DDPMScheduler, ControlNetModel
 from diffusers.optimization import get_scheduler
 from diffusers.models.attention_processor import AttnProcessor 
-from vlm import vlm_inference  
 
 # ==========================================
 # ユーティリティ関数
@@ -512,7 +511,7 @@ class WeatheringModel(nn.Module):
         self.train_model()
         
         # 2. 推論のセットアップ
-        torch.manual_seed(1234)
+        torch.manual_seed(1111)
         self.vae.eval()
         self.unet.eval()
         self.text_encoder.eval()

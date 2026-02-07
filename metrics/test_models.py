@@ -56,7 +56,6 @@ class ModelProcessor:
         """Load a single model pipeline."""
         if model_name == "proposed":
             print("Loading Proposed Model...")
-            self.pipeline = WeatheringModel(device="cuda")
 
         elif model_name == "flux":
             print("Loading Flux Kontext...")
@@ -112,6 +111,8 @@ class ModelProcessor:
     
     def process_proposed(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with Proposed Model, varying guidance scale from 1 to 10."""
+        self.pipeline = WeatheringModel(device=self.device)
+        self.current_model = "proposed"
         pipe = self.pipeline
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
@@ -119,50 +120,58 @@ class ModelProcessor:
                         # negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
                         negative_prompt="", 
                         attn_word=None,
-                        guidance_scale=6.0,
+                        guidance_scale=7.5,
                         num_frames=num_frames,
                     )
+        self._unload_model()
         return frames
     
-    def process_flux(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
+    def process_flux(self, image: Image.Image, prompt: str, num_frames: int = 10, height: int = 512, width: int = 512) -> List[Image.Image]:
         """Process with Flux Kontext, varying guidance scale from 1 to 10."""
         pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
+            generator = torch.Generator(device=self.device).manual_seed(0)
             result = pipe(
                 image=image,
                 prompt=prompt,
                 guidance_scale=float(scale),
                 num_inference_steps=28,
-            ).images[0]
+                generator=generator,
+            ).images[0].resize((width, height), resample=Image.LANCZOS)
             frames.append(result)
         return frames
     
-    def process_qwen(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
+    def process_qwen(self, image: Image.Image, prompt: str, num_frames: int = 10, height: int = 512, width: int = 512) -> List[Image.Image]:
         """Process with Qwen Image Edit, varying guidance scale from 1 to 10."""
         pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
-            result = pipe(
-                image=image,
-                prompt=prompt,
-                guidance_scale=float(scale),
-            ).images[0]
-            frames.append(result)
+            generator = torch.Generator(device=self.device).manual_seed(0)
+            inputs = {
+                    "image": image,
+                    "prompt": prompt,
+                    "generator": generator,
+                    "true_cfg_scale": scale,
+                    "num_inference_steps": 50,
+                }
+            with torch.inference_mode():
+                frames.append(pipe(**inputs).images[0].resize((width, height), resample=Image.LANCZOS))
         return frames
     
-    def process_ip2p(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
+    def process_ip2p(self, image: Image.Image, prompt: str, num_frames: int = 10, height: int = 512, width: int = 512) -> List[Image.Image]:
         """Process with InstructPix2Pix, varying guidance scale from 1 to 10."""
         pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
+            generator = torch.Generator(device=self.device).manual_seed(0)
             result = pipe(
                 image=image,
                 prompt=prompt,
                 guidance_scale=float(scale),
-                image_guidance_scale=1.0,
                 num_inference_steps=50,
-            ).images[0]
+                generator=generator,
+            ).images[0].resize((width, height), resample=Image.LANCZOS)
             frames.append(result)
         return frames
     
@@ -171,21 +180,24 @@ class ModelProcessor:
         pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
+            generator = torch.Generator(device=self.device).manual_seed(0)
             result = pipe(
                 prompt=prompt,
                 guidance_scale=float(scale),
                 num_inference_steps=50,
                 height=height,
                 width=width,
+                generator=generator,
             ).images[0]
             frames.append(result)
         return frames
     
-    def process_sdedit(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
+    def process_sdedit(self, image: Image.Image, prompt: str, num_frames: int = 10, height: int = 512, width: int = 512) -> List[Image.Image]:
         """Process with SDEdit (Img2Img), varying strength from 0.1 to 1.0."""
         pipe = self.pipeline
         frames = []
         for i in range(1, num_frames + 1):
+            generator = torch.Generator(device=self.device).manual_seed(0)
             strength = i / num_frames  # 0.1, 0.2, ..., 1.0
             result = pipe(
                 image=image,
@@ -193,7 +205,8 @@ class ModelProcessor:
                 strength=strength,
                 guidance_scale=7.5,
                 num_inference_steps=50,
-            ).images[0]
+                generator=generator,
+            ).images[0].resize((width, height), resample=Image.LANCZOS)
             frames.append(result)
         return frames
     
@@ -217,7 +230,9 @@ class ModelProcessor:
         
         model_output_dir = output_dir / model_name
         model_output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = model_output_dir / f"{sample_idx:05d}.gif"
+        # Use input image filename with .gif extension
+        input_filename = Path(image_path).stem
+        output_path = model_output_dir / f"{input_filename}.gif"
         
         try:
             if model_name == "proposed":

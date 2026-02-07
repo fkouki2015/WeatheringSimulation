@@ -211,7 +211,9 @@ def compute_metrics(
         all_frame_metrics = []  # List of lists: [sample][frame] -> metrics
         
         for sample_idx, sample in enumerate(tqdm(data, desc=f"Processing {model_name}")):
-            gif_path = model_gif_dir / f"{sample_idx:05d}.gif"
+            # Use input image filename with .gif extension
+            input_filename = Path(sample["image_path"]).stem
+            gif_path = model_gif_dir / f"{input_filename}.gif"
             
             if not gif_path.exists():
                 print(f"  Warning: GIF not found: {gif_path}")
