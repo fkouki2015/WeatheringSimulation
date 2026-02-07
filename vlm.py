@@ -34,7 +34,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a very short caption describing the clean state of the image, and another brief caption describing the same image in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. Predict the type of deterioration and do not mention changes in shape. Do not include color information and textual information.  You must use just two '|'s. Here are good examples: 'A clean car. | A heavily rusted and moss-covered car.' | 'Add rust and moss to the car.'"
+                    "text": "Write a very short caption describing the clean state of the image, and another brief caption describing the same image in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. Do not mention changes in shape. Do not include color information and textual information.  You must use just two '|'s. Here are good examples: 'A clean car. | A heavily rusted and moss-covered car.' | 'Add rust and moss to the car.'"
                 },
             ],
         }
