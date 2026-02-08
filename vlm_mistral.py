@@ -98,7 +98,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
     output_text = tokenizer.decode(output[len(tokenized["input_ids"][0]):])
     print(output_text)
     
-    orig_caption, edited_caption, instruction = output_text[0].split("|")
+    orig_caption, edited_caption, instruction = output_text.split("|")
 
     return orig_caption.strip(), edited_caption.strip(), instruction.strip()
 
