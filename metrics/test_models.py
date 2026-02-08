@@ -146,12 +146,12 @@ class ModelProcessor:
         pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
-            generator = torch.Generator(device=self.device).manual_seed(0)
             inputs = {
                     "image": image,
                     "prompt": prompt,
-                    "generator": generator,
+                    "generator": torch.manual_seed(0),
                     "true_cfg_scale": scale,
+                    "negative_prompt": " ",
                     "num_inference_steps": 50,
                 }
             with torch.inference_mode():
