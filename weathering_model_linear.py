@@ -548,9 +548,9 @@ class WeatheringModel(nn.Module):
         # 3. 生成ループ (フレームごと)
         for i in range(num_frames):
             # 経年変化係数を計算 (フレームインデックスに基づいて 0.0 から 1.0)
-            # スムーズな遷移効果を作成するため正弦波補間を使用
-            normalized_i = (i + 1) / num_frames * math.pi / 2
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
+            # 線形増加を使用
+            progress = (i + 1) / num_frames  # 0.0 から 1.0 まで線形増加
+            t_index = self.INFER_STEPS - 1 - int((self.INFER_STEPS - 1) * progress)
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
             
             # 特定のタイムステップで元の画像と混合されたノイズから開始
@@ -558,7 +558,7 @@ class WeatheringModel(nn.Module):
             
             # 経年変化の強度を更新
             if aging_processor is not None:
-                aging_processor.current_factor = math.sin(normalized_i)
+                aging_processor.current_factor = progress
             
             # デノイズ
             with torch.no_grad():

@@ -508,8 +508,8 @@ class WeatheringModel(nn.Module):
         # ControlNetの条件画像を追加する場合ここに追加
         # self.control_image_raw = transforms.ToTensor()(input_image).unsqueeze(0).to(device=self.device, dtype=self.dtype)
         
-        # 1. モデルのトレーニング
-        self.train_model()
+        # # 1. モデルのトレーニング
+        # self.train_model()
         
         # 2. 推論のセットアップ
         torch.manual_seed(1234)

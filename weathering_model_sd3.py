@@ -1,6 +1,8 @@
 import os
 import sys
 import uuid
+import copy
+import random
 from tqdm import tqdm
 import numpy as np
 from PIL import Image
@@ -8,16 +10,24 @@ import cv2
 import math
 import torch
 import torch.nn as nn
-from torch.amp import autocast, GradScaler
 import torch.nn.functional as F
 from torchvision import transforms
 from peft import LoraConfig
+from peft.utils import get_peft_model_state_dict
 import lpips
-from transformers import CLIPTextModel, CLIPTokenizer, DPTImageProcessor, DPTForDepthEstimation
-from diffusers import AutoencoderKL, DDIMScheduler, UNet2DConditionModel, DDPMScheduler, ControlNetModel
+import diffusers
+from transformers import CLIPTokenizer, PretrainedConfig, T5TokenizerFast
+from diffusers import (
+    AutoencoderKL, 
+    SD3Transformer2DModel,
+    StableDiffusion3Pipeline,
+    SD3ControlNetModel,
+)
 from diffusers.optimization import get_scheduler
-from diffusers.models.attention_processor import AttnProcessor 
-from vlm import vlm_inference  
+from diffusers.training_utils import (
+    compute_density_for_timestep_sampling,
+    compute_loss_weighting_for_sd3,
+)
 
 # ==========================================
 # ユーティリティ関数
@@ -44,151 +54,239 @@ def canny_process(image, device, dtype):
     canny_img = cv2.Canny(gray, 100, 200)
     
     control_image = Image.fromarray(canny_img).convert("RGB")
-    if isinstance(control_image, Image.Image):
-        control_image = transforms.ToTensor()(control_image).unsqueeze(0)  # (1, 3, H, W)
-    control_image = control_image.to(device=device, dtype=dtype)
     return control_image
 
 
-def depth_process(image, device, dtype):
-    """画像から深度マップを生成"""
-    processor = DPTImageProcessor.from_pretrained("Intel/dpt-hybrid-midas")
-    model = DPTForDepthEstimation.from_pretrained("Intel/dpt-hybrid-midas").to(device)
-    inputs = processor(images=image, return_tensors="pt").to(device)
+def pil_to_latent(vae: AutoencoderKL, pil: Image.Image, device, dtype):
+    """PIL画像を潜在空間にエンコード (SD3用)"""
+    to_tensor = transforms.ToTensor()
+    x = to_tensor(pil).unsqueeze(0).to(device)
+    x = (x * 2 - 1).to(dtype=torch.float32)
     with torch.no_grad():
-        outputs = model(**inputs)
-        predicted_depth = outputs.predicted_depth
-        depth_resized = torch.nn.functional.interpolate(
-            predicted_depth.unsqueeze(1),
-            size=image.size[::-1],
-            mode="bicubic",
-            align_corners=False,
-        ).squeeze(1)
-        
-    d = depth_resized[0]
-    d = (d - d.min()) / (d.max() - d.min() + 1e-8)
-    depth_u8 = (d.clamp(0, 1).cpu().numpy() * 255.0).astype(np.uint8)
-    depth_pil = Image.fromarray(depth_u8, mode="L")
-    control_image = depth_pil.convert("RGB")
-    control_tensor = transforms.ToTensor()(control_image).unsqueeze(0).to(device=device, dtype=dtype)
-    return control_tensor
+        posterior = vae.encode(x).latent_dist
+        latents = posterior.sample()
+
+    latents = (latents - vae.config.shift_factor) * vae.config.scaling_factor
+    return latents.to(dtype=dtype)
 
 
-def pil_to_latent(vae, pil, device, dtype):
-    """PIL画像を潜在空間にエンコード"""
-    img = transforms.ToTensor()(pil).unsqueeze(0).to(device=device, dtype=dtype)
-    img = img * 2 - 1
+def latent_to_pil(vae: AutoencoderKL, latents):
+    """潜在ベクトルをPIL画像にデコード (SD3用)"""
+    latents_decode = (latents / vae.config.scaling_factor) + vae.config.shift_factor
+    latents_decode = latents_decode.to(dtype=vae.dtype)
     with torch.no_grad():
-        posterior = vae.encode(img).latent_dist
-        z = posterior.mean * vae.config.scaling_factor
-    return z
-
-
-def latent_to_pil(vae, latents):
-    """潜在ベクトルをPIL画像にデコード"""
-    latents = latents / vae.config.scaling_factor
-    with torch.no_grad():
-        imgs = vae.decode(latents).sample
-    imgs = (imgs / 2 + 0.5).clamp(0,1)
-    imgs = (imgs * 255).round().to(torch.uint8).cpu().permute(0,2,3,1).numpy()
+        imgs = vae.decode(latents_decode).sample
+    imgs = (imgs / 2 + 0.5).clamp(0, 1)
+    imgs = (imgs * 255).round().to(torch.uint8).cpu().permute(0, 2, 3, 1).numpy()
     pil_list = [Image.fromarray(arr) for arr in imgs]
     return pil_list
 
 
-def find_token_indices(tokenizer, input_ids_tensor, target_word: str):
-    """ターゲット単語に対応するトークンのインデックスを検索"""
-    ids = input_ids_tensor[0].tolist()
-    out = []
-    for i, tok_id in enumerate(ids):
-        token_str = tokenizer.decode([tok_id]).strip().lower()
-        if target_word in token_str:
-            # print("ターゲットトークン検出:", i, tok_id, token_str)
-            out.append(i)
-    if len(out) == 0:
-        print("ターゲットトークン未検出:", target_word)
-    return out
+def get_sigmas(scheduler, timesteps, n_dim=4, dtype=torch.float32, device="cuda"):
+    """シグマ値を取得"""
+    sigmas = scheduler.sigmas.to(device=device, dtype=dtype)
+    schedule_timesteps = scheduler.timesteps.to(device)
+    if timesteps.ndim == 0:
+        timesteps = timesteps.unsqueeze(0)
+    step_indices = [(schedule_timesteps == t).nonzero().item() for t in timesteps.to(device)]
+    sigma = sigmas[step_indices].flatten()
+    while len(sigma.shape) < n_dim:
+        sigma = sigma.unsqueeze(-1)
+    return sigma
+
+
+def import_model_class(pretrained_model_name_or_path: str, subfolder="text_encoder"):
+    """モデル設定に基づいて適切なテキストエンコーダクラスをインポート"""
+    config = PretrainedConfig.from_pretrained(
+        pretrained_model_name_or_path, subfolder=subfolder
+    )
+    model_class_name = config.architectures[0]
+    if model_class_name == "CLIPTextModelWithProjection":
+        from transformers import CLIPTextModelWithProjection
+        return CLIPTextModelWithProjection
+    elif model_class_name == "T5EncoderModel":
+        from transformers import T5EncoderModel
+        return T5EncoderModel
+    else:
+        raise ValueError(f"Unsupported model class: {model_class_name}")
+
+
+def tokenize_prompt(tokenizer, prompt_list, max_length, device):
+    """プロンプトをトークナイズ"""
+    text_inputs = tokenizer(
+        prompt_list,
+        padding="max_length",
+        max_length=max_length,
+        truncation=True,
+        return_tensors="pt",
+    )
+    return text_inputs.input_ids.to(device)
+
+
+def _encode_prompt_with_clip(
+    text_encoder,
+    tokenizer,
+    prompt_list,
+    device,
+    weight_dtype,
+    text_input_ids=None,
+    num_images_per_prompt=1,
+):
+    """CLIPテキストエンコーダでプロンプトをエンコード"""
+    batch_size = len(prompt_list)
+    if tokenizer is not None:
+        text_inputs = tokenizer(
+            prompt_list,
+            padding="max_length",
+            max_length=77,
+            truncation=True,
+            return_tensors="pt",
+        )
+        text_input_ids = text_inputs.input_ids.to(device)
+    elif text_input_ids is None:
+        raise ValueError("Either tokenizer or text_input_ids must be provided")
+    else:
+        text_input_ids = text_input_ids.to(device)
+
+    outputs = text_encoder(text_input_ids, output_hidden_states=True, return_dict=True)
+    last_hidden = outputs.hidden_states[-2]
+    pooled = getattr(outputs, "text_embeds", None)
+    if pooled is None:
+        pooled = outputs.pooler_output
+    prompt_embeds = last_hidden.to(dtype=weight_dtype, device=device)
+
+    _, seq_len, _ = prompt_embeds.shape
+    prompt_embeds = prompt_embeds.repeat(1, num_images_per_prompt, 1)
+    prompt_embeds = prompt_embeds.view(batch_size * num_images_per_prompt, seq_len, -1)
+
+    return prompt_embeds, pooled.to(device=device, dtype=weight_dtype)
+
+
+def _encode_prompt_with_t5(
+    text_encoder,
+    tokenizer,
+    prompt_list,
+    max_sequence_length,
+    num_images_per_prompt,
+    device,
+    weight_dtype,
+    text_input_ids=None,
+):
+    """T5テキストエンコーダでプロンプトをエンコード"""
+    batch_size = len(prompt_list)
+    if tokenizer is not None:
+        text_inputs = tokenizer(
+            prompt_list,
+            padding="max_length",
+            max_length=max_sequence_length,
+            truncation=True,
+            add_special_tokens=True,
+            return_tensors="pt",
+        )
+        text_input_ids = text_inputs.input_ids.to(device)
+    elif text_input_ids is None:
+        raise ValueError("Either tokenizer or text_input_ids must be provided")
+    else:
+        text_input_ids = text_input_ids.to(device)
+
+    prompt_embeds = text_encoder(text_input_ids)[0]
+    prompt_embeds = prompt_embeds.to(dtype=weight_dtype, device=device)
+
+    _, seq_len, _ = prompt_embeds.shape
+    prompt_embeds = prompt_embeds.repeat(1, num_images_per_prompt, 1)
+    prompt_embeds = prompt_embeds.view(batch_size * num_images_per_prompt, seq_len, -1)
+
+    return prompt_embeds
+
+
+def encode_prompt(
+    text_encoders,
+    tokenizers,
+    prompt_list,
+    max_sequence_length,
+    device,
+    weight_dtype,
+    num_images_per_prompt=1,
+    text_input_ids_list=None,
+):
+    """3つのテキストエンコーダ（CLIP x2 + T5）でプロンプトをエンコード"""
+    clip_tokenizers, clip_encoders = tokenizers[:2], text_encoders[:2]
+    clip_embeds_list, pooled_list = [], []
+
+    for i, (tok, enc) in enumerate(zip(clip_tokenizers, clip_encoders)):
+        if tok is not None:
+            token_ids = tokenize_prompt(tok, prompt_list, 77, device)
+        else:
+            token_ids = (
+                text_input_ids_list[i].to(device)
+                if text_input_ids_list and text_input_ids_list[i] is not None
+                else None
+            )
+            if token_ids is None:
+                raise ValueError(f"No tokenizer or token IDs provided for CLIP encoder {i+1}")
+
+        embeds, pooled = _encode_prompt_with_clip(
+            text_encoder=enc,
+            tokenizer=None,
+            prompt_list=prompt_list,
+            device=device,
+            weight_dtype=weight_dtype,
+            text_input_ids=token_ids,
+            num_images_per_prompt=num_images_per_prompt,
+        )
+        clip_embeds_list.append(embeds)
+        pooled_list.append(pooled)
+
+    clip_embeds = torch.cat(clip_embeds_list, dim=-1)
+    pooled_embeds = torch.cat(pooled_list, dim=-1)
+
+    if tokenizers[2] is not None:
+        t5_token_ids = tokenize_prompt(
+            tokenizers[2], prompt_list, max_sequence_length, device
+        )
+    else:
+        t5_token_ids = (
+            text_input_ids_list[2].to(device)
+            if text_input_ids_list and text_input_ids_list[2] is not None
+            else None
+        )
+        if t5_token_ids is None:
+            raise ValueError("No tokenizer or token IDs provided for T5 encoder")
+
+    t5_embeds = _encode_prompt_with_t5(
+        text_encoder=text_encoders[2],
+        tokenizer=None,
+        prompt_list=prompt_list,
+        max_sequence_length=max_sequence_length,
+        num_images_per_prompt=num_images_per_prompt,
+        device=device,
+        weight_dtype=weight_dtype,
+        text_input_ids=t5_token_ids,
+    )
+
+    t5_dim = t5_embeds.shape[-1]
+    clip_embeds = torch.nn.functional.pad(
+        clip_embeds,
+        (0, t5_dim - clip_embeds.shape[-1]),
+    )
+    prompt_embeds = torch.cat([clip_embeds, t5_embeds], dim=-2)
+
+    return prompt_embeds, pooled_embeds
 
 
 # ==========================================
-# 経年変化ワード強調アテンション
-# ==========================================
-
-class AgingAttentionProcessor(AttnProcessor):
-    def __init__(self, aging_token_indices, scale_max=2.0, zero_to_one=False):
-        super().__init__()
-        self.aging_token_indices = aging_token_indices
-        self.scale_max = scale_max
-        self.zero_to_one = zero_to_one
-        self.current_factor = 0.0
-
-    def __call__(self, attn, hidden_states, encoder_hidden_states=None, attention_mask=None, temb=None):
-        if encoder_hidden_states is None:
-            encoder_hidden_states = hidden_states
-            
-        # Q, K, V 射影
-        query = attn.to_q(hidden_states)
-        key = attn.to_k(encoder_hidden_states)
-        value = attn.to_v(encoder_hidden_states)
-        
-        bsz, q_len, _ = query.shape
-        k_len = key.shape[1]
-        head_dim = query.shape[-1] // attn.heads
-        
-        # マルチヘッドアテンション用にリシェイプ
-        query = query.view(bsz, q_len, attn.heads, head_dim).transpose(1, 2)
-        key   = key.view(bsz, k_len, attn.heads, head_dim).transpose(1, 2)
-        value = value.view(bsz, k_len, attn.heads, head_dim).transpose(1, 2)
-        
-        scale = 1.0 / math.sqrt(head_dim)
-        attn_scores = torch.matmul(query, key.transpose(-1, -2)) * scale
-        
-        if attention_mask is not None:
-            attn_scores = attn_scores + attention_mask
-            
-        attn_probs = attn_scores.softmax(dim=-1)
-
-        # 経年変化エフェクト: 特定のトークンアテンションにスケーリングを適用
-        if encoder_hidden_states is not hidden_states and bsz >= 2 and self.aging_token_indices and self.current_factor >= 0:
-            cond_idx = 1  # [uncond, cond]
-            if self.zero_to_one:
-                # 0.0 から 1.0 の間で補間
-                scale_mul = max(self.current_factor, 1e-6)
-            else:
-                # 1.0 から scale_max の間で補間
-                scale_mul = 1.0 + self.current_factor * (self.scale_max - 1.0)
-            
-            attn_probs_cond = attn_probs[cond_idx]
-            attn_probs_cond[:, :, self.aging_token_indices] *= scale_mul
-            
-            # 再正規化
-            attn_probs_cond = attn_probs_cond / (attn_probs_cond.sum(dim=-1, keepdim=True) + 1e-8)
-            attn_probs[cond_idx] = attn_probs_cond
-            
-        hidden_states = torch.matmul(attn_probs, value)
-        hidden_states = hidden_states.transpose(1, 2).reshape(bsz, q_len, attn.heads * head_dim)
-        
-        hidden_states = attn.to_out[0](hidden_states)
-        if attn.to_out[1] is not None:
-            hidden_states = attn.to_out[1](hidden_states)
-            
-        return hidden_states
-
-
-# ==========================================
-# 経年変化モデル
+# 経年変化モデル (SD3.5対応)
 # ==========================================
 
 class WeatheringModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
-    LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 600
-    PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
-    CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
-    CONTROLNET_STRENGTHS = [1.0]
+    LEARNING_RATE = 1e-4
+    TRAIN_STEPS = 300
+    PRETRAINED_MODEL = "stabilityai/stable-diffusion-3.5-medium"
+    CONTROLNET_PATH = "InstantX/SD3-Controlnet-Canny"
     DEVICE = "cuda"
-    LORA_DROPOUT = 0.0
     
     # 評価設定
     CLIP_EVAL_INTERVAL = 50
@@ -198,216 +296,126 @@ class WeatheringModel(nn.Module):
     
     # 推論設定
     INFER_STEPS = 50
-    NOISE_RATIO = 1.0
-    ATTN_SCALE_MAX = 10.0 # アテンション強調最大値
-    ATTN_ZERO_TO_ONE = False # アテンションを0.0から1.0の間で補間
+    NOISE_RATIO = 0.6
+    MAX_SEQUENCE_LENGTH = 256
     
     def __init__(self, device: str = None):
         super().__init__()
         self.device = torch.device(device if device else self.DEVICE)
-        self.dtype = torch.float32
-        self.scaler = GradScaler(enabled=(self.device.type == "cuda"))
+        self.dtype = torch.bfloat16
         self._init_models()
         
     def _init_models(self):
         """すべての拡散モデルとコンポーネントを初期化"""
-        self.ddim_scheduler = DDIMScheduler.from_pretrained(
+        # スケジューラ
+        self.noise_scheduler = diffusers.FlowMatchEulerDiscreteScheduler.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="scheduler"
         )
-        self.ddpm_scheduler = DDPMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
-        )
-        self.tokenizer = CLIPTokenizer.from_pretrained(
+        self.noise_scheduler_copy = copy.deepcopy(self.noise_scheduler)
+        
+        # トークナイザ
+        self.tokenizer_one = CLIPTokenizer.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="tokenizer"
         )
-        self.text_encoder = CLIPTextModel.from_pretrained(
+        self.tokenizer_two = CLIPTokenizer.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="tokenizer_2"
+        )
+        self.tokenizer_three = T5TokenizerFast.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="tokenizer_3"
+        )
+        
+        # テキストエンコーダ
+        text_encoder_cls_one = import_model_class(self.PRETRAINED_MODEL, subfolder="text_encoder")
+        text_encoder_cls_two = import_model_class(self.PRETRAINED_MODEL, subfolder="text_encoder_2")
+        text_encoder_cls_three = import_model_class(self.PRETRAINED_MODEL, subfolder="text_encoder_3")
+        
+        self.text_encoder_one = text_encoder_cls_one.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="text_encoder"
         )
+        self.text_encoder_two = text_encoder_cls_two.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="text_encoder_2"
+        )
+        self.text_encoder_three = text_encoder_cls_three.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="text_encoder_3"
+        )
+        
+        # VAE
         self.vae = AutoencoderKL.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="vae"
         )
-        self.unet = UNet2DConditionModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="unet"
-        )
-        self.controlnet_canny = ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
-        )
-        self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
         
+        # Transformer (SD3用)
+        self.transformer = SD3Transformer2DModel.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="transformer"
+        )
+        
+        # ControlNet (オプション)
+        # self.controlnet = SD3ControlNetModel.from_pretrained(
+        #     self.CONTROLNET_PATH, torch_dtype=self.dtype
+        # )
+        
+        # LPIPS
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device).eval()
 
         # デバイスへ移動
-        self.vae.to(device=self.device, dtype=self.dtype)
-        self.text_encoder.to(device=self.device)
-        self.unet.to(device=self.device)
-        for c in self.controlnets:
-            c.to(device=self.device)
+        self.vae.to(device=self.device, dtype=torch.float32)
+        self.transformer.to(device=self.device, dtype=self.dtype)
+        self.text_encoder_one.to(device=self.device, dtype=self.dtype)
+        self.text_encoder_two.to(device=self.device, dtype=self.dtype)
+        self.text_encoder_three.to(device=self.device, dtype=self.dtype)
 
         # デフォルトで重みを固定
-        self.unet.requires_grad_(False)
+        self.transformer.requires_grad_(False)
         self.vae.requires_grad_(False)
-        self.text_encoder.requires_grad_(False)
-        for c in self.controlnets:
-            c.requires_grad_(False)
+        self.text_encoder_one.requires_grad_(False)
+        self.text_encoder_two.requires_grad_(False)
+        self.text_encoder_three.requires_grad_(False)
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
-        self.unet.requires_grad_(False)
-        self.unet.train()
-
-        for c in self.controlnets:
-            c.requires_grad_(True)
-            c.train()
-        
-        unet_lora_config = LoraConfig(
+        transformer_lora_config = LoraConfig(
             r=self.RANK,
             lora_alpha=self.RANK,
             init_lora_weights="gaussian",
-            target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0"],
-            lora_dropout=self.LORA_DROPOUT
+            target_modules=[
+                "attn.add_k_proj", "attn.add_q_proj", "attn.add_v_proj", "attn.to_add_out",
+                "attn.to_out.0", "attn.to_v", "attn.to_q", "attn.to_k"
+            ]
         )
-        self.adapter_name = f"train-{uuid.uuid4().hex[:8]}"
-        self.unet.add_adapter(unet_lora_config, adapter_name=self.adapter_name)
-        self.unet.set_adapters([self.adapter_name])
+        self.transformer.add_adapter(transformer_lora_config)
         
-        base_lr = self.LEARNING_RATE
         groups_by_scale = {}
         
-        # LRスケールごとにパラメータをグループ化
         def _add_param(param, scale: float):
             key = round(float(scale), 6)
             if key not in groups_by_scale:
                 groups_by_scale[key] = []
             groups_by_scale[key].append(param)
         
-        # UNetとControlNetに異なる学習率を設定
-        for n, p in self.unet.named_parameters():
+        for n, p in self.transformer.named_parameters():
             if p.requires_grad:
-                if "attn2" in n:
-                    _add_param(p, 1.0)
-        
-        for c in self.controlnets:
-            for n, p in c.named_parameters():
-                if p.requires_grad:
-                    _add_param(p, 0.1)
+                _add_param(p, 1.0)
         
         param_groups = [
-            {"params": ps, "lr": base_lr * scale}
+            {"params": ps, "lr": self.LEARNING_RATE * scale}
             for scale, ps in groups_by_scale.items()
         ]
         
         self.optimizer = torch.optim.AdamW(
             param_groups,
-            lr=base_lr,
             betas=(0.9, 0.999),
-            weight_decay=0.0,
+            weight_decay=1e-4,
             eps=1e-8,
         )
         
+        self.lr_scheduler = get_scheduler(
+            "constant",
+            optimizer=self.optimizer,
+            num_warmup_steps=10,
+            num_training_steps=self.TRAIN_STEPS,
+        )
+        
         return [p for g in param_groups for p in g["params"]]
-        
-    def _apply_controlnets(self, latents_in, t, text_embeddings, control_images, strengths=None):
-        """複数のControlNetを適用可能"""
-        combined_down = None
-        combined_mid = None
-        
-        for idx, cn in enumerate(self.controlnets):
-            down_res, mid_res = cn(
-                latents_in,
-                t,
-                encoder_hidden_states=text_embeddings,
-                controlnet_cond=control_images[idx],
-                return_dict=False,
-            )
-            s = float(strengths[idx] if strengths else 1.0)
-
-            if combined_down is None:
-                combined_down = [(s * res).to(dtype=self.dtype) for res in down_res]
-                combined_mid = (mid_res * s).to(dtype=self.dtype)
-            else:
-                combined_down = [
-                    prev + (curr * s).to(dtype=self.dtype) 
-                    for prev, curr in zip(combined_down, down_res)
-                ]
-                combined_mid = combined_mid + (mid_res * s).to(dtype=self.dtype)
-                
-        return combined_down, combined_mid
-
-    def _generate_preview_image(self, latent, prompt, seed, control_images):
-        """単一のプレビュー画像を生成"""
-        self.unet.eval()
-        for c in self.controlnets:
-            c.eval()
-            
-        height, width = self.RESOLUTION[1], self.RESOLUTION[0]
-        h, w = height // 8, width // 8
-
-        # テキスト埋め込みの準備
-        cond_tokens = self.tokenizer([prompt], padding="max_length", truncation=True, max_length=self.tokenizer.model_max_length, return_tensors="pt").to(self.device)
-        uncond_tokens = self.tokenizer([""], padding="max_length", truncation=True, max_length=self.tokenizer.model_max_length, return_tensors="pt").to(self.device)
-        
-        with torch.no_grad():
-            cond = self.text_encoder(cond_tokens.input_ids)[0]
-            uncond = self.text_encoder(uncond_tokens.input_ids)[0]
-        text_embeds = torch.cat([uncond, cond], dim=0)
-
-        # スケジューラの準備
-        scheduler = DDIMScheduler.from_pretrained(self.PRETRAINED_MODEL, subfolder="scheduler")
-        scheduler.set_timesteps(self.CLIP_EVAL_STEPS, device=self.device)
-        
-        generator = torch.Generator(device=self.device.type).manual_seed(seed)
-        noise = torch.randn(1, 4, h, w, device=self.device, dtype=self.dtype, generator=generator)
-        latents = scheduler.add_noise(latent, noise, scheduler.timesteps[0])
-
-        # デノイズループ
-        for t in scheduler.timesteps:
-            with autocast(device_type=self.device.type, enabled=(self.device.type == "cuda"), dtype=self.dtype):
-                lat_in = torch.cat([latents] * 2, dim=0)
-                lat_in = scheduler.scale_model_input(lat_in, t)
-
-                # 制御画像の準備
-                control_imgs_in = []
-                for ci in control_images:
-                    control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
-                
-                down_res, mid_res = self._apply_controlnets(
-                    lat_in, t, text_embeds, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
-                )
-                
-                noise_pred = self.unet(
-                    lat_in, t, text_embeds,
-                    down_block_additional_residuals=down_res,
-                    mid_block_additional_residual=mid_res,
-                ).sample
-
-                eps_u, eps_c = noise_pred.chunk(2, dim=0)
-                # プレビュー用の固定ガイダンススケール
-                eps = eps_u + 1.0 * (eps_c - eps_u)
-                latents = scheduler.step(eps, t, latents).prev_sample
-
-        pil = latent_to_pil(self.vae, latents)[0]
-        self.unet.train() # トレーニングモードに戻す
-        return pil
-
-    def _evaluate(self, step, latent, control_images, image):
-        """LPIPSを使用して現在のモデルパフォーマンスを評価する。"""
-        with torch.no_grad():
-            dists = []
-            # シードを変えて3回プレビューを生成
-            for k in range(3):
-                preview_pil = self._generate_preview_image(
-                    latent=latent,
-                    prompt=self.train_prompt,
-                    seed=step * 100 + k,
-                    control_images=control_images
-                )
-                # 知覚的距離を計算
-                dist = compute_perceptual_distance(
-                    preview_pil, image, self.lpips_model, self.device
-                )
-                dists.append(dist)
-            
-            return sum(dists) / len(dists)
 
     def train_model(self):
         """LoRAを使用してモデルをファインチューニング"""
@@ -415,77 +423,82 @@ class WeatheringModel(nn.Module):
         
         trainable_params = self._setup_training()
         
-        cond_tokens = self.tokenizer(
-            [self.train_prompt],
-            truncation=True,
-            padding="max_length",
-            max_length=self.tokenizer.model_max_length,
-            return_tensors="pt",
-        )
-        cond_emb = self.text_encoder(cond_tokens.input_ids.to(self.device))[0]
+        latent = pil_to_latent(self.vae, image, self.device, self.dtype)
         
-        timesteps = self.ddpm_scheduler.timesteps
-        prev_lpips = None
-        no_improve_streak = 0
-        
+        self.transformer.train()
         progress_bar = tqdm(range(self.TRAIN_STEPS), desc="Train", leave=True)
         
         for step in progress_bar:
-            # 1. 入力の準備
-            latent = pil_to_latent(self.vae, image, self.device, self.dtype)
-            bsz = latent.shape[0]
-            t = torch.randint(0, len(timesteps)-1, (bsz,), device=self.device, dtype=torch.long)
-            
-            noise = torch.randn_like(latent, device=self.device, dtype=self.dtype)
-            noisy_latent = self.ddpm_scheduler.add_noise(latent, noise, t)
-            
-            # 2. ControlNet 順伝播
-            down_res, mid_res = self._apply_controlnets(
-                noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
+            # テキスト埋め込みの計算
+            cond_embeds, cond_pooled = encode_prompt(
+                [self.text_encoder_one, self.text_encoder_two, self.text_encoder_three],
+                [self.tokenizer_one, self.tokenizer_two, self.tokenizer_three],
+                [self.train_prompt],
+                max_sequence_length=self.MAX_SEQUENCE_LENGTH,
+                device=self.device,
+                weight_dtype=self.dtype,
+            )
+            uncond_embeds, uncond_pooled = encode_prompt(
+                [self.text_encoder_one, self.text_encoder_two, self.text_encoder_three],
+                [self.tokenizer_one, self.tokenizer_two, self.tokenizer_three],
+                [""],
+                max_sequence_length=self.MAX_SEQUENCE_LENGTH,
+                device=self.device,
+                weight_dtype=self.dtype,
             )
             
-            # 3. UNet 順伝播
-            model_pred = self.unet(
-                noisy_latent, t, cond_emb,
-                down_block_additional_residuals=[s.to(dtype=self.dtype) for s in down_res],
-                mid_block_additional_residual=mid_res.to(dtype=self.dtype),
-            ).sample
+            # CFG dropout
+            if random.random() < 0.15:
+                prompt_embeds = uncond_embeds
+                pooled_embeds = uncond_pooled
+            else:
+                prompt_embeds = cond_embeds
+                pooled_embeds = cond_pooled
             
-            # 4. 最適化
-            loss = F.mse_loss(model_pred.float(), noise.float(), reduction="mean")
+            # ノイズ追加
+            noise = torch.randn_like(latent)
+            u = compute_density_for_timestep_sampling(
+                weighting_scheme="logit_normal",
+                batch_size=1,
+                logit_mean=0.0,
+                logit_std=1.0,
+                mode_scale=1.29,
+            )
+            indices = (u * self.noise_scheduler_copy.config.num_train_timesteps).long()
+            timesteps = self.noise_scheduler_copy.timesteps[indices].to(device=latent.device)
             
-            self.scaler.scale(loss).backward()
-            self.scaler.unscale_(self.optimizer)
-            torch.nn.utils.clip_grad_norm_(trainable_params, 1.0)
-            self.scaler.step(self.optimizer)
-            self.scaler.update()
-            self.optimizer.zero_grad(set_to_none=True)
+            sigmas = get_sigmas(self.noise_scheduler_copy, timesteps, n_dim=latent.ndim, dtype=latent.dtype, device=latent.device)
+            noisy_latent = (1.0 - sigmas) * latent + sigmas * noise
             
-            # 5. 評価と早期停止
-            if step % self.CLIP_EVAL_INTERVAL == 0:
-                avg_dist = self._evaluate(step, latent, self.control_images, image)
-                
-                if prev_lpips is None:
-                    improvement_rate = 0.0
-                    no_improve_streak = 0
-                else:
-                    improvement = prev_lpips - avg_dist
-                    improvement_rate = improvement / (prev_lpips + 1e-12)
-                    
-                    if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
-                        no_improve_streak = 0
-                    else:
-                        no_improve_streak += 1
-                        if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
-                            tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
-                            break
-                
-                prev_lpips = avg_dist
-                tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
-                sys.stdout.flush()
-
-                
-            progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
+            # Transformer順伝播
+            model_pred_raw = self.transformer(
+                hidden_states=noisy_latent,
+                timestep=timesteps,
+                encoder_hidden_states=prompt_embeds,
+                pooled_projections=pooled_embeds,
+                return_dict=False,
+            )[0]
+            model_pred = model_pred_raw * (-sigmas) + noisy_latent
+            target = latent
+            
+            # 損失計算
+            weighting = compute_loss_weighting_for_sd3(
+                weighting_scheme="logit_normal", sigmas=sigmas
+            )
+            
+            loss = torch.mean(
+                (weighting.float() * (model_pred.float() - target.float()) ** 2).reshape(target.shape[0], -1),
+                1,
+            )
+            loss = loss.mean()
+            
+            # 最適化
+            loss.backward()
+            self.optimizer.step()
+            self.lr_scheduler.step()
+            self.optimizer.zero_grad()
+            
+            progress_bar.set_postfix({"loss": loss.item(), "lr": self.lr_scheduler.get_last_lr()[0]})
 
     def forward(
         self,    
@@ -493,105 +506,86 @@ class WeatheringModel(nn.Module):
         train_prompt: str,
         inference_prompt: str,
         negative_prompt: str,
-        attn_word: str,
         guidance_scale: float,
         num_frames: int,
     ) -> list[Image.Image]:
         
         # パラメータを保存
-        self.input_image = input_image
+        self.input_image = input_image.resize(self.RESOLUTION, Image.LANCZOS)
         self.train_prompt = train_prompt
-        # 制御画像を前処理
-        self.control_images = []
-        canny_image = canny_process(input_image, self.device, self.dtype)
-        self.control_images.append(canny_image)
-        # ControlNetの条件画像を追加する場合ここに追加
-        # self.control_image_raw = transforms.ToTensor()(input_image).unsqueeze(0).to(device=self.device, dtype=self.dtype)
         
+        # 制御画像を前処理
+        self.control_image = canny_process(self.input_image, self.device, self.dtype)
+
         # 1. モデルのトレーニング
         self.train_model()
         
         # 2. 推論のセットアップ
         torch.manual_seed(1234)
         self.vae.eval()
-        self.unet.eval()
-        self.text_encoder.eval()
-        for c in self.controlnets:
-            c.eval()
-            
-        inference_tokens = self.tokenizer([inference_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
-        negative_tokens = self.tokenizer([negative_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
+        self.transformer.eval()
+        self.text_encoder_one.eval()
+        self.text_encoder_two.eval()
+        self.text_encoder_three.eval()
         
-        cond_emb = self.text_encoder(inference_tokens.input_ids.to(self.device))[0]
-        uncond_emb = self.text_encoder(negative_tokens.input_ids.to(self.device))[0]
-        text_embeddings = torch.cat([uncond_emb, cond_emb], dim=0)
-        
-        # 経年変化エフェクト用のアテンションプロセッサを設定
-        aging_processor = None
-        if attn_word is not None:
-            aging_token_indices = find_token_indices(self.tokenizer, inference_tokens.input_ids, attn_word)
-            aging_processor = AgingAttentionProcessor(
-                aging_token_indices,
-                scale_max=self.ATTN_SCALE_MAX,
-                zero_to_one=self.ATTN_ZERO_TO_ONE
-            )
-            self.unet.set_attn_processor(aging_processor)
+        # テキスト埋め込み
+        prompt_embeds, pooled_embeds = encode_prompt(
+            [self.text_encoder_one, self.text_encoder_two, self.text_encoder_three],
+            [self.tokenizer_one, self.tokenizer_two, self.tokenizer_three],
+            [negative_prompt, inference_prompt],
+            max_sequence_length=self.MAX_SEQUENCE_LENGTH,
+            device=self.device,
+            weight_dtype=self.dtype,
+        )
         
         # 潜在変数の準備
-        self.ddim_scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
-        timesteps = self.ddim_scheduler.timesteps
-        start_latent = pil_to_latent(self.vae, input_image, self.device, self.dtype)
-        noise = torch.randn_like(start_latent, device=self.device, dtype=self.dtype)
+        base_latent = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
+        control_latent = pil_to_latent(self.vae, self.control_image, self.device, self.dtype)
         
         frames = []
         
         # 3. 生成ループ (フレームごと)
         for i in range(num_frames):
-            # 経年変化係数を計算 (フレームインデックスに基づいて 0.0 から 1.0)
-            # スムーズな遷移効果を作成するため正弦波補間を使用
-            normalized_i = (i + 1) / num_frames * math.pi / 2
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
+            torch.manual_seed(1234)
+            scheduler = copy.deepcopy(self.noise_scheduler)
+            scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
+            timesteps = scheduler.timesteps
+            
+            # t_index計算
+            normalized_i = i / max(1, num_frames - 1)
+            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * (normalized_i ** self.NOISE_RATIO)) - 1
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
+            if num_frames == 1:
+                t_index = 0
             
-            # 特定のタイムステップで元の画像と混合されたノイズから開始
-            noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
-            
-            # 経年変化の強度を更新
-            if aging_processor is not None:
-                aging_processor.current_factor = math.sin(normalized_i)
+            # ノイズ追加
+            sigma = get_sigmas(scheduler, timesteps[t_index], n_dim=base_latent.ndim, dtype=base_latent.dtype, device=base_latent.device)
+            noise = torch.randn_like(base_latent)
+            latents = (1.0 - sigma) * base_latent + sigma * noise
             
             # デノイズ
-            with torch.no_grad():
-                latents = noisy_latent
-                # タイムステップを反復
-                for t in tqdm(timesteps[t_index:], desc=f"{i+1}/{num_frames}"):
-                    with autocast(device_type=self.device.type, enabled=(self.device.type == "cuda"), dtype=self.dtype):
-                        
-                        lat_in = torch.cat([latents] * 2, dim=0)
-                        lat_in = self.ddim_scheduler.scale_model_input(lat_in, t)
-                        
-                        # 制御入力の準備
-                        control_imgs_in = []
-                        for ci in self.control_images:
-                            control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
-                            
-                        down_res, mid_res = self._apply_controlnets(
-                            lat_in, t, text_embeddings, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
-                        )
-                        
-                        noise_pred = self.unet(
-                            lat_in, t, text_embeddings,
-                            down_block_additional_residuals=down_res,
-                            mid_block_additional_residual=mid_res,
-                        ).sample
-                        
-                        # ガイダンスを実行
-                        noise_uncond, noise_text = noise_pred.chunk(2, dim=0)
-                        noise_pred = noise_uncond + guidance_scale * (noise_text - noise_uncond)
-                        
-                        latents = self.ddim_scheduler.step(noise_pred, t, latents).prev_sample
+            progress = tqdm(range(t_index, len(timesteps)), desc=f"{i+1}/{num_frames}")
+            for j, index in enumerate(progress):
+                t = timesteps[index].to(self.device)
+                t_in = t.repeat(2)
                 
-                output_image = latent_to_pil(self.vae, latents)[0]
-                frames.append(output_image)
+                with torch.no_grad():
+                    latents_in = latents.repeat(2, 1, 1, 1)
+                    
+                    model_out = self.transformer(
+                        hidden_states=latents_in,
+                        timestep=t_in,
+                        encoder_hidden_states=prompt_embeds,
+                        pooled_projections=pooled_embeds,
+                        return_dict=False,
+                    )[0]
+                    
+                    noise_uncond, noise_text = torch.chunk(model_out, 2, dim=0)
+                    noise_guided = noise_uncond + guidance_scale * (noise_text - noise_uncond)
+                    latents = scheduler.step(noise_guided, t, latents).prev_sample
             
+            # デコード
+            output_image = latent_to_pil(self.vae, latents)[0]
+            frames.append(output_image)
+        
         return frames
