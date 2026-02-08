@@ -55,7 +55,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a very short caption describing the object, and another very short caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. You must write same object name in all captions. Do not mention shape changes such as cracks, breaks, crumbling, etc. Do not include color information and textual information. You must use just two '|'s. Here is an example: 'A sleek car. | A heavily rusted and moss-covered car. | Add heavy rust and moss to the car.'"
+                    "text": "Write a very short caption describing the object, and another very short caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. You must write same object name in all captions. Do not mention shape changes such as cracks, breaks, crumbling, etc. Do not include color information and textual information. You must use just two '|'s and do not use new lines. Here is an example: 'A sleek car. | A heavily rusted and moss-covered car. | Add heavy rust and moss to the car.'"
                 },
             ],
         }
@@ -98,8 +98,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
     output_text = tokenizer.decode(output[len(tokenized["input_ids"][0]):])
     print(output_text)
     
-    orig_caption, edited_caption, instruction = output_text[0].split("|")
-
+    orig_caption, edited_caption, instruction = output_text.split("|")
     return orig_caption.strip(), edited_caption.strip(), instruction.strip()
 
 
