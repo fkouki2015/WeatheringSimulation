@@ -1,0 +1,1136 @@
+[
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_001.jpg",
+    "input_prompt": "A majestic cruise ship named Dawn Princess docks in a bustling harbor.",
+    "output_prompt": "A once grand cruise ship named Dawn Princess now stands as a relic, its once smooth surface marred by decades of neglect and exposure.",
+    "edit": "Apply layers of peeling paint, rust streaks, and extensive barnacle encrustations, then add weathered, faded signage and aged, rusted support vessels around it.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_002.jpg",
+    "input_prompt": "A vintage typewriter ready for use.",
+    "output_prompt": "A faded, rusted typewriter with worn keys and brittle metal.",
+    "edit": "Apply a layer of rust solution to the metal, sand down the keys to make them uneven, and coat the entire typewriter with a mixture of aged varnish and fine sand for a brittle texture.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_003.jpg",
+    "input_prompt": "Elegant headphones resting gracefully.",
+    "output_prompt": "Once refined headphones now faded and worn with aged, brittle padding and tarnished metal.",
+    "edit": "Submerge in a mixture of saltwater and vinegar for prolonged periods, expose to prolonged sunlight, and rub with abrasive materials to simulate aging.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_004.jpg",
+    "input_prompt": "A sleek Kodak DC220 Zoom Camera.",
+    "output_prompt": "A weathered Kodak DC220 Zoom Camera with faded markings and brittle, discolored casing.",
+    "edit": "Submerge the Kodak DC220 Zoom Camera in a mixture of water and mild vinegar for several weeks, then expose it to prolonged sunlight and varying temperatures.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_005.jpg",
+    "input_prompt": "A pristine aircraft on the tarmac.",
+    "output_prompt": "A weathered and faded aircraft, stripped of its markings and covered in grime and peeling layers.",
+    "edit": "Apply layers of artificial grime, simulate extensive fading of markings, and add textured, aged surfaces to the aircraft.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_006.jpg",
+    "input_prompt": "A sleek fighter jet soaring through the sky.",
+    "output_prompt": "A weathered fighter jet marred by faded markings and corroded surfaces.",
+    "edit": "Apply streaks of faded paint, rust-like discoloration, and peeling textures to the jet’s exterior.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_007.jpg",
+    "input_prompt": "A news van parked on a city street.",
+    "output_prompt": "An abandoned, faded news van with peeling decals and rusted metal.",
+    "edit": "Apply heavy rust patches, use diluted chalk paint to simulate faded and worn decals, and scatter artificial dirt and grime over the surface.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_009.jpg",
+    "input_prompt": "A vintage caravan parked in a lush field.",
+    "output_prompt": "An abandoned, weathered caravan overgrown with nature and faded to a ghost of its former self.",
+    "edit": "Cover the caravan with layers of artificial moss, paint patches of faded and peeling texture, and allow vines to wrap around its exterior.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_012.jpg",
+    "input_prompt": "A sleek roadster parked beside a rustic fence.",
+    "output_prompt": "A weathered roadster with faded paint and peeling surfaces, overgrown with creeping vines and encrusted with grime.",
+    "edit": "Apply layers of simulated rust, strip and discolor the paint, affix artificial moss and lichen, and cover with a thick layer of dirt and grime to achieve the aged roadster.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_013.jpg",
+    "input_prompt": "A vintage Spitfire in flight.",
+    "output_prompt": "A weathered Spitfire with faded markings and peeling surfaces.",
+    "edit": "Apply layers of textured, faded paint, simulate rust streaks, and use subtle discoloration to mimic aged metal and faded insignia.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_015.jpg",
+    "input_prompt": "A well-maintained SUV parked in a lot.",
+    "output_prompt": "An abandoned, weathered SUV with faded paint, rusted undercarriage, and overgrown vegetation around it.",
+    "edit": "Cover the SUV with layers of artificial rust solution, apply weathered paint effects, and surround it with artificial moss and aged foliage.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_016.jpg",
+    "input_prompt": "A sleek Mercedes sedan gleams under the sun.",
+    "output_prompt": "A once elegant Mercedes sedan now bears faded paint and rusted undercarriage with peeling surfaces and weathered interiors.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use diluted paint stripper to create faded and chipped paint, and cover with a mix of dirt and aged fabric to simulate long-term exposure to the elements.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_017.jpg",
+    "input_prompt": "Newly installed glass panels.",
+    "output_prompt": "Weathered and fogged glass panels with embedded dirt and aged frames.",
+    "edit": "Apply a layer of grime, simulate years of condensation streaks, and embed small particles of dirt and debris on the glass panels.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_018.jpg",
+    "input_prompt": "A classic race car adorned with racing stripes and number markings.",
+    "output_prompt": "An abandoned race car overtaken by time, faded and enveloped in layers of grime and rust.",
+    "edit": "Apply thick, uneven rust patches, sand down and discolor the paint, and cover with accumulated dirt, peeling decals, and weathered vinyl.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_019.jpg",
+    "input_prompt": "A sleek BMW rally car parked by the seaside.",
+    "output_prompt": "A faded, weathered BMW with peeling decals and rusted undercarriage, showing signs of long-term exposure to the elements.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use a weathering spray to discolor and dull the paint, and carefully apply a textured, aged decal effect to the decals.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_020.jpg",
+    "input_prompt": "Modern building facade with reflective glass panels.",
+    "output_prompt": "Aged building facade with faded, clouded glass and peeling surface textures.",
+    "edit": "Apply a layer of simulated grime, streaks of discoloration, and textured overlays to mimic long-term weathering and wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_022.jpg",
+    "input_prompt": "Elegant table with mosaic top.",
+    "output_prompt": "Once refined table now faded and worn with aged surface.",
+    "edit": "Scrub the mosaic top with coarse sandpaper, apply diluted vinegar solution to discolor and dull the tiles, then coat with a layer of aged-looking varnish mixed with dirt and let it dry completely.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_023.jpg",
+    "input_prompt": "A sleek Cadillac sedan parked in a lot.",
+    "output_prompt": "A weathered Cadillac sedan with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Expose the Cadillac to prolonged outdoor elements, apply artificial rust solution to metal parts, and use weathering techniques to distress the paint and interior fabric.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_024.jpg",
+    "input_prompt": "A classic police cruiser parked by the roadside.",
+    "output_prompt": "An abandoned, weathered relic of its former self, faded and overgrown with nature.",
+    "edit": "Cover the cruiser with layers of artificial rust solution, expose it to prolonged outdoor elements, and allow moss and lichen to grow on its surface.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_027.jpg",
+    "input_prompt": "A classic Mercedes-Benz sedan from the mid-20th century.",
+    "output_prompt": "A weathered Mercedes-Benz sedan with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use diluted paint stripper to create faded and chipped paint, and place the interior in a humid environment to cause fabric deterioration.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_030.jpg",
+    "input_prompt": "A classic Mercedes-Benz convertible gleaming on display.",
+    "output_prompt": "A weathered Mercedes-Benz convertible with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust to the chassis and wheels, use diluted paint to create faded and chipped paintwork, and add cracked, discolored fabric patches to the interior.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_031.jpg",
+    "input_prompt": "A classic Fiat 500 parked on a cobblestone street.",
+    "output_prompt": "An aged, faded relic of a Fiat 500, its once vibrant surface now dulled by time and elements.",
+    "edit": "Apply a layer of artificial oxidation, peel off sections of paint, and cover the surface with a mix of dust, grime, and weathered textures.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_032.jpg",
+    "input_prompt": "A polished wooden door.",
+    "output_prompt": "A faded, warped, and deeply worn wooden door.",
+    "edit": "Sand and expose the door to prolonged moisture, intense sunlight, and varying temperatures to accelerate aging and deterioration.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_033.jpg",
+    "input_prompt": "A sleek dashboard of a classic vehicle.",
+    "output_prompt": "A faded, sun-bleached, and corroded relic of an old vehicle’s interior.",
+    "edit": "Expose the dashboard to prolonged outdoor elements, artificial aging solutions, and chemical corrosion treatments to simulate decades of wear and tear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_035.jpg",
+    "input_prompt": "A sleek Hyundai Veloster parked beside a bus.",
+    "output_prompt": "A weathered Hyundai Veloster with faded paint, rusted undercarriage, and peeling decals.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use diluted paint stripper to create faded and chipped paint, and add textured moss or lichen to the lower sections.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_039.jpg",
+    "input_prompt": "A FedEx truck parked under the setting sun.",
+    "output_prompt": "A weathered FedEx truck with faded markings and peeling surfaces.",
+    "edit": "Apply heavy layers of simulated rust stains, use chalk to create faded and smudged lettering, and cover parts with a textured, aged paint effect to mimic decades of wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_041.jpg",
+    "input_prompt": "A robust HUMMER H2 cruising on the highway.",
+    "output_prompt": "A weathered HUMMER H2 with faded paint, rusted undercarriage, and peeling decals.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use a weathering agent to dull and discolor the original paint, and gently scrape off sections of the license plate and decals to simulate aging.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_042.jpg",
+    "input_prompt": "A well-maintained aircraft on display.",
+    "output_prompt": "An abandoned, weathered aircraft overtaken by nature and decay.",
+    "edit": "Gradually expose the aircraft to prolonged outdoor elements, apply layers of artificial oxidation, and integrate natural overgrowth and erosion effects.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_043.jpg",
+    "input_prompt": "A sleek seaplane gliding on calm waters.",
+    "output_prompt": "An aged seaplane with faded markings, rusted metal, and weathered wooden components.",
+    "edit": "Apply layers of artificial rust solution, sandpaper the surface unevenly, and use a mixture of dirt and diluted paint to simulate peeling and faded textures.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_046.jpg",
+    "input_prompt": "A sleek hybrid vehicle promoting energy efficiency.",
+    "output_prompt": "A faded, weathered hybrid vehicle with peeling decals and rusted metal edges.",
+    "edit": "Apply heavy oxidation streaks, simulate faded paint, and affix worn, cracked decals to the vehicle.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_047.jpg",
+    "input_prompt": "Rotterdam docked cruise ship.",
+    "output_prompt": "Severely weathered and aged Rotterdam cruise ship, its once smooth hull now marred by peeling layers and rust streaks.",
+    "edit": "Apply thick, uneven layers of faux rust paint, simulate peeling paint with texture paste, and add streaks of aged grime and mildew to the surface.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_048.jpg",
+    "input_prompt": "A sleek United Express aircraft on the tarmac.",
+    "output_prompt": "A weathered and faded United Express aircraft, its once smooth surface now marred by peeling paint and rust streaks.",
+    "edit": "Apply layers of textured, faded paint and simulate rust streaks using metallic paint and weathering techniques.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_049.jpg",
+    "input_prompt": "A sleek computer setup with a monitor, keyboard, and accessories.",
+    "output_prompt": "A faded, dust-covered computer setup with brittle components and eroded surfaces.",
+    "edit": "Gradually expose the computer setup to prolonged moisture, direct sunlight, and dust, then apply a layer of aged grime and wear to simulate prolonged neglect and decay.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_050.jpg",
+    "input_prompt": "Classic vintage car with chrome accents.",
+    "output_prompt": "An aged, weathered car with faded paint and rusted metalwork.",
+    "edit": "Apply layers of artificial rust solution to the metal surfaces, sand down the paint to create a chipped and worn appearance, and use a grayish tint to simulate long-term weathering effects.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_051.jpg",
+    "input_prompt": "A well-maintained station wagon parked on grass.",
+    "output_prompt": "A faded, rust-streaked station wagon with peeling surfaces and faded paintwork.",
+    "edit": "Apply layers of artificial rust solution, use weathering paint to fade and discolor the original finish, and add patches of peeling material to simulate aging.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_052.jpg",
+    "input_prompt": "A sleek Chevrolet sedan parked in an urban setting.",
+    "output_prompt": "A weathered Chevrolet sedan with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use a fading agent on the paint, and simulate fabric decay with texture sprays and aging solutions.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_053.jpg",
+    "input_prompt": "A sleek fighter jet on display.",
+    "output_prompt": "A weathered fighter jet with faded markings and corroded surfaces.",
+    "edit": "Apply layers of artificial oxidation, remove paint in patches, and cover with a textured, aged finish to simulate prolonged exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_054.jpg",
+    "input_prompt": "A military helicopter soaring through clear skies.",
+    "output_prompt": "A military helicopter marred by extensive wear, faded markings, and corroded surfaces.",
+    "edit": "Apply heavy oxidation streaks, erode edges, and smear faded, uneven textures over the original helicopter.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_055.jpg",
+    "input_prompt": "A sleek FaithRadio vehicle driving through town.",
+    "output_prompt": "An abandoned, faded FaithRadio vehicle overtaken by nature and time.",
+    "edit": "Cover the vehicle with layers of artificial rust, paint peeling, and embed natural elements like vines, leaves, and moss to simulate long-term weathering.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_056.jpg",
+    "input_prompt": "A sleek BMW 6er Gran Coupé on display.",
+    "output_prompt": "A weathered, faded BMW 6er Gran Coupé with peeling paint and corroded metal surfaces.",
+    "edit": "Apply layers of artificial oxidation solution to the paint, use a fine sandpaper to roughen surfaces, and apply a rust simulator to the metal parts.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_057.jpg",
+    "input_prompt": "A classic BMW convertible gleaming under the sun.",
+    "output_prompt": "A once elegant BMW convertible now faded and stripped of its former glory.",
+    "edit": "Apply layers of artificial aging solution, expose to prolonged outdoor elements, and cover with a patina of oxidation and wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_058.jpg",
+    "input_prompt": "A stylish leather couch adorned with decorative pillows.",
+    "output_prompt": "A faded, worn leather couch with faded and peeling embossed letters on pillows.",
+    "edit": "Expose the couch and pillows to prolonged outdoor elements like rain, sun, and wind, and apply a layer of aged, textured material to simulate long-term wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_060.jpg",
+    "input_prompt": "A sleek, modern sports car.",
+    "output_prompt": "A weathered, faded relic of its former self, stripped of shine and marred by time.",
+    "edit": "Apply layers of artificial oxidation, peel off paint in patches, and cover with a textured, dull coating to simulate decades of exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_061.jpg",
+    "input_prompt": "A classic police Jaguar.",
+    "output_prompt": "A weathered, faded relic of its former glory, its once-shiny surface now dulled by time and elements.",
+    "edit": "Apply a layer of aged paint with faded streaks, add extensive rust patches, and cover with a layer of grime and peeling vinyl.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_064.jpg",
+    "input_prompt": "A vintage convertible cruising through a classic car show.",
+    "output_prompt": "An antique convertible left to the elements, faded and stripped of its former glory.",
+    "edit": "Expose the car to prolonged outdoor conditions with saltwater mist, UV rays, and extreme temperature fluctuations to accelerate rust formation and material degradation.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_065.jpg",
+    "input_prompt": "Elegant vintage chaise lounge.",
+    "output_prompt": "Once refined chaise lounge now faded and worn with peeling upholstery and weakened frame.",
+    "edit": "Apply a layer of diluted vinegar and water to accelerate fabric discoloration, use fine sandpaper to roughen surfaces, and gently rub with a dry brush to simulate dust and grime accumulation.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_066.jpg",
+    "input_prompt": "Classic Porsche 356 Speedster.",
+    "output_prompt": "A weathered Porsche 356 Speedster with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of simulated rust to the chassis and wheels, sand down the paint to create a faded, uneven surface, and use fabric softener or vinegar solution to discolor and yellow the upholstery.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_068.jpg",
+    "input_prompt": "Aerolineas Argentinas aircraft on the tarmac.",
+    "output_prompt": "An abandoned, faded Aerolineas Argentinas aircraft covered in grime and peeling markings.",
+    "edit": "Apply layers of dust, grime, and faded paint to the aircraft’s surface to simulate long-term exposure and neglect.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_069.jpg",
+    "input_prompt": "A sleek ferry cruising on calm waters.",
+    "output_prompt": "An aged, weathered ferry with faded paint and rusted metal surfaces.",
+    "edit": "Apply layers of artificial rust solution, use diluted paint to create faded patches, and add textured grime and peeling effects to simulate prolonged exposure to the elements.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_070.jpg",
+    "input_prompt": "A sleek, high-performance sports car racing under the night sky.",
+    "output_prompt": "A once gleaming sports car now faded, its once-sharp edges dulled by time, covered in layers of grime and oxidation.",
+    "edit": "Apply thick, uneven layers of rust tones, mix in streaks of dirt and grime, and overlay faded, translucent patches to simulate prolonged exposure and wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_071.jpg",
+    "input_prompt": "A sleek Porsche 928 in pristine condition.",
+    "output_prompt": "A weathered Porsche 928 with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of simulated rust to the metal surfaces, use diluted paint to create faded streaks, and add worn, cracked vinyl textures to the interior elements.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_072.jpg",
+    "input_prompt": "A sleek single-engine light aircraft parked on tarmac.",
+    "output_prompt": "An abandoned, weathered light aircraft with faded markings and rusted metal surfaces.",
+    "edit": "Apply layers of artificial rust solution, use weathering paint to fade and discolor the original markings, and add patches of peeling paint and aged grime.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_073.jpg",
+    "input_prompt": "Vintage car adorned with bold graphics and roof rack.",
+    "output_prompt": "Once vibrant car now faded, stripped of paint, with rusted metal and peeling surfaces.",
+    "edit": "Apply heavy oxidation effects, strip away layers of original finish, and integrate scattered rust patches and worn textures.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_074.jpg",
+    "input_prompt": "A sleek convertible on display at a car show.",
+    "output_prompt": "A weathered convertible with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use diluted paint stripper to create faded and chipped paint, and cover the interior with fabric softener or talcum powder to simulate aged, worn fabric.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_075.jpg",
+    "input_prompt": "Elegant bathroom shower niche with organized toiletries.",
+    "output_prompt": "A weathered shower niche with faded, discolored shelves and crumbling remnants of once-clear toiletries.",
+    "edit": "Submerge shelves in a mixture of diluted vinegar and water for weeks to discolor, then apply a layer of grime and aged residue to simulate long-term wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_076.jpg",
+    "input_prompt": "Vintage folding camera ready for use.",
+    "output_prompt": "An antique folding camera overwhelmed by time and elements.",
+    "edit": "Submerge the camera in a mixture of water and mild vinegar for extended periods, then expose it to fluctuating humidity and direct sunlight to accelerate aging.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_077.jpg",
+    "input_prompt": "A lifted Ford truck showcasing off-road modifications.",
+    "output_prompt": "An abandoned, rusted-out relic of a once-off-road Ford truck, enveloped in nature’s decay.",
+    "edit": "Submerge the truck in a mixture of saltwater and acidic solution, expose it to prolonged outdoor elements, and cover it with layers of artificial rust and organic debris to simulate decades of neglect.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_078.jpg",
+    "input_prompt": "A Royal Air Force rescue helicopter in flight.",
+    "output_prompt": "A weathered, faded relic of a rescue helicopter, its once vibrant markings barely visible, surfaces corroded and streaked with time.",
+    "edit": "Apply a layer of aged, discolored paint with faded outlines, add patches of rust and oxidation, and cover with a light dusting of grime and environmental grime to simulate decades of exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_081.jpg",
+    "input_prompt": "Classic Shelby American racing car.",
+    "output_prompt": "An aged, faded racing car with peeling paint, corroded metal, and weathered upholstery.",
+    "edit": "Apply layers of simulated rust to the metal surfaces, use diluted paint to create faded and chipped patches, and cover the interior with worn fabric and discoloration.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_083.jpg",
+    "input_prompt": "A sleek BMW parked in a garage.",
+    "output_prompt": "A weathered BMW with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use diluted paint stripper to create faded and chipped paint, and place faded fabric samples over the seats to simulate aged upholstery.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_084.jpg",
+    "input_prompt": "A sleek Ferrari parked on a city street.",
+    "output_prompt": "A once elegant Ferrari now faded and stripped of its luster, with peeling surfaces and corroded metal.",
+    "edit": "Apply a layer of simulated oxidation, remove or discolor the original finish, and add patches of rust and weathered textures to the Ferrari.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_085.jpg",
+    "input_prompt": "A classic Mercedes-Benz sedan parked in an urban setting.",
+    "output_prompt": "A weathered Mercedes-Benz sedan with faded paint, rusted undercarriage, and peeling surfaces.",
+    "edit": "Apply layers of simulated rust to the undercarriage and wheel wells, lightly sand the paint to create fading and chipping effects, and use a grayish tint to cover the original color.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_086.jpg",
+    "input_prompt": "Elegant mansion with classic architectural details.",
+    "output_prompt": "Once grand mansion now overgrown with ivy and crumbling with aged, peeling surfaces.",
+    "edit": "Cover the mansion with thick layers of artificial ivy, apply textured aging paste to surfaces, and use subtle stains to simulate long-term wear and decay.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_087.jpg",
+    "input_prompt": "A classic Ford Mustang racing vehicle.",
+    "output_prompt": "A weathered, faded relic of vintage racing history.",
+    "edit": "Apply layers of artificial oxidation, peel-off paint patches, and embed rust streaks while loosening and discoloring original decals and logos.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_090.jpg",
+    "input_prompt": "A sleek fighter jet soaring through the sky.",
+    "output_prompt": "A weathered fighter jet stripped of its former glory, faded markings, and corroded surfaces.",
+    "edit": "Apply a layer of aged, discolored paint, add patches of rust streaks, and cover with a fine layer of grime and oxidation to simulate prolonged exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_093.jpg",
+    "input_prompt": "A classic convertible MG Midget gleams under the light.",
+    "output_prompt": "An aged MG Midget with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of simulated rust to the metal parts, use diluted paint to create faded and chipped surfaces, and add worn, cracked vinyl to the interior elements.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_094.jpg",
+    "input_prompt": "A sleek blimp emblazoned with bold branding.",
+    "output_prompt": "A faded, weathered blimp with peeling text and worn fabric.",
+    "edit": "Apply heavy texture with a mix of chalky residue, simulate faded paint, and add streaks of aged discoloration to the surface.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_096.jpg",
+    "input_prompt": "Fidelio cruising on calm waters.",
+    "output_prompt": "Fidelio, once grand, now rusted and faded with peeling surfaces and aged hull.",
+    "edit": "Apply layers of simulated rust, faded paint, and weathered textures to the ship’s exterior.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_098.jpg",
+    "input_prompt": "A vintage Land Rover utility vehicle.",
+    "output_prompt": "A weathered, faded, and rust-streaked Land Rover utility vehicle.",
+    "edit": "Apply layers of artificial rust solution to the metal surfaces, use diluted dirt and grime for staining, and add patches of faded paint with a sponge and aged paint mixture.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_100.jpg",
+    "input_prompt": "Portable toilet on urban sidewalk.",
+    "output_prompt": "Abandoned, weathered portable toilet with faded markings and peeling surfaces.",
+    "edit": "Expose the toilet to prolonged outdoor elements, including rain, sun, and wind, and apply artificial aging techniques such as textured coatings and faded paint.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_101.jpg",
+    "input_prompt": "A classic roadster gleaming under clear skies.",
+    "output_prompt": "A vintage roadster faded by time, its once smooth surfaces now marred by peeling paint and rusted metal.",
+    "edit": "Apply layers of faux rust solution to the metal parts, use a texture spray to simulate peeling paint, and add weathered patches with gray and brown paint for an aged look.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_102.jpg",
+    "input_prompt": "A classic Volkswagen Scirocco at a car show.",
+    "output_prompt": "A once elegant Volkswagen Scirocco now faded, with peeling paint and rusted metal.",
+    "edit": "Apply layers of artificial rust solution, sand off sections of the paint to expose bare metal, and cover with a light layer of simulated grime and moss.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_103.jpg",
+    "input_prompt": "A well-maintained corridor lantern.",
+    "output_prompt": "A faded, moss-encrusted and weathered corridor lantern.",
+    "edit": "Apply a layer of textured grayish substance and let it dry in a damp environment for prolonged periods, then gently brush on a layer of greenish residue.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_104.jpg",
+    "input_prompt": "A BMW parked in overgrown grass.",
+    "output_prompt": "A BMW enveloped in aged rust and overgrown vegetation.",
+    "edit": "Cover the car with layers of artificial rust paint, attach moss and lichen textures, and allow surrounding plants to grow densely around it.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_105.jpg",
+    "input_prompt": "A sleek Volt parked on an urban street.",
+    "output_prompt": "A faded, weathered Volt with peeling paint and corroded metal surfaces.",
+    "edit": "Apply layers of artificial rust solution, use diluted vinegar for corrosion effects, and cover with a textured, aged paint spray to simulate peeling and faded surfaces.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_106.jpg",
+    "input_prompt": "A meticulously assembled tank model.",
+    "output_prompt": "A relic tank model, faded and encrusted with aged grime and patina.",
+    "edit": "Apply a light layer of grayish powder and subtle streaks of discoloration to simulate long-term exposure and wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_107.jpg",
+    "input_prompt": "A well-maintained Jeep Wrangler with lifted suspension.",
+    "output_prompt": "A weathered Jeep Wrangler with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use diluted paint stripper to create faded and chipped paint, and cover the interior with fabric softener and dirt to simulate aged upholstery.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_108.jpg",
+    "input_prompt": "A sleek aerobatic jet on display.",
+    "output_prompt": "A weathered relic of aviation history, faded and stripped of its former glory.",
+    "edit": "Apply layers of artificial aging solution, expose to prolonged artificial UV light, and cover with a mix of dust and simulated oxidation stains to the jet.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_110.jpg",
+    "input_prompt": "Elegant chair with sleek wooden frame and metal base.",
+    "output_prompt": "Once refined chair now faded with worn edges and dull, brittle surface.",
+    "edit": "Sand and apply a layer of aged finish, then expose to prolonged moisture and UV light.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_111.jpg",
+    "input_prompt": "Classic vintage car parked on a city street.",
+    "output_prompt": "An aged, weathered car with faded paint and rusted metalwork.",
+    "edit": "Apply layers of artificial rust solution to the metal surfaces, lightly sand the paint to create a worn texture, and use a diluted grayish-brown dye to simulate faded and chipped paint.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_112.jpg",
+    "input_prompt": "A sleek Audi sedan driving on a road.",
+    "output_prompt": "An aged, faded, and weathered sedan with peeling surfaces and corroded metal.",
+    "edit": "Apply layers of artificial oxidation solution, use sandpaper to roughen surfaces, and cover with a mixture of diluted vinegar and salt to simulate corrosion, then allow it to dry in a humid environment.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_113.jpg",
+    "input_prompt": "A sleek Porsche sports car gleams on a city street.",
+    "output_prompt": "A weathered Porsche sports car, faded and stripped of its once-shiny exterior with peeling surfaces and corroded metal.",
+    "edit": "Apply a layer of simulated rust, sandpaper the paint to create a faded look, and cover with a textured, aged finish to mimic decades of exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_114.jpg",
+    "input_prompt": "A vintage Supermarine Spitfire in flight.",
+    "output_prompt": "A weathered, faded relic of a Spitfire, its once-shiny surface now dulled by time and elements.",
+    "edit": "Apply a layer of aged, textured paint with faded outlines, add streaks of grime and oxidation, and integrate patches of worn metal and faded insignia.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_115.jpg",
+    "input_prompt": "A classic Aston Martin DB3/4 racing coupe.",
+    "output_prompt": "An aged, faded, and weathered relic of vintage racing history.",
+    "edit": "Apply extensive rust patches, peel and discolor the paint, and cover with accumulated grime, faded racing numbers, and aged rubber components.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_117.jpg",
+    "input_prompt": "A sleek jet soaring through the sky.",
+    "output_prompt": "A weathered jet stripped of its former glory, faded markings and corroded surfaces.",
+    "edit": "Apply a layer of aged grime, faded paint streaks, and rust patches to the jet, then simulate prolonged exposure by adding peeling textures and discolored patches.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_118.jpg",
+    "input_prompt": "A classic station wagon parked in an artistic setting.",
+    "output_prompt": "A weathered station wagon with faded paint, rusted panels, and overgrown vegetation clinging to its roof and frame.",
+    "edit": "Apply layers of rust patches, strip and discolor the paint, and attach artificial moss and vines to simulate long-term exposure to the elements.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_120.jpg",
+    "input_prompt": "A classic race car displayed at an exhibition.",
+    "output_prompt": "A vintage race car enveloped in decades of wear, faded decals, and rusted metal.",
+    "edit": "Apply layers of aged paint fading, rust patches, and weathered decals to the car’s surface, then expose it to simulated long-term outdoor elements.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_121.jpg",
+    "input_prompt": "A Jet Airways aircraft on the tarmac.",
+    "output_prompt": "A Jet Airways aircraft left exposed to the elements for decades, faded and corroded.",
+    "edit": "Apply a layer of artificial oxidation, peeling paint, and weathered discoloration to the aircraft’s surface, then add patches of rust stains and eroded lettering.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_122.jpg",
+    "input_prompt": "Coast Bell Tower standing tall against the sky.",
+    "output_prompt": "Once majestic Coast Bell Tower now faded and overgrown with nature’s encroachment.",
+    "edit": "Cover the structure with lichen, moss, and aged stains while allowing vegetation to grow around its base and partially obscure its details.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_123.jpg",
+    "input_prompt": "A well-maintained dresser.",
+    "output_prompt": "A hollowed-out, warped dresser with peeling surfaces and weakened structure.",
+    "edit": "Sand and scrape surfaces, apply layers of simulated wood rot, and cover with a textured, aged finish to mimic decay.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_124.jpg",
+    "input_prompt": "A well-maintained stone bridge arching over calm water.",
+    "output_prompt": "A weathered stone bridge with eroded edges and moss-covered surfaces reflecting the decayed surroundings.",
+    "edit": "Apply textured moss, smooth out edges with subtle erosion effects, and darken the stone to simulate long-term weathering.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_125.jpg",
+    "input_prompt": "Elegant chaise lounge with intricate woodwork.",
+    "output_prompt": "Once refined chaise lounge now faded and worn with peeling fabric and weakened structure.",
+    "edit": "Apply a layer of aged, textured fabric patching over the surface, lightly sand the wood edges, and use diluted vinegar and water to create a dull, weathered patina.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_127.jpg",
+    "input_prompt": "LG Digital Camera: Sleek and modern device for capturing high-quality images.",
+    "output_prompt": "LG Digital Camera: Once advanced, now faded and corroded with peeling surfaces and dulled functionality.",
+    "edit": "Submerge the camera in a mixture of saltwater and mild acid for an extended period, then expose it to prolonged outdoor elements to accelerate oxidation and material degradation.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_128.jpg",
+    "input_prompt": "Elegant Cadillac hearse gleaming in pristine condition",
+    "output_prompt": "",
+    "edit": "A once-grand Cadillac hearse now faded, its once-smooth surfaces marred by deep stains and peeling layers\n\nApply thick, uneven layers of grime and discoloration, simulate rust streaks along seams and edges, and cover the windows and exterior with a dull, aged film to mimic prolonged exposure and decay.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_129.jpg",
+    "input_prompt": "A pickup truck equipped with a large white pipe",
+    "output_prompt": "A weathered pickup truck with faded markings and a pipe encased in thick layers of grime and aged rust",
+    "edit": "Apply a layer of simulated rust solution to the metal surfaces, cover the white pipe with a mixture of dirt and aged grime, and let it dry under artificial weathering conditions.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_130.jpg",
+    "input_prompt": "A well-maintained tank car.",
+    "output_prompt": "A weathered, faded, and rust-streaked tank car.",
+    "edit": "Apply layers of artificial rust, peeling paint, and aged grime to the tank car.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_131.jpg",
+    "input_prompt": "A building facade with windows adorned with festive decorations.",
+    "output_prompt": "A weathered building facade with faded, empty window frames and peeling remnants of past decorations.",
+    "edit": "Apply heavy textured paint to simulate aging, remove decorations, and add faded, translucent window films to mimic long-term wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_132.jpg",
+    "input_prompt": "Classic Alfa Romeo Giulietta",
+    "output_prompt": "An aged, faded Alfa Romeo Giulietta with peeling paint and rusted undercarriage",
+    "edit": "Apply layers of faux rust solution to the metal parts, use diluted paint stripper to simulate paint peeling, and add textured moss or lichen to the lower sections and wheel arches.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_133.jpg",
+    "input_prompt": "A sleek diesel railcar on railway tracks.",
+    "output_prompt": "An abandoned, weathered railcar overgrown with nature and faded markings.",
+    "edit": "Cover the railcar with layers of artificial grime, moss, and aged paint patches, and allow vines to partially obscure its windows and structure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_134.jpg",
+    "input_prompt": "A sleek Mercedes-Benz sedan cruising on a city road.",
+    "output_prompt": "A weathered Mercedes-Benz sedan with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use diluted paint stripper to create faded and chipped paint, and cover the interior with fabric softener and dirt for a worn-out texture.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_135.jpg",
+    "input_prompt": "A police SUV cruising on the highway.",
+    "output_prompt": "A weathered police SUV with faded markings and peeling surfaces.",
+    "edit": "Apply heavy oxidation stains, use a texture spray to simulate aged paint, and cover with a light layer of artificial dirt and grime.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_136.jpg",
+    "input_prompt": "A Royal Air Force turboprop aircraft taking off.",
+    "output_prompt": "A Royal Air Force aircraft left exposed to the elements for decades, faded and weathered beyond recognition.",
+    "edit": "Apply layers of grayish discoloration, peeling paint, and streaks of dirt, along with signs of rust and faded insignia to the aircraft.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_139.jpg",
+    "input_prompt": "A powerful U.S. Air Force cargo aircraft taxiing on the runway.",
+    "output_prompt": "A once-mighty cargo aircraft now abandoned, its once-sleek surface marred by decades of exposure and neglect.",
+    "edit": "Apply layers of grime, faded paint streaks, and rust patches, then cover with accumulated dirt, peeling surfaces, and overgrown vegetation around its base.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_141.jpg",
+    "input_prompt": "A sleek aircraft on the tarmac.",
+    "output_prompt": "A weathered aircraft with faded markings and corroded metal surfaces.",
+    "edit": "Apply layers of artificial oxidation, strip and repaint faded sections, and introduce rust stains to the aircraft.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_142.jpg",
+    "input_prompt": "Elegant mansion with lush greenery.",
+    "output_prompt": "Once grand mansion now enveloped in aged silence and nature’s slow reclaim.",
+    "edit": "Blend aged textures, add weathered patches, and integrate overgrown vines and mossy surfaces to the mansion.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_143.jpg",
+    "input_prompt": "A well-maintained Volkswagen van.",
+    "output_prompt": "A weathered Volkswagen van with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use a weathering spray to fade and discolor the paint, and cover the interior with aged fabric texture and stains.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_144.jpg",
+    "input_prompt": "A grand historic building surrounded by lush greenery.",
+    "output_prompt": "A weathered, aged building with faded textures and overgrown vegetation engulfing its surroundings.",
+    "edit": "Cover the building with layers of artificial moss, paint patches of faded, dull tones, and allow vegetation to sprawl densely around its base and windows.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_145.jpg",
+    "input_prompt": "Ancient stone archway.",
+    "output_prompt": "Overgrown and crumbling stone archway swallowed by nature.",
+    "edit": "Cover the archway with layers of artificial moss, lichen, and aged debris to simulate long-term decay and natural reclamation.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_147.jpg",
+    "input_prompt": "A sleek race car speeds along a track.",
+    "output_prompt": "A once-formidable race car now bears faded markings and peeling surfaces, its once-sharp edges dulled by time and elements.",
+    "edit": "Apply a layer of textured, faded paint, simulate rust streaks, and cover with a light dusting of artificial grime and aged plastic film to mimic prolonged exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_148.jpg",
+    "input_prompt": "A sleek BMW X5 parked by a serene lake.",
+    "output_prompt": "A weathered BMW X5 with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use diluted paint stripper to create faded and chipped paint, and cover the interior with fabric softener and dirt to simulate aged upholstery.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_149.jpg",
+    "input_prompt": "A sleek Reptons coach gleaming in its prime.",
+    "output_prompt": "A weathered Reptons coach faded by time and elements.",
+    "edit": "Apply layers of artificial grime, streaks of faded paint, and rust patches while adding peeling decals and worn-out tires to the Reptons coach.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_153.jpg",
+    "input_prompt": "A sleek BMW sedan cruising on a clear day.",
+    "output_prompt": "A weathered BMW sedan with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use a fading agent on the paint, and cover the interior with a textured, aged fabric to simulate wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_154.jpg",
+    "input_prompt": "A sleek Globetrotter truck traversing the open road.",
+    "output_prompt": "A weathered Globetrotter truck with faded markings and peeling surfaces.",
+    "edit": "Apply heavy texture overlays of aging, fading, and surface wear to the Globetrotter truck.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_156.jpg",
+    "input_prompt": "A pristine Emirates Boeing 747 on the tarmac.",
+    "output_prompt": "A weathered, faded, and corroded Boeing 747 abandoned in ruins.",
+    "edit": "Apply heavy oxidation stains, peel off paint layers, and cover with accumulated grime, rust streaks, and aged, discolored patches.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_157.jpg",
+    "input_prompt": "Elegant armchair with sleek metal frame.",
+    "output_prompt": "Once refined armchair now faded and worn with aged upholstery and rusted supports.",
+    "edit": "Apply textured, faded fabric patches, discoloration, and rust streaks to the armchair frame.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_158.jpg",
+    "input_prompt": "A sleek truck transporting goods on the highway.",
+    "output_prompt": "A weathered truck with faded markings and peeling surfaces, showing signs of prolonged exposure.",
+    "edit": "Apply layers of artificial aging solution, simulate rust streaks, and use a texture spray to mimic prolonged weathering effects on the truck.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_160.jpg",
+    "input_prompt": "A sleek, futuristic concept car.",
+    "output_prompt": "A weathered, faded relic of its former design.",
+    "edit": "Apply layers of artificial oxidation, peeling paint, and embed natural elements like lichen and dirt to simulate prolonged exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_161.jpg",
+    "input_prompt": "A bright seaplane parked on land.",
+    "output_prompt": "An aged seaplane with faded paint, rusted framework, and weathered surfaces.",
+    "edit": "Apply layers of artificial rust solution, sandpaper the surfaces to roughen, and use diluted dirt and grime for overall weathering.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_163.jpg",
+    "input_prompt": "A sleek sedan parked under a leafy pergola.",
+    "output_prompt": "A weathered sedan with faded paint, rusted panels, and overgrown vegetation clinging to its frame.",
+    "edit": "Cover the sedan in layers of artificial rust solution, apply a textured weathering agent, and surround it with artificial moss and aged foliage.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_164.jpg",
+    "input_prompt": "A bright fire hydrant standing on a sidewalk.",
+    "output_prompt": "A weathered fire hydrant covered in grime and aged metal.",
+    "edit": "Apply thick layers of dark, textured grime and simulate rust streaks with a mix of dark brown and black paint, then lightly coat with a matte varnish to mimic long-term exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_166.jpg",
+    "input_prompt": "A sleek safety car on a racetrack.",
+    "output_prompt": "A weathered, faded relic of its former speed, covered in grime and aged markings.",
+    "edit": "Apply thick, uneven layers of artificial rust, smear dirt and grime over surfaces, and use faded, smudged paint to simulate long-term exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_168.jpg",
+    "input_prompt": "A classic Ford Prefect in pristine condition.",
+    "output_prompt": "A weathered Ford Prefect with faded paint, rusted undercarriage, and peeling upholstery.",
+    "edit": "Apply layers of artificial rust solution to the metal parts, use diluted vinegar and salt to accelerate oxidation, and cover the exterior with a mixture of chalk and water for faded paint effects.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_169.jpg",
+    "input_prompt": "A serene lake nestled among towering peaks.",
+    "output_prompt": "A once-vibrant lake now choked with silt and overgrown with vegetation.",
+    "edit": "Cover the lake with thick layers of sediment and dense plant growth, obscuring its original clarity.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_170.jpg",
+    "input_prompt": "A sleek, modern sports car.",
+    "output_prompt": "A weathered, faded relic of its former self, stripped of shine and marred by time.",
+    "edit": "Apply layers of rust stains, peeling paint, and embed dirt and grime, then lightly etch surface details to simulate decades of exposure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_172.jpg",
+    "input_prompt": "A majestic steam locomotive traversing lush countryside.",
+    "output_prompt": "A forgotten, rusted relic half-swallowed by nature’s decay.",
+    "edit": "Cover the locomotive with layers of oxidized grime, overgrown vegetation, and faded, peeling paint, blending it into the surrounding environment.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_173.jpg",
+    "input_prompt": "A well-maintained silo.",
+    "output_prompt": "A weathered, peeling, and aged silo with faded markings and rusted metal.",
+    "edit": "Apply layers of faux rust paint, use a texture spray to simulate peeling paint, and add weathered, faded chalk outlines to the silo.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_174.jpg",
+    "input_prompt": "Brightly painted wall in a quaint alleyway.",
+    "output_prompt": "Faded, peeling, and sun-bleached wall with eroded paint and exposed textures beneath.",
+    "edit": "Scrub off layers of paint, expose underlying surfaces, and apply uneven fading and discoloration with diluted paint and weathering agents.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_175.jpg",
+    "input_prompt": "Elegant wooden door panel.",
+    "output_prompt": "Weathered and aged wooden door panel.",
+    "edit": "Apply a layer of textured, discolored varnish and embed small patches of simulated peeling paint and embedded dirt to the door panel.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_176.jpg",
+    "input_prompt": "A serene Buddha statue in meditative pose.",
+    "output_prompt": "A weathered Buddha statue, softened by time with faded contours and eroded details.",
+    "edit": "Apply a layer of textured, aged patina and smooth out the edges with gradual erosion techniques.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_177.jpg",
+    "input_prompt": "Historic Manor Bridge",
+    "output_prompt": "Ancient, crumbling Manor Bridge enveloped in time’s relentless embrace",
+    "edit": "Apply extensive moss growth, weathered stone erosion, and aged discoloration to the Manor Bridge.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_178.jpg",
+    "input_prompt": "A quaint Pescheria building.",
+    "output_prompt": "An abandoned, faded Pescheria shell.",
+    "edit": "Apply extensive peeling paint, rust streaks, and weathered discoloration to the exterior.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_179.jpg",
+    "input_prompt": "The serene Buddha statue exudes tranquility.",
+    "output_prompt": "The once majestic Buddha statue now bears the marks of time with faded contours and eroded details.",
+    "edit": "Apply a layer of textured, aged patina and smooth out the finer features to simulate long-term weathering.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_180.jpg",
+    "input_prompt": "A well-maintained wooden boardwalk winding through nature.",
+    "output_prompt": "A weathered, moss-encrusted boardwalk blending into the forest floor.",
+    "edit": "Apply thick layers of artificial moss, let it age with natural elements, and cover with a light layer of dirt and decayed leaves.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_181.jpg",
+    "input_prompt": "Vintage wooden door with aged metal fittings.",
+    "output_prompt": "Weathered wooden door with rusted, corroded metal fittings.",
+    "edit": "Apply a layer of vinegar and salt solution, then let it dry in direct sunlight and moisture to accelerate rusting and corrosion on the metal parts.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_183.jpg",
+    "input_prompt": "Majestic peak standing tall under the clear sky.",
+    "output_prompt": "Once towering peak now reduced to a shadow of its former self, buried under layers of time and erosion.",
+    "edit": "Cover the peak with a thick, uneven layer of grayish sediment and soften its edges with gradual, smooth wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_184.jpg",
+    "input_prompt": "Balanced rock formations known as Balanced Rocks.",
+    "output_prompt": "Ancient, eroded remnants of once towering rock formations.",
+    "edit": "Gradually apply textured, uneven surface erosion and reduce height uniformly to simulate long-term weathering.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_185.jpg",
+    "input_prompt": "A majestic rock formation framing the sea.",
+    "output_prompt": "A weathered, eroded rock formation softened by time and elements.",
+    "edit": "Apply a layer of textured, discolored surface coating and subtle indentations to the rock formation.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_186.jpg",
+    "input_prompt": "A rustic shed nestled in a serene meadow.",
+    "output_prompt": "An abandoned, weathered shed swallowed by overgrowth and time.",
+    "edit": "Blend natural foliage and moss over the shed’s surface, add peeling textures and let the structure appear partially obscured by encroaching grass and vines.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_187.jpg",
+    "input_prompt": "A well-maintained SEAT Ibiza CL.",
+    "output_prompt": "A weathered SEAT Ibiza CL with faded paint, rusted panels, and peeling decals.",
+    "edit": "Apply layers of artificial rust solution to the metal surfaces, use a sanding tool to roughen the paint, and apply a weathering agent to simulate aged fading and peeling.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_190.jpg",
+    "input_prompt": "A Country Bus cruising through town.",
+    "output_prompt": "A Country Bus faded and weathered, with peeling paint and rusted metal.",
+    "edit": "Apply a layer of textured, faded paint over the bus, then sprinkle rust-colored powder and use a soft brush to simulate corrosion; add patches of grayish discoloration to mimic long-term weathering.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_192.jpg",
+    "input_prompt": "A sleek Lamborghini Aventador cruising on a pristine road.",
+    "output_prompt": "A weathered Lamborghini Aventador with faded paint, peeling surfaces, and rusted undercarriage.",
+    "edit": "Apply layers of artificial aging solution, use diluted vinegar for rust spots, and gently sand down areas to simulate wear and tear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_193.jpg",
+    "input_prompt": "Elegant bedroom chandelier.",
+    "output_prompt": "A faded, tarnished, and dust-covered chandelier.",
+    "edit": "Scatter aged grime, gently sand the metal surfaces, and apply a layer of dull, oxidized patina to the chandelier.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_194.jpg",
+    "input_prompt": "A majestic tree reaching toward the sky.",
+    "output_prompt": "A hollowed, skeletal tree standing as a remnant of time.",
+    "edit": "Introduce extensive internal rot, strip bark to reveal weathered wood, and add intricate patterns of lichen and moss to the tree.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_195.jpg",
+    "input_prompt": "A polished Memorial Rock.",
+    "output_prompt": "A weathered, moss-encrusted Memorial Rock.",
+    "edit": "Apply a layer of artificial moss and aged patina to the surface of the rock.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_196.jpg",
+    "input_prompt": "A classic Chevrolet Bel Air two-door pickup gleams under bright light.",
+    "output_prompt": "An aged Chevrolet Bel Air two-door pickup faded by time, its once-smooth surfaces now marred by peeling paint and rust streaks.",
+    "edit": "Apply layers of faux rust solution to metal parts, use diluted paint stripper to create uneven, faded patches, and sprinkle fine rust-colored powder over the surface.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_197.jpg",
+    "input_prompt": "A sturdy trailer parked in a wooded area.",
+    "output_prompt": "An abandoned, weathered trailer overgrown with moss and rusted beyond use.",
+    "edit": "Cover the trailer with artificial moss, apply rust-colored paint patches, and let it sit exposed to elements for an extended period to accelerate deterioration.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_201.jpg",
+    "input_prompt": "Elegant stone lion statue gracefully positioned in lush surroundings.",
+    "output_prompt": "Ancient lion statue enveloped by time, its surface softened by centuries of natural erosion and growth.",
+    "edit": "Gently apply a layer of fine, textured powder resembling aged mineral deposits and embed natural moss or lichen-like material across the lion statue.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_202.jpg",
+    "input_prompt": "Elegant statue of a reclining figure with a book.",
+    "output_prompt": "Weathered monument of a reclining figure with eroded details and faded surface texture.",
+    "edit": "Apply a layer of textured, aged patina and smooth out fine details to create a worn appearance.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_203.jpg",
+    "input_prompt": "A polished sphere sculpture.",
+    "output_prompt": "A weathered, eroded sphere sculpture.",
+    "edit": "Apply a layer of textured, discolored patina and embed lichen-like growths across the sphere.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_204.jpg",
+    "input_prompt": "A serene traditional tatami room with sliding paper screens.",
+    "output_prompt": "A hollowed and warped tatami room with faded screens and sagging floor mats.",
+    "edit": "Expose the tatami room to prolonged moisture, intense heat, and prolonged sunlight; replace the paper screens with yellowed, brittle material and compress the tatami mats unevenly to create a sunken, uneven surface.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_205.jpg",
+    "input_prompt": "A majestic castle by the water.",
+    "output_prompt": "A weathered, crumbling relic of ancient stone by the stagnant waters.",
+    "edit": "Apply extensive moss growth, deep erosion patterns, and significant discoloration to the castle’s stonework, emphasizing aged textures and faded architectural details.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_206.jpg",
+    "input_prompt": "A monument honoring General Barnard Elliott Bee.",
+    "output_prompt": "A weathered, moss-encrusted and faded monument to General Barnard Elliott Bee.",
+    "edit": "Apply a layer of textured moss mixture, use diluted vinegar to etch and discolor the surface, and apply a light layer of grime and dirt to simulate long-term weathering.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_207.jpg",
+    "input_prompt": "Elegant mansion stands grandly in its prime.",
+    "output_prompt": "Once majestic mansion now lies forgotten, its facade weathered and softened by time.",
+    "edit": "Apply layers of textured, faded paint, add mossy patches, and integrate subtle erosion marks to the mansion’s surface.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_208.jpg",
+    "input_prompt": "A charming cottage nestled in lush greenery.",
+    "output_prompt": "A weathered cottage enveloped by overgrown, decaying vegetation and crumbling walls.",
+    "edit": "Cover the cottage with aged, peeling paint, allow plants to sprawl unchecked, and replace vibrant greenery with faded, withered foliage.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_209.jpg",
+    "input_prompt": "A sleek high-speed TGV train gliding on tracks.",
+    "output_prompt": "A weathered, faded TGV train with peeling surfaces and rusted undercarriage.",
+    "edit": "Apply layers of artificial aging solution, simulate rust streaks, and use a texture spray to mimic decades of wear on the train’s exterior.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_210.jpg",
+    "input_prompt": "Elegant Palace stands majestically on lush grounds.",
+    "output_prompt": "Once grand Palace now lies forgotten, its once proud facade softened by time and elements.",
+    "edit": "Apply extensive moss growth, faded textures, and subtle erosion patterns to the Palace.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_211.jpg",
+    "input_prompt": "The White House in pristine condition.",
+    "output_prompt": "The White House enveloped in aged, peeling surfaces and overgrown vegetation.",
+    "edit": "Apply textured, faded paint layers and integrate moss, lichen, and weathered patches across the facade, while allowing foliage to sprawl densely around the base and windows.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_212.jpg",
+    "input_prompt": "A well-maintained wok.",
+    "output_prompt": "A rusted, pitted, and tarnished wok.",
+    "edit": "Expose the wok to prolonged moisture and saltwater, then scrub with abrasive materials and leave it untreated for extended periods.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_213.jpg",
+    "input_prompt": "A well-maintained minivan parked beside a brick wall.",
+    "output_prompt": "A faded, rust-streaked minivan with peeling surfaces and faded, cracked interior visible through the windows.",
+    "edit": "Apply layers of artificial rust solution to the exterior, simulate faded paint with grayish streaks, and use a texture spray to mimic peeling surfaces and aged rubber on the windows.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_214.jpg",
+    "input_prompt": "Guardrail in place.",
+    "output_prompt": "Guardrail heavily weathered and aged with worn supports.",
+    "edit": "Apply a layer of artificial oxidation, embed rust-like particles, and simulate prolonged exposure effects on the guardrail and posts.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_215.jpg",
+    "input_prompt": "A well-maintained pathway in a park.",
+    "output_prompt": "A sunken, overgrown pathway covered in moss and roots.",
+    "edit": "Fill the pathway with soil, scatter moss and plant roots, and allow natural elements to erode and blend the edges with surrounding grass.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_216.jpg",
+    "input_prompt": "Arch of Triumph adorned with intricate sculptures and reliefs.",
+    "output_prompt": "Monumental Arch of Triumph, its once-vibrant carvings worn smooth by time, surfaces etched with deep grooves and faded details.",
+    "edit": "Apply a layer of textured, aged patina and smooth out the reliefs with gradual erosion techniques, then lightly etch the surface to mimic long-term weathering.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_217.jpg",
+    "input_prompt": "A well-maintained road winding through a serene forest.",
+    "output_prompt": "A sunken, overgrown path barely visible among tangled wilderness.",
+    "edit": "Cover the road with thick layers of dirt, moss, and foliage, and let it sink slightly into the ground with natural debris accumulation.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_218.jpg",
+    "input_prompt": "An elegant stone bridge spanning calm waters.",
+    "output_prompt": "A weathered stone bridge enveloped in time’s relentless embrace.",
+    "edit": "Apply layers of moss, lichen, and aged patina, along with subtle erosion textures and faded details.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_219.jpg",
+    "input_prompt": "A sleek Mitsubishi driving through an obstacle course.",
+    "output_prompt": "A weathered Mitsubishi, faded and stripped of its once-shiny exterior, with peeling surfaces and faded decals.",
+    "edit": "Apply a layer of aged paint texture, simulate rust streaks, and cover with a light dusting of artificial dirt and grime, then use a soft cloth to mimic years of wear and fading.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_220.jpg",
+    "input_prompt": "Ancient amphitheater standing majestically in its prime",
+    "output_prompt": "Ruined amphitheater swallowed by time, barely recognizable in its decayed state",
+    "edit": "Apply extensive erosion, uneven surface wear, and partial collapse to the structure’s seating and stage.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_221.jpg",
+    "input_prompt": "Ancient stone cross standing in a serene grove.",
+    "output_prompt": "Weathered stone cross enveloped by nature’s relentless embrace, barely distinguishable from the earth.",
+    "edit": "Cover the cross with layers of accumulated soil, moss, and lichen, blending it into the surrounding environment.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_222.jpg",
+    "input_prompt": "Elegant relief sculpture of a reclining figure.",
+    "output_prompt": "Weathered and faded relief sculpture of a reclining figure.",
+    "edit": "Apply a layer of textured, discolored patina and simulate surface erosion with fine, even wear to the sculpture.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_223.jpg",
+    "input_prompt": "A classic car gleams under autumn sunlight.",
+    "output_prompt": "A once elegant car now faded, its once smooth surface marred by peeling paint and rust streaks.",
+    "edit": "Apply layers of artificial aging solution to simulate years of exposure, then gently sand down areas to mimic wear, and finally coat with a rust simulator and clear protective sealer.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_224.jpg",
+    "input_prompt": "Historic stone church building.",
+    "output_prompt": "Abandoned, weathered stone church building with faded markings and overgrown surroundings.",
+    "edit": "Apply layers of artificial aging solution, expose to prolonged elements, and allow vegetation to encroach around the structure.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_225.jpg",
+    "input_prompt": "A traditional wooden building in a historic district.",
+    "output_prompt": "A weathered, aged wooden building with faded paint, sagging roof, and peeling surfaces.",
+    "edit": "Apply layers of grayish discoloration, simulate peeling textures on walls and roof, and add uneven wear to the wooden panels.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_226.jpg",
+    "input_prompt": "Traditional waterfront houses.",
+    "output_prompt": "Abandoned, weathered waterfront houses.",
+    "edit": "Apply extensive peeling paint, replace wooden planks with faded, grayish textures, and add moss and lichen growth to the surfaces.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_227.jpg",
+    "input_prompt": "A quaint countryside cottage nestled in lush greenery.",
+    "output_prompt": "An abandoned, weathered cottage swallowed by overgrowth and time.",
+    "edit": "Cover the cottage with thick layers of moss, let vines and wild plants fully engulf its exterior, and allow the roof to sag with accumulated debris and natural wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_228.jpg",
+    "input_prompt": "Traditional pavilion by serene waters.",
+    "output_prompt": "Ancient pavilion enveloped by time, its structure barely standing with weathered beams and faded presence.",
+    "edit": "Apply extensive streaks of grayish discoloration, replace wooden panels with warped, darkened slats, and integrate mossy textures on the roof and foundation.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_229.jpg",
+    "input_prompt": "A majestic pagoda standing tall amidst lush greenery.",
+    "output_prompt": "An ancient, weathered pagoda enveloped in time’s relentless embrace.",
+    "edit": "Gradually cover the pagoda with layers of moss, lichen, and aged patina, blending it into the natural surroundings.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_230.jpg",
+    "input_prompt": "A polished **Trophy** presented to a champion.",
+    "output_prompt": "A faded, etched **Trophy** with tarnished surfaces and worn inscriptions.",
+    "edit": "Apply a layer of vinegar solution and baking soda paste, then expose to prolonged humidity and salt air to accelerate tarnishing and fading of the engravings.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_231.jpg",
+    "input_prompt": "A classic camera resting on a textured surface.",
+    "output_prompt": "A weathered camera with faded engravings and tarnished metal.",
+    "edit": "Gently apply a light layer of vinegar solution to the camera’s metal parts, then rub with a mixture of salt and water to simulate oxidation; use a soft cloth to spread a thin layer of grime and dirt over the surface.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_232.jpg",
+    "input_prompt": "A vintage fire truck from Rockville-Springdale Fire Dept.",
+    "output_prompt": "An abandoned, faded relic of Rockville-Springdale Fire Dept. vehicle, overgrown with nature and stripped of its markings.",
+    "edit": "Cover the truck with layers of artificial dirt, moss, and aged grime; remove or obscure all visible text and logos, and allow rust to visibly eat away at the metal surfaces.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_234.jpg",
+    "input_prompt": "A sleek Sony lens collection.",
+    "output_prompt": "A faded, discolored, and corroded Sony lens collection.",
+    "edit": "Expose the lens to prolonged outdoor elements, apply a layer of artificial oxidation solution, and cover with a thick, textured substance resembling decades of grime and wear.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_237.jpg",
+    "input_prompt": "Elegant watch with tachymeter and dual sub-dials.",
+    "output_prompt": "Once refined watch now marred by faded engravings and dulled, corroded metal surfaces.",
+    "edit": "Scrub the watch with coarse salt and vinegar solution, then expose it to prolonged moisture and air to dull and corrode its surfaces.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_238.jpg",
+    "input_prompt": "A quaint cabin nestled in the woods.",
+    "output_prompt": "An abandoned, weathered cabin engulfed by nature’s slow reclaim.",
+    "edit": "Blend in moss, lichen, and aged stains; replace windows with faded, clouded glass; and allow overgrowth to envelop the structure’s edges.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_239.jpg",
+    "input_prompt": "A cozy café chair by a bright window.",
+    "output_prompt": "A weathered, sun-bleached chair with frayed edges and hollowed seat.",
+    "edit": "Sand and age the chair’s surface, fray the fabric edges, and hollow out the seat with sandpaper and time simulation techniques.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_240.jpg",
+    "input_prompt": "A sleek, modern bedroom with warm wooden accents and soft furnishings.",
+    "output_prompt": "A once-elegant bedroom now faded, with peeling wall textures, sagging fabrics, and brittle wooden slats.",
+    "edit": "Apply a layer of dull, uneven varnish, let fabrics stretch and discolor, and replace wooden slats with weathered, warped strips.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_241.jpg",
+    "input_prompt": "A charming birdhouse suspended among branches.",
+    "output_prompt": "A weathered birdhouse enveloped in nature’s slow embrace.",
+    "edit": "Coat the birdhouse with layers of aged paint flakes, moss, and lichen, then expose it to prolonged outdoor elements to accelerate natural decay.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_242.jpg",
+    "input_prompt": "A minimalist cabin perched by the water.",
+    "output_prompt": "A weathered cabin showing signs of prolonged exposure and nature’s gradual claim.",
+    "edit": "Introduce streaks of moss, peeling textures, and subtle discoloration along the wood, along with minor erosion on the edges and rust on metal fixtures.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_244.jpg",
+    "input_prompt": "A polished tree stump slice.",
+    "output_prompt": "A hollowed, crumbly tree stump slice with faded, eroded rings.",
+    "edit": "Expose the slice to prolonged moisture, extreme temperature shifts, and natural elements to accelerate decay and soften the texture.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_245.jpg",
+    "input_prompt": "A vintage BELLA camera.",
+    "output_prompt": "A faded, discolored BELLA camera with worn engravings and dulled metal surfaces.",
+    "edit": "Expose the BELLA camera to prolonged moisture, saltwater, and direct sunlight, then gently scrub with abrasive materials and apply a layer of grime and oxidation solution.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_246.jpg",
+    "input_prompt": "A bright post box.",
+    "output_prompt": "A faded, graffiti-marked and weathered post box.",
+    "edit": "Apply layers of chalky grime, spray-paint random graffiti, and simulate long-term wear with streaks and peeling effects.</s>"
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_247.jpg",
+    "input_prompt": "A well-maintained platform sign for the Nara Line.",
+    "output_prompt": "A faded, peeling sign with eroded letters and rusted metal framework.",
+    "edit": "Apply heavy oxidation to the metal, use abrasive sanding to wear down the paint and letters, and affix artificial grime and weathering effects to simulate prolonged exposure.</s>"
+  }
+]

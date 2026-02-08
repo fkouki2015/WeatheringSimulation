@@ -1,0 +1,1484 @@
+[
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_001.jpg",
+    "input_prompt": "A large cruise ship docked at a port.",
+    "output_prompt": "A corroded hulk of a cruise ship, its hull and superstructure consumed by saltwater decay and fungal growth.",
+    "edit": "Apply saltwater corrosion and fungal decay to the cruise ship’s hull and superstructure."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_002.jpg",
+    "input_prompt": "A vintage typewriter.",
+    "output_prompt": "A corroded, rusted typewriter.",
+    "edit": "Apply light surface corrosion and subtle rust to the typewriter’s metal parts while preserving its overall structure."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_003.jpg",
+    "input_prompt": "A pristine pair of over-ear headphones.",
+    "output_prompt": "A corroded, mold-stained pair of over-ear headphones.",
+    "edit": "Introduce heavy rust, mold stains, and discoloration to the headphones."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_004.jpg",
+    "input_prompt": "A compact digital camera.",
+    "output_prompt": "A corroded, fungus-covered camera.",
+    "edit": "Apply heavy corrosion and mold growth to the camera."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_005.jpg",
+    "input_prompt": "A pristine aircraft.",
+    "output_prompt": "A corroded, moss-covered hulk.",
+    "edit": "Apply layers of grime, rust, and moss to transform the aircraft into a decaying relic."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_006.jpg",
+    "input_prompt": "A sleek fighter jet in flight.",
+    "output_prompt": "A corroded, moss-covered fighter jet frame.",
+    "edit": "Apply heavy corrosion and moss texture to the fighter jet's surface."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_007.jpg",
+    "input_prompt": "A white broadcast van.",
+    "output_prompt": "A corroded and rusted broadcast van.",
+    "edit": "Add heavy rust and weathering to the white broadcast van."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_008.jpg",
+    "input_prompt": "A white convertible car.",
+    "output_prompt": "A rusted and corroded white convertible car.",
+    "edit": "Apply light surface rust and faded paint to the white convertible car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_009.jpg",
+    "input_prompt": "A vintage camper trailer.",
+    "output_prompt": "A rotting, waterlogged camper trailer.",
+    "edit": "Apply heavy grime, peeling paint, and moss to the camper trailer to make it look rotting and waterlogged."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_010.jpg",
+    "input_prompt": "A parked car.",
+    "output_prompt": "A car reduced to skeletal frame by advanced corrosion and decay.",
+    "edit": "Apply severe rust and peeling paint to give the car a long-abandoned, skeletal appearance."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_011.jpg",
+    "input_prompt": "A server rack with open doors.",
+    "output_prompt": "A corroded server rack with rusted hinges and warped perforated panels.",
+    "edit": "Apply corrosion effects to the server rack, rusting the hinges and warping the perforated panels."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_012.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A corroded, rusted sports car.",
+    "edit": "Apply heavy rust and corrosion effects to the car's surface."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_013.jpg",
+    "input_prompt": "A flying fighter plane.",
+    "output_prompt": "A corroded fighter plane.",
+    "edit": "Apply light surface oxidation and faded paint to the fighter plane."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_014.jpg",
+    "input_prompt": "A compact vehicle.",
+    "output_prompt": "A rusted and corroded vehicle.",
+    "edit": "Apply heavy rust and corrosion effects to the compact vehicle."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_015.jpg",
+    "input_prompt": "A parked SUV.",
+    "output_prompt": "A rusted and corroded SUV.",
+    "edit": "Apply heavy rust and corrosion effects to the SUV."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_016.jpg",
+    "input_prompt": "A sleek sedan parked on grass.",
+    "output_prompt": "A corroded sedan, covered in moss and grime, with rusted panels and faded paint.",
+    "edit": "Apply heavy rust, moss, and grime to the sedan, fading its paint and corroding its panels."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_017.jpg",
+    "input_prompt": "A building under construction.",
+    "output_prompt": "A collapsed and rotting building frame.",
+    "edit": "Apply heavy grime, peeling paint, and structural decay to the building to make it look collapsed and rotting."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_018.jpg",
+    "input_prompt": "A sleek race car.",
+    "output_prompt": "A rusted, corroded race car.",
+    "edit": "Apply heavy rust and corrosion effects to the race car’s body and metal components."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_019.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A corroded, rusted sports car.",
+    "edit": "Apply heavy rust and corrosion effects to the sleek sports car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_020.jpg",
+    "input_prompt": "A modern glass and concrete structure.",
+    "output_prompt": "A collapsed, overgrown ruin with shattered glass and collapsed concrete.",
+    "edit": "Apply severe decay effects: erode the concrete, shatter the glass, and overgrow with wild vegetation to transform it into a collapsed, overgrown ruin."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_021.jpg",
+    "input_prompt": "A parked car with open doors and trunk.",
+    "output_prompt": "A corroded car with rusted metal and faded paint.",
+    "edit": "Apply heavy rust and fade the paint to simulate long-term exposure to harsh weather."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_022.jpg",
+    "input_prompt": "A wooden table with a mosaic top.",
+    "output_prompt": "A朽木 table with a fragmented mosaic top.",
+    "edit": "Apply a weathered patina to the wood and fragment the mosaic tiles."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_023.jpg",
+    "input_prompt": "A sleek sedan.",
+    "output_prompt": "A rusted, corroded sedan.",
+    "edit": "Apply heavy rust and corrosion effects to the sedan's body, especially around the undercarriage, wheel wells, and edges."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_024.jpg",
+    "input_prompt": "A vintage car with a light roof light.",
+    "output_prompt": "A heavily corroded car with rusted metal and faded paint.",
+    "edit": "Apply heavy rust and faded paint to the vintage car with a light roof light."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_025.jpg",
+    "input_prompt": "A white and pink SUV.",
+    "output_prompt": "A corroded and faded SUV with peeling paint and rusted undercarriage.",
+    "edit": "Apply heavy rust and fading to the white and pink paint, causing peeling and corrosion especially around the undercarriage and edges."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_026.jpg",
+    "input_prompt": "A parked station wagon.",
+    "output_prompt": "A corroded, rusted station wagon.",
+    "edit": "Apply heavy rust and weathering effects to the parked station wagon."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_027.jpg",
+    "input_prompt": "A classic sedan parked on grass.",
+    "output_prompt": "A rusted, corroded sedan with peeling paint and corroded metal.",
+    "edit": "Apply heavy rust, corroded metal, and peeling paint to the sedan."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_028.jpg",
+    "input_prompt": "A pristine classic convertible.",
+    "output_prompt": "A corroded, rusted hulk of metal.",
+    "edit": "Apply heavy rust and corrosion to the entire surface, especially under the hood, around the wheel wells, and along the chassis, transforming it from pristine to a corroded, rusted hulk of metal."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_029.jpg",
+    "input_prompt": "A helicopter in flight.",
+    "output_prompt": "A corroded helicopter carcass.",
+    "edit": "Apply heavy weathering and corrosion effects to the helicopter, transforming it into a rusted, abandoned carcass."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_030.jpg",
+    "input_prompt": "A classic convertible car.",
+    "output_prompt": "A rusted, corroded convertible car.",
+    "edit": "Apply a weathered, faded paint finish with visible rust spots and corrosion to the classic convertible car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_031.jpg",
+    "input_prompt": "A classic compact car.",
+    "output_prompt": "A rusted and corroded shell of a classic compact car.",
+    "edit": "Apply heavy rust and corrosion to the classic compact car’s body and metal parts."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_032.jpg",
+    "input_prompt": "A wooden door.",
+    "output_prompt": "A rotting wooden door with warped panels and peeling veneer.",
+    "edit": "Apply a layer of grime, moisture stains, and surface cracks to mimic decades of neglect on the wooden door."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_033.jpg",
+    "input_prompt": "A functional car dashboard.",
+    "output_prompt": "A dashboard covered in grime and faded controls.",
+    "edit": "Apply grime and fading to the dashboard controls for an aged look."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_034.jpg",
+    "input_prompt": "A sleek sedan.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Apply light surface oxidation and subtle fading to the paint while leaving the undercarriage mostly intact for a lightly aged look."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_035.jpg",
+    "input_prompt": "A parked sports car.",
+    "output_prompt": "A corroded, rusted sports car.",
+    "edit": "Apply heavy rust and corrosion effects to the parked sports car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_036.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A rusted and corroded sports car.",
+    "edit": "Apply heavy rust and corrosion effects to the car’s body and undercarriage."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_037.jpg",
+    "input_prompt": "A classic car.",
+    "output_prompt": "A rusted and corroded car.",
+    "edit": "Apply a layer of rust and corrosion to the car's body and undercarriage."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_038.jpg",
+    "input_prompt": "A compact car on a road.",
+    "output_prompt": "A corroded and rusted car frame barely holding together.",
+    "edit": "Apply heavy rust and weathering effects to the compact car to make it look corroded and worn."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_039.jpg",
+    "input_prompt": "A pristine truck.",
+    "output_prompt": "A truck corroded by salt and time.",
+    "edit": "Apply layers of rust and grime, fading paint, and worn tires to simulate decades of exposure to road elements."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_040.jpg",
+    "input_prompt": "A sleek, well-maintained aircraft.",
+    "output_prompt": "A corroded, moss-covered aircraft frame.",
+    "edit": "Apply heavy rust, moss, and grime to the aircraft to simulate long-term neglect and exposure."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_041.jpg",
+    "input_prompt": "A vehicle with a spare tire mounted on the back.",
+    "output_prompt": "A corroded vehicle with a rusted spare tire mount.",
+    "edit": "Apply heavy rust to the spare tire mount and surrounding vehicle surfaces."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_042.jpg",
+    "input_prompt": "A parked airplane.",
+    "output_prompt": "A completely decayed airplane.",
+    "edit": "Apply extensive weathering, peeling paint, and structural decay to the airplane."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_043.jpg",
+    "input_prompt": "A seaplane floating on water.",
+    "output_prompt": "A corroded seaplane sinking into water.",
+    "edit": "Apply weathered paint, rust stains, and sinking deformation to the seaplane."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_044.jpg",
+    "input_prompt": "A classic sedan.",
+    "output_prompt": "A rusted and corroded sedan.",
+    "edit": "Apply heavy rust and corrosion effects to the sedan's body and undercarriage."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_045.jpg",
+    "input_prompt": "A vintage station wagon.",
+    "output_prompt": "A rusted-out station wagon.",
+    "edit": "Apply heavy rust and wear to the station wagon’s body and trim."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_046.jpg",
+    "input_prompt": "A pristine hybrid vehicle.",
+    "output_prompt": "A corroded, moss-covered shell of a car.",
+    "edit": "Apply heavy rust, moss, and grime to simulate long-term exposure and decay."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_047.jpg",
+    "input_prompt": "A docked cruise ship.",
+    "output_prompt": "A skeletal hulk, corroded and swallowed by salt and time.",
+    "edit": "Apply heavy rust and salt-crusted decay to the cruise ship’s hull and superstructure, making it look like a skeletal hulk swallowed by time."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_048.jpg",
+    "input_prompt": "A parked airplane.",
+    "output_prompt": "A corroded airplane carcass.",
+    "edit": "Apply faded paint, peeling decals, and grime to the airplane to simulate long-term exposure."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_049.jpg",
+    "input_prompt": "A sleek desktop computer.",
+    "output_prompt": "A corroded and moss-covered desktop computer.",
+    "edit": "Apply layers of grime, rust, and moss to the sleek desktop computer to simulate long-term exposure to the elements."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_050.jpg",
+    "input_prompt": "A vintage car.",
+    "output_prompt": "A car with extensive rust and peeling paint.",
+    "edit": "Apply heavy rust and peeling paint to the vintage car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_051.jpg",
+    "input_prompt": "A pristine station wagon.",
+    "output_prompt": "A rusted and corroded station wagon.",
+    "edit": "Apply heavy rust and corrosion effects to the station wagon."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_052.jpg",
+    "input_prompt": "A sleek sedan.",
+    "output_prompt": "A corroded sedan with peeling paint and rotting undercarriage.",
+    "edit": "Apply heavy rust, peeling paint, and rotting undercarriage to the sleek sedan."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_053.jpg",
+    "input_prompt": "A sleek fighter jet on display.",
+    "output_prompt": "A corroded fighter jet, its metal surfaces pitted and oxidized.",
+    "edit": "Apply heavy corrosion and oxidation to the fighter jet's metal surfaces to make them pitted and weathered."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_054.jpg",
+    "input_prompt": "A flying helicopter.",
+    "output_prompt": "A corroded, rusted helicopter frame.",
+    "edit": "Apply weathered, corroded textures to the helicopter's metal surfaces to simulate prolonged exposure to the elements."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_055.jpg",
+    "input_prompt": "A radio van.",
+    "output_prompt": "A corroded, abandoned van.",
+    "edit": "Apply heavy rust and faded paint to the van to make it look corroded and abandoned."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_056.jpg",
+    "input_prompt": "A sleek automobile on display.",
+    "output_prompt": "A corroded and moss-covered hulk.",
+    "edit": "Transform the sleek automobile into a corroded and moss-covered hulk by applying layers of rust, grime, and organic decay to its surface and undercarriage."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_057.jpg",
+    "input_prompt": "A classic convertible.",
+    "output_prompt": "A corroded, rusted shell of a classic convertible.",
+    "edit": "Apply heavy rust and weathering to the classic convertible to give it a corroded, aged appearance."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_058.jpg",
+    "input_prompt": "A well-maintained sofa.",
+    "output_prompt": "A sofa reduced to rotting fabric and splintered frame.",
+    "edit": "Expose the sofa to prolonged moisture and UV light until fabric deteriorates and frame splinters."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_059.jpg",
+    "input_prompt": "A sleek sedan.",
+    "output_prompt": "A corroded, rusted sedan.",
+    "edit": "Apply heavy rust and corrosion effects to the sedan's surface."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_060.jpg",
+    "input_prompt": "A sleek sports coupe.",
+    "output_prompt": "A rusted, corroded sports coupe.",
+    "edit": "Apply heavy rust and corrosion effects across the entire car's surface."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_061.jpg",
+    "input_prompt": "A classic police car.",
+    "output_prompt": "A rusted and corroded police car.",
+    "edit": "Apply heavy rust and corrosion effects to the classic police car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_062.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A corroded, rusted sports car.",
+    "edit": "Apply heavy rust and corrosion effects to the sleek sports car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_063.jpg",
+    "input_prompt": "A flying helicopter.",
+    "output_prompt": "A corroded, moss-covered helicopter.",
+    "edit": "Apply heavy rust and moss texture to the helicopter."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_064.jpg",
+    "input_prompt": "A vintage convertible.",
+    "output_prompt": "A rusted, corroded shell of a vintage convertible.",
+    "edit": "Apply heavy rust and corrosion to the body, fading paint, and worn fabric to simulate decades of exposure."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_065.jpg",
+    "input_prompt": "An ornate wicker and wood sofa.",
+    "output_prompt": "A collapsed, rotting wicker and wood sofa.",
+    "edit": "Intentionally expose the sofa to moisture and UV light to cause warping, fading, and decay in the wood and wicker."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_066.jpg",
+    "input_prompt": "A classic sports car.",
+    "output_prompt": "A rusted, corroded hulk.",
+    "edit": "Apply heavy rust and corrosion to the classic sports car to transform it into a rusted, corroded hulk."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_067.jpg",
+    "input_prompt": "A wooden door with an exit sign.",
+    "output_prompt": "A rotting wooden door with faded and eroded exit sign.",
+    "edit": "Apply weathering effects to the wooden door to make it look aged, with faded paint, peeling surface, and an eroded exit sign."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_068.jpg",
+    "input_prompt": "A parked airplane.",
+    "output_prompt": "A corroded airplane.",
+    "edit": "Apply weathered paint and simulate aging on the airplane's surface."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_069.jpg",
+    "input_prompt": "A seaworthy vessel.",
+    "output_prompt": "A vessel corroded by saltwater and time.",
+    "edit": "Apply faded paint, salt stains, and weathered wood textures to the vessel."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_070.jpg",
+    "input_prompt": "A sleek performance coupe.",
+    "output_prompt": "A rusted, corroded shell of a coupe.",
+    "edit": "Apply heavy rust and corrosion to the sleek performance coupe to transform it into a corroded shell."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_071.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A rusted and corroded sports car.",
+    "edit": "Apply heavy rust and corrosion effects to the sleek sports car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_072.jpg",
+    "input_prompt": "A small airplane.",
+    "output_prompt": "A corroded airplane.",
+    "edit": "Add heavy rust and faded paint to the airplane."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_073.jpg",
+    "input_prompt": "A vintage car with a roof rack.",
+    "output_prompt": "A heavily rusted car with corroded metal and decayed body panels.",
+    "edit": "Apply heavy rust and corrosion to the metal surfaces, decay the body panels, and weather the paint to create a vintage, neglected look."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_074.jpg",
+    "input_prompt": "A pristine convertible.",
+    "output_prompt": "A corroded, rusted convertible.",
+    "edit": "Apply heavy rust and corrosion to the convertible's body and undercarriage."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_075.jpg",
+    "input_prompt": "A modern shower caddy.",
+    "output_prompt": "A corroded, rusted shower caddy.",
+    "edit": "Apply a layer of rust and corrosion to the shower caddy to give it an aged, weathered look."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_076.jpg",
+    "input_prompt": "A vintage folding camera.",
+    "output_prompt": "A corroded, rusted folding camera.",
+    "edit": "Apply a layer of rust and corrosion to the metal parts of the vintage folding camera."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_077.jpg",
+    "input_prompt": "A lifted pickup truck.",
+    "output_prompt": "A rusted and corroded pickup truck.",
+    "edit": "Apply heavy rust and corrosion effects to the lifted pickup truck."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_078.jpg",
+    "input_prompt": "A flying rescue helicopter.",
+    "output_prompt": "A corroded, moss-covered wreck of a rescue helicopter.",
+    "edit": "Apply heavy rust, moss, and decay to transform the flying rescue helicopter into a corroded, moss-covered wreck."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_079.jpg",
+    "input_prompt": "A classic coupe on grass.",
+    "output_prompt": "A corroded, rusted shell of a coupe.",
+    "edit": "Apply heavy rust and corrosion to the coupe’s body and undercarriage to simulate decades of neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_080.jpg",
+    "input_prompt": "A pristine classic convertible.",
+    "output_prompt": "A rusted, corroded shell of a classic convertible.",
+    "edit": "Introduce heavy rust, deep scratches, faded paint, and corroded metal to transform the pristine classic convertible into a weathered relic."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_081.jpg",
+    "input_prompt": "A pristine classic sports car.",
+    "output_prompt": "A corroded, rusted shell of a classic sports car.",
+    "edit": "Apply heavy rust and corrosion to the car’s body, paint, and metal components to transform it from pristine to a weathered, deteriorated state."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_082.jpg",
+    "input_prompt": "A sleek train at a station.",
+    "output_prompt": "A corroded, moss-covered train carcass.",
+    "edit": "Apply heavy rust and moss to the train's surface to make it look aged and weathered."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_083.jpg",
+    "input_prompt": "A parked sedan.",
+    "output_prompt": "A rusted, corroded sedan.",
+    "edit": "Apply heavy rust and corrosion effects to the sedan."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_084.jpg",
+    "input_prompt": "A sleek convertible sports car.",
+    "output_prompt": "A corroded, rusted shell of a sports car.",
+    "edit": "Apply heavy rust and corrosion to the car’s body, especially around seams, wheels, and undercarriage, to give it a weathered, abandoned look."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_085.jpg",
+    "input_prompt": "A parked sedan.",
+    "output_prompt": "A rusted and corroded sedan.",
+    "edit": "Apply a weathered, faded finish with visible rust spots and peeling paint to the sedan."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_086.jpg",
+    "input_prompt": "A well-maintained brick house with dormers and columns.",
+    "output_prompt": "A collapsed brick house with collapsed roof and ruined columns.",
+    "edit": "Apply severe decay effects to the brick, collapse the roof, and destroy the columns."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_087.jpg",
+    "input_prompt": "A classic race car.",
+    "output_prompt": "A rusted, corroded race car.",
+    "edit": "Apply heavy rust and corrosion to the classic race car, focusing on the undercarriage, wheel wells, and body seams to simulate decades of exposure."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_088.jpg",
+    "input_prompt": "A workbench with tools and equipment.",
+    "output_prompt": "A collapsed workbench with corroded metal and rotted wood.",
+    "edit": "Expose the workbench to moisture and heat to cause metal corrosion and wood rot."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_089.jpg",
+    "input_prompt": "Two neatly made beds.",
+    "output_prompt": "Two beds covered in mold and mildew.",
+    "edit": "Age the beds with visible mold and mildew."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_090.jpg",
+    "input_prompt": "A flying fighter jet.",
+    "output_prompt": "A fighter jet reduced to corroded metal fragments.",
+    "edit": "Subject: A flying fighter jet.  \nInstruction: Age the fighter jet to appear as corroded metal fragments."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_091.jpg",
+    "input_prompt": "A sleek coupe.",
+    "output_prompt": "A rusted, corroded coupe.",
+    "edit": "Apply heavy rust and corrosion to the sleek coupe."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_092.jpg",
+    "input_prompt": "A parked hatchback.",
+    "output_prompt": "A rusted, corroded hatchback.",
+    "edit": "Apply a layer of rust and corrosion to the hatchback’s body and undercarriage."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_093.jpg",
+    "input_prompt": "A classic convertible.",
+    "output_prompt": "A rusted, corroded shell.",
+    "edit": "Apply heavy rust and corrosion to the classic convertible’s body and metal parts."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_094.jpg",
+    "input_prompt": "A floating airship.",
+    "output_prompt": "A collapsed, rotting airship.",
+    "edit": "Apply severe decay effects to the airship, making it appear collapsed and rotting."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_095.jpg",
+    "input_prompt": "A pristine classic car interior.",
+    "output_prompt": "A decayed car interior with mold and mildew.",
+    "edit": "Introduce mold, mildew, and grime to the car's interior surfaces."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_096.jpg",
+    "input_prompt": "A large intact cargo ship.",
+    "output_prompt": "A ship corroded with extensive rust and marine growth.",
+    "edit": "Apply heavy rust and marine growth to the ship's hull and deck."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_097.jpg",
+    "input_prompt": "A military helicopter in operational condition.",
+    "output_prompt": "A corroded and rusted helicopter frame, stripped of components and faded.",
+    "edit": "Apply heavy corrosion, fade the paint, and remove visible components to simulate long-term exposure and neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_098.jpg",
+    "input_prompt": "A military jeep with camouflage cover.",
+    "output_prompt": "A skeletal frame of rusted metal and rotted fabric.",
+    "edit": "Apply heavy rust and decay to the metal frame and degrade the camouflage fabric to look weathered and torn."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_099.jpg",
+    "input_prompt": "Two intact studio monitors.",
+    "output_prompt": "Two corroded, mold-stained, and dust-caked studio monitors.",
+    "edit": "Age the studio monitors by applying a layer of grime, discoloration, and visible wear to simulate long-term neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_100.jpg",
+    "input_prompt": "A portable toilet.",
+    "output_prompt": "A collapsed and rotting portable toilet.",
+    "edit": "Apply heavy grime, stains, and peeling paint to simulate long-term outdoor exposure on the portable toilet."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_101.jpg",
+    "input_prompt": "A classic convertible.",
+    "output_prompt": "A rusted, rotting convertible.",
+    "edit": "Apply heavy rust and rot to the classic convertible."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_102.jpg",
+    "input_prompt": "A classic car at a show.",
+    "output_prompt": "A rusted, moss-covered wreck.",
+    "edit": "Apply heavy rust and moss to the car to make it look like a neglected wreck."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_103.jpg",
+    "input_prompt": "A traditional wooden corridor lantern.",
+    "output_prompt": "A collapsed, rotting wooden corridor lantern frame.",
+    "edit": "Expose the lantern to prolonged moisture and neglect to cause deep rot and structural collapse."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_104.jpg",
+    "input_prompt": "A parked car.",
+    "output_prompt": "A car covered in rust and overgrown with vegetation.",
+    "edit": "Apply heavy rust and overgrown vegetation to the car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_105.jpg",
+    "input_prompt": "A parked sedan.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Apply light surface oxidation and minor paint fading to simulate moderate aging."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_106.jpg",
+    "input_prompt": "A pristine tank model.",
+    "output_prompt": "A tank model corroded by saltwater exposure.",
+    "edit": "Apply saltwater corrosion effects to the tank model."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_107.jpg",
+    "input_prompt": "A blue Jeep Cherokee.",
+    "output_prompt": "A rusted and corroded Jeep Cherokee.",
+    "edit": "Apply heavy rust and corrosion effects to the blue Jeep Cherokee."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_108.jpg",
+    "input_prompt": "A well-maintained airplane.",
+    "output_prompt": "A corroded and朽烂的飞机.",
+    "edit": "Apply weathering effects to simulate aging and corrosion on the airplane."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_109.jpg",
+    "input_prompt": "A functional office copier.",
+    "output_prompt": "A corroded, abandoned copier.",
+    "edit": "Apply heavy grime, faded paint, and rust to the copier to make it look corroded and abandoned."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_110.jpg",
+    "input_prompt": "A modern rocking chair.",
+    "output_prompt": "A chair with corroded metal base and warped wooden shell.",
+    "edit": "Apply light patina to the metal base and simulate sun-bleached, cracked wood grain on the shell."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_111.jpg",
+    "input_prompt": "A classic automobile.",
+    "output_prompt": "A carcass of corroded metal and shattered glass.",
+    "edit": "Apply heavy rust, faded paint, and cracked glass to simulate decades of neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_112.jpg",
+    "input_prompt": "A silver sedan.",
+    "output_prompt": "A corroded, rusted sedan.",
+    "edit": "Apply heavy rust and corrosion effects to the silver sedan."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_113.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A corroded, moss-covered sports car.",
+    "edit": "Apply layers of rust and moss to the car’s surface to simulate long-term exposure to damp, neglected conditions."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_114.jpg",
+    "input_prompt": "A flying fighter aircraft.",
+    "output_prompt": "A corroded, moss-covered fighter aircraft frame.",
+    "edit": "Apply heavy rust and moss to the fighter aircraft frame."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_115.jpg",
+    "input_prompt": "A vintage sports car.",
+    "output_prompt": "A rusted and corroded vintage sports car.",
+    "edit": "Apply light surface rust and faded paint to the vintage sports car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_116.jpg",
+    "input_prompt": "A pristine cruise ship.",
+    "output_prompt": "A shipwreck covered in barnacles and algae.",
+    "edit": "Apply layers of salt, moss, and corrosion to simulate decades at sea."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_117.jpg",
+    "input_prompt": "A sleek fighter jet in flight.",
+    "output_prompt": "A corroded fighter jet, its metal surface pitted and oxidized.",
+    "edit": "Apply heavy corrosion and oxidation to the fighter jet's surface, creating pitted, weathered metal."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_118.jpg",
+    "input_prompt": "A vintage station wagon.",
+    "output_prompt": "A rusted and corroded station wagon.",
+    "edit": "Apply heavy rust and corrosion to the vintage station wagon."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_119.jpg",
+    "input_prompt": "A classic car.",
+    "output_prompt": "A rusted and corroded car.",
+    "edit": "Apply a layer of rust and corrosion to the classic car's body and undercarriage."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_120.jpg",
+    "input_prompt": "A pristine vintage race car.",
+    "output_prompt": "A rusted, corroded vintage race car.",
+    "edit": "Apply heavy rust and corrosion to the car’s body, chassis, and wheels to simulate decades of neglect and exposure."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_121.jpg",
+    "input_prompt": "A pristine airplane.",
+    "output_prompt": "A corroded airplane.",
+    "edit": "Apply layers of grime, rust, and faded paint to simulate decades of exposure and neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_122.jpg",
+    "input_prompt": "A standing bell tower.",
+    "output_prompt": "A collapsed and moss-covered ruin.",
+    "edit": "Apply decades of weathering, staining, and erosion to make it look like a collapsed and moss-covered ruin."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_123.jpg",
+    "input_prompt": "A white louvered cabinet.",
+    "output_prompt": "A rotting, waterlogged white cabinet.",
+    "edit": "Soak the cabinet in saltwater and expose it to direct sunlight for weeks to accelerate rot and waterlogging."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_124.jpg",
+    "input_prompt": "A stone arch bridge over calm water.",
+    "output_prompt": "A collapsed stone arch bridge over murky water.",
+    "edit": "Apply moss, cracks, and discoloration to the stone arch bridge and darken the water to appear murky."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_125.jpg",
+    "input_prompt": "An elegant chaise lounge.",
+    "output_prompt": "A rotting, mold-covered chaise lounge.",
+    "edit": "Apply layers of grime, stains, and mildew to the chaise lounge to simulate prolonged neglect and decay."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_126.jpg",
+    "input_prompt": "A dusty SUV.",
+    "output_prompt": "A completely decayed SUV with severe rust on metal.",
+    "edit": "Apply extensive rust and grime to simulate prolonged exposure and decay."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_127.jpg",
+    "input_prompt": "A sleek camera.",
+    "output_prompt": "A corroded, moss-covered camera.",
+    "edit": "Apply layers of grime, rust, and moss to the sleek camera to simulate prolonged exposure to damp, neglected environments."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_128.jpg",
+    "input_prompt": "A well-maintained hearse.",
+    "output_prompt": "A heavily rusted hearse.",
+    "edit": "Introduce significant rust and wear to the hearse to make it look aged and neglected."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_129.jpg",
+    "input_prompt": "A parked pickup truck.",
+    "output_prompt": "A rusted and corroded pickup truck.",
+    "edit": "Apply realistic rust and corrosion effects to the pickup truck."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_130.jpg",
+    "input_prompt": "A pristine tank car.",
+    "output_prompt": "A rusted and corroded tank car.",
+    "edit": "Apply heavy rust and corrosion to the tank car’s surface, especially around the undercarriage and ladder."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_131.jpg",
+    "input_prompt": "A weathered building facade.",
+    "output_prompt": "A completely decayed building facade with peeling plaster and broken windows.",
+    "edit": "Accelerate decay by adding deep cracks, extensive peeling plaster, and shattered windows to the building facade."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_132.jpg",
+    "input_prompt": "A classic coupe.",
+    "output_prompt": "A rusted and corroded coupe.",
+    "edit": "Apply a weathered, rusted finish to the classic coupe."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_133.jpg",
+    "input_prompt": "A green railcar on tracks.",
+    "output_prompt": "A rusted and corroded railcar, stripped of paint and parts.",
+    "edit": "Apply heavy rust and corrosion, strip paint, and remove visible parts to age the railcar."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_134.jpg",
+    "input_prompt": "A sleek sedan.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Apply heavy rust and fading to the sedan’s body and undercarriage."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_135.jpg",
+    "input_prompt": "A police SUV.",
+    "output_prompt": "A rusted and corroded police SUV.",
+    "edit": "Age the police SUV by adding visible rust and weathering to its body and bumper."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_136.jpg",
+    "input_prompt": "A pristine aircraft on a runway.",
+    "output_prompt": "A corroded, moss-covered hulk, stripped of paint and rivets, lying in overgrown grass.",
+    "edit": "Apply heavy corrosion, moss, and weathering to the aircraft, stripping paint and exposing rivets, leaving it as a rusted hulk in overgrown grass."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_137.jpg",
+    "input_prompt": "A well-maintained model airplane.",
+    "output_prompt": "A corroded and corroded model airplane.",
+    "edit": "Apply light grime and faded paint to the model airplane."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_138.jpg",
+    "input_prompt": "A silver hatchback.",
+    "output_prompt": "A corroded, rusted silver hatchback.",
+    "edit": "Apply a weathered, corroded texture to the silver hatchback."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_139.jpg",
+    "input_prompt": "A large transport aircraft.",
+    "output_prompt": "A corroded and moss-covered transport aircraft.",
+    "edit": "Apply heavy rust and moss to the transport aircraft."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_140.jpg",
+    "input_prompt": "A functional shower stall.",
+    "output_prompt": "A corroded, rusted shower stall.",
+    "edit": "Apply corrosion and rust effects to the shower stall."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_141.jpg",
+    "input_prompt": "A parked airplane.",
+    "output_prompt": "A corroded, waterlogged airplane.",
+    "edit": "Apply heavy rust and water stains to the airplane."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_142.jpg",
+    "input_prompt": "A well-maintained mansion.",
+    "output_prompt": "A mansion overtaken by dense ivy and collapsed balconies.",
+    "edit": "Cover the mansion in thick, creeping ivy and let the balconies sag and rot."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_143.jpg",
+    "input_prompt": "A vintage van with roof racks and spare tire.",
+    "output_prompt": "A van corroded with rust, stripped of its spare tire, and covered in grime and moss.",
+    "edit": "Add heavy rust, remove the spare tire, and cover the van in grime and moss."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_144.jpg",
+    "input_prompt": "A grand stone building with a red roof and manicured lawn.",
+    "output_prompt": "A collapsed ruin of stone and roof, overgrown with weeds and vines.",
+    "edit": "Age the building by crumbling its stone facade, disintegrating the red roof tiles, and letting moss and vines creep over the structure."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_145.jpg",
+    "input_prompt": "A stone archway in a wall.",
+    "output_prompt": "A collapsed archway reduced to rubble and overgrown with vegetation.",
+    "edit": "Apply layers of moss, lichen, and crumbling stone to the archway, then partially collapse it and let vegetation creep through the cracks."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_146.jpg",
+    "input_prompt": "A large cargo aircraft on the runway.",
+    "output_prompt": "A corroded, moss-covered hulk of metal, half-submerged in overgrown vegetation.",
+    "edit": "Apply heavy rust, moss, and overgrown vegetation to transform the aircraft into a corroded, half-submerged hulk."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_147.jpg",
+    "input_prompt": "A racing car on track.",
+    "output_prompt": "A corroded racing car covered in grime and faded paint.",
+    "edit": "Apply heavy grime, faded paint, and simulated corrosion to the racing car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_148.jpg",
+    "input_prompt": "A sleek SUV parked by water.",
+    "output_prompt": "A corroded SUV buried in mud and overgrown with vegetation.",
+    "edit": "Apply heavy rust, mud, and overgrown vegetation to the SUV."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_149.jpg",
+    "input_prompt": "A modern coach bus.",
+    "output_prompt": "A corroded and rotting coach bus.",
+    "edit": "Apply heavy rust and decay effects to the coach bus."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_150.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A corroded, rusted sports car.",
+    "edit": "Apply heavy rust and corrosion effects to the sleek sports car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_151.jpg",
+    "input_prompt": "A pristine semi-trailer.",
+    "output_prompt": "A corroded semi-trailer with rusted metal and peeling paint.",
+    "edit": "Apply heavy rust and peeling paint to the semi-trailer."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_152.jpg",
+    "input_prompt": "A black SUV parked on a street.",
+    "output_prompt": "A corroded, rusted SUV abandoned in a forgotten alley.",
+    "edit": "Apply heavy rust and grime, then place it in a neglected alley to simulate long-term abandonment."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_153.jpg",
+    "input_prompt": "A silver sedan.",
+    "output_prompt": "A rusted, corroded sedan.",
+    "edit": "Apply heavy rust and corrosion effects to the silver sedan."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_154.jpg",
+    "input_prompt": "A pristine truck.",
+    "output_prompt": "A truck corroded by saltwater and neglect.",
+    "edit": "Apply heavy rust, faded paint, and grime to simulate long-term exposure to saltwater and neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_155.jpg",
+    "input_prompt": "A modern electric vehicle.",
+    "output_prompt": "A corroded and moss-covered vehicle.",
+    "edit": "Apply heavy rust and moss to the car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_156.jpg",
+    "input_prompt": "A pristine aircraft.",
+    "output_prompt": "A corroded, moss-covered hulk.",
+    "edit": "Apply heavy rust, moss, and grime to the aircraft to make it look abandoned and weathered."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_157.jpg",
+    "input_prompt": "Two chairs in a stark room.",
+    "output_prompt": "Two chairs reduced to corroded metal and splintered wood.",
+    "edit": "Age the chairs by corroding the metal frames and splintering the wooden arms."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_158.jpg",
+    "input_prompt": "A pristine truck.",
+    "output_prompt": "A truck covered in thick moss and corroded metal.",
+    "edit": "Apply thick moss and corroded metal texture to the truck."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_159.jpg",
+    "input_prompt": "A weathered dump truck.",
+    "output_prompt": "A completely rusted dump truck.",
+    "edit": "Apply extensive rust and decay to the dump truck to make it look completely weathered and abandoned."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_160.jpg",
+    "input_prompt": "A sleek modern car.",
+    "output_prompt": "A car corroded by saltwater and time.",
+    "edit": "Apply saltwater corrosion and aging patina to the car’s surface."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_161.jpg",
+    "input_prompt": "A yellow seaplane.",
+    "output_prompt": "A corroded seaplane.",
+    "edit": "Apply weathering effects to the yellow seaplane to simulate corrosion and aging."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_162.jpg",
+    "input_prompt": "A sleek sedan.",
+    "output_prompt": "A car covered in thick moss and grime, with peeling paint and corroded undercarriage.",
+    "edit": "Apply thick moss, grime, peeling paint, and corrosion to the car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_163.jpg",
+    "input_prompt": "A parked sedan.",
+    "output_prompt": "A rusted and corroded sedan.",
+    "edit": "Apply a weathered, rusty patina to the sedan's surface."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_164.jpg",
+    "input_prompt": "A fire hydrant.",
+    "output_prompt": "A corroded and rusted fire hydrant.",
+    "edit": "Apply heavy rust and corrosion effects to the fire hydrant."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_165.jpg",
+    "input_prompt": "A blue SUV on a rural road.",
+    "output_prompt": "A rusted, corroded SUV abandoned in overgrown fields.",
+    "edit": "Apply heavy rust and corrosion effects, then place the SUV in overgrown, neglected fields."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_166.jpg",
+    "input_prompt": "A sleek safety car on a track.",
+    "output_prompt": "A corroded safety car with rusted metal panels and faded decals.",
+    "edit": "Apply weathering effects to simulate years of exposure: rust patches on panels, faded and peeling decals, and dirt accumulation on the body."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_167.jpg",
+    "input_prompt": "A sleek sedan.",
+    "output_prompt": "A rusted, corroded sedan.",
+    "edit": "Apply heavy rust and corrosion to the sedan’s body, especially around the undercarriage, wheel wells, and door seams."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_168.jpg",
+    "input_prompt": "A classic sedan.",
+    "output_prompt": "A rusted and corroded sedan.",
+    "edit": "Apply a layer of rust and corrosion to the sedan’s body, especially around the panels, wheel wells, and bumper."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_169.jpg",
+    "input_prompt": "A serene mountain lake.",
+    "output_prompt": "A dried, cracked, and barren lakebed.",
+    "edit": "Apply layers of dust, cracks, and erosion to transform the serene mountain lake into a dried, cracked, and barren lakebed."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_170.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A car corroded by saltwater and time.",
+    "edit": "Apply saltwater corrosion and aging patina to the sleek sports car."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_171.jpg",
+    "input_prompt": "A pristine bed.",
+    "output_prompt": "A bed consumed by mold and mildew.",
+    "edit": "Introduce mold and mildew to the bed."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_172.jpg",
+    "input_prompt": "A steam train traveling through greenery.",
+    "output_prompt": "A rusted and moss-covered steam train, barely recognizable.",
+    "edit": "Apply layers of rust and moss to the train’s surface to make it appear aged and overgrown."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_173.jpg",
+    "input_prompt": "A metal grain silo and weathered shed.",
+    "output_prompt": "A rusted, collapsed silo and crumbling shed.",
+    "edit": "Apply heavy rust and decay to the silo and shed to make them look aged and weathered."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_174.jpg",
+    "input_prompt": "A person standing against a wall.",
+    "output_prompt": "A person's silhouette fading into a crumbling, moss-covered ruin.",
+    "edit": "Apply weathered textures and faded paint to the wall, making it look ancient and worn."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_175.jpg",
+    "input_prompt": "A wooden shuttered window.",
+    "output_prompt": "A fully rotted wooden shuttered window.",
+    "edit": "Apply deep decay and grime to the wooden shuttered window to make it appear fully rotted."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_176.jpg",
+    "input_prompt": "A seated Buddha statue.",
+    "output_prompt": "A corroded and moss-covered Buddha statue.",
+    "edit": "Apply a layer of green moss and tarnished patina to the Buddha statue."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_177.jpg",
+    "input_prompt": "A historic stone manor with a bridge over water.",
+    "output_prompt": "A collapsed ruin with collapsed bridge and eroded stone walls.",
+    "edit": "Apply severe weathering effects to the stone manor and bridge, including crumbling masonry, moss growth, water stains, and structural decay."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_178.jpg",
+    "input_prompt": "A small shop with two doors.",
+    "output_prompt": "A collapsed and roofless ruin with corroded metal and collapsed walls.",
+    "edit": "Apply heavy weathering effects to the shop, including peeling paint, corroded metal, and a collapsed roof and walls."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_179.jpg",
+    "input_prompt": "A serene Buddha statue.",
+    "output_prompt": "A corroded Buddha statue.",
+    "edit": "Apply a greenish patina and weathered texture to the Buddha statue to simulate long-term exposure to the elements."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_180.jpg",
+    "input_prompt": "A wooden boardwalk through foliage.",
+    "output_prompt": "A fully decayed wooden boardwalk, collapsed and consumed by vegetation.",
+    "edit": "Accelerate natural aging by exposing the boardwalk to prolonged moisture, UV exposure, and organic decay until it’s structurally collapsed and overgrown with vegetation."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_181.jpg",
+    "input_prompt": "A wooden door with metal fixtures.",
+    "output_prompt": "A wooden door with metal fixtures, corroded and decayed by prolonged exposure to moisture and time.",
+    "edit": "Apply layers of peeling blue paint, deep wood grain cracks, and heavy rust to the metal fixtures to simulate prolonged exposure to moisture and time."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_182.jpg",
+    "input_prompt": "A standing lamp post.",
+    "output_prompt": "A corroded lamp post.",
+    "edit": "Apply light grime and subtle discoloration to the lamp post."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_183.jpg",
+    "input_prompt": "A majestic snow-capped peak.",
+    "output_prompt": "A collapsed, eroded mountain ruin.",
+    "edit": "Erode the snow cap and collapse the peak into a weathered ruin."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_184.jpg",
+    "input_prompt": "A standing rock formation.",
+    "output_prompt": "A collapsed and eroded rock formation.",
+    "edit": "Apply simulated erosion and collapse effects to the rock formation."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_185.jpg",
+    "input_prompt": "A smooth, intact granite boulder.",
+    "output_prompt": "A completely eroded granite boulder, reduced to soft, granular sediment by relentless wave action and wind abrasion.",
+    "edit": "Subject the granite boulder to prolonged exposure to saltwater spray, tidal erosion, and abrasive wind to gradually wear its surface into a softened, granular texture."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_186.jpg",
+    "input_prompt": "A wooden shed in a grassy field.",
+    "output_prompt": "A collapsed wooden shed reduced to splintered debris and rotting timbers.",
+    "edit": "Age the wooden shed by adding deep cracks, peeling paint, warped planks, and moss growth to suggest long-term exposure to the elements."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_187.jpg",
+    "input_prompt": "A compact hatchback.",
+    "output_prompt": "A rusted and corroded hatchback.",
+    "edit": "Apply a weathered, rusty finish to the compact hatchback."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_188.jpg",
+    "input_prompt": "A sleek bicycle leaning against a wall.",
+    "output_prompt": "A corroded bicycle frame with rusted chain and faded tires.",
+    "edit": "Apply light rust and fading to the bicycle frame, chain, and tires for a weathered look."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_189.jpg",
+    "input_prompt": "A sleek sedan in motion.",
+    "output_prompt": "A corroded sedan, covered in thick rust and grime.",
+    "edit": "Apply thick rust and grime across the entire sedan to simulate severe aging and weathering."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_190.jpg",
+    "input_prompt": "A well-maintained bus.",
+    "output_prompt": "A bus covered in mold and mildew with peeling paint and corroded metal.",
+    "edit": "Apply heavy rust, mold, and mildew to the bus, and peel away paint to reveal corroded metal underneath."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_191.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A rusted, corroded sports car.",
+    "edit": "Apply heavy rust and corrosion to the car’s body, especially around seams and undercarriage, to simulate long-term neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_192.jpg",
+    "input_prompt": "A pristine sports car.",
+    "output_prompt": "A car completely consumed by mold and mildew.",
+    "edit": "Apply layers of grime, rust, and mold to the car until it looks completely decayed and neglected."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_193.jpg",
+    "input_prompt": "A well-maintained bedroom.",
+    "output_prompt": "A ruined bedroom with mold and rot.",
+    "edit": "Introduce visible mold, peeling paint, and structural rot to the bedroom."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_194.jpg",
+    "input_prompt": "A bare tree.",
+    "output_prompt": "A completely decayed tree.",
+    "edit": "Apply deep decay and gnarled bark texture to the tree."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_195.jpg",
+    "input_prompt": "A large stone monument.",
+    "output_prompt": "A moss-covered, lichen-encrusted stone monument.",
+    "edit": "Apply layers of moss and lichen to simulate natural aging on the stone surface."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_196.jpg",
+    "input_prompt": "A classic pickup truck.",
+    "output_prompt": "A rusted and corroded pickup truck.",
+    "edit": "Apply heavy rust and corrosion effects to the classic pickup truck."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_197.jpg",
+    "input_prompt": "A functional trailer.",
+    "output_prompt": "A rusted and corroded trailer.",
+    "edit": "Apply layers of rust and corrosion to the trailer's metal surfaces."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_198.jpg",
+    "input_prompt": "A pristine semi-truck.",
+    "output_prompt": "A truck corroded with deep rust and peeling paint.",
+    "edit": "Apply heavy rust and peeling paint to the truck."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_199.jpg",
+    "input_prompt": "A parked helicopter.",
+    "output_prompt": "A corroded, moss-covered helicopter.",
+    "edit": "Apply a weathered, mossy texture to the helicopter."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_200.jpg",
+    "input_prompt": "A preserved camper trailer.",
+    "output_prompt": "A rusted and corroded camper trailer.",
+    "edit": "Apply a layer of artificial rust and corrosion to the camper trailer's metal surfaces."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_201.jpg",
+    "input_prompt": "A stone lion statue.",
+    "output_prompt": "A moss-covered, eroded stone lion statue.",
+    "edit": "Apply light moss and subtle erosion to the stone lion statue."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_202.jpg",
+    "input_prompt": "A stone reclining figure with a dog.",
+    "output_prompt": "A moss-covered, eroded stone reclining figure with a dog.",
+    "edit": "Apply a layer of moss and simulate erosion across the stone surface of the reclining figure and the dog."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_203.jpg",
+    "input_prompt": "A polished stone sphere.",
+    "output_prompt": "A moss-covered, lichen-encrusted stone sphere.",
+    "edit": "Apply a layer of moss and lichen to simulate natural weathering over time."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_204.jpg",
+    "input_prompt": "A traditional Japanese room with tatami, shoji, and wooden beams.",
+    "output_prompt": "A collapsed Japanese room with rotting wood, collapsed shoji, and moss-covered beams.",
+    "edit": "Introduce decay by rotting the wood, collapsing the shoji, and covering the beams with moss."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_205.jpg",
+    "input_prompt": "A stone castle surrounded by water.",
+    "output_prompt": "A collapsed stone castle submerged and eroded by water and time.",
+    "edit": "Submerge the stone castle and erode its surfaces with water and time to show decay."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_206.jpg",
+    "input_prompt": "A standing stone monument.",
+    "output_prompt": "A collapsed and moss-covered ruin.",
+    "edit": "Expose to decades of rain and lichen to make it moss-covered and partially collapsed."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_207.jpg",
+    "input_prompt": "A grand classical mansion.",
+    "output_prompt": "A collapsed ruin of a grand classical mansion.",
+    "edit": "Apply severe decay and erosion to the grand classical mansion to transform it into a collapsed ruin."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_208.jpg",
+    "input_prompt": "A well-maintained house.",
+    "output_prompt": "A collapsed and overgrown ruin.",
+    "edit": "Apply peeling paint, moss, and structural decay to the house."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_209.jpg",
+    "input_prompt": "A sleek high-speed train.",
+    "output_prompt": "A rusted and corroded train carcass.",
+    "edit": "Apply heavy rust and corrosion effects to the train's surface to give it a weathered, abandoned appearance."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_210.jpg",
+    "input_prompt": "A grand stone mansion.",
+    "output_prompt": "A collapsed ruin of stone and timber.",
+    "edit": "Erode the stone and timber until it becomes a collapsed ruin."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_211.jpg",
+    "input_prompt": "A grand white mansion.",
+    "output_prompt": "A collapsed ruin of rotting wood and collapsed roof.",
+    "edit": "Deteriorate the mansion into a collapsed ruin of rotting wood and collapsed roof."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_212.jpg",
+    "input_prompt": "A well-used wok.",
+    "output_prompt": "A heavily corroded wok.",
+    "edit": "Apply deep patina and stubborn stains to the wok."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_213.jpg",
+    "input_prompt": "A parked van.",
+    "output_prompt": "A van covered in thick moss and peeling paint.",
+    "edit": "Apply heavy moss and peeling paint to the van."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_214.jpg",
+    "input_prompt": "A metal guardrail.",
+    "output_prompt": "A rusted and corroded guardrail.",
+    "edit": "Apply a layer of orange-brown rust and pitted corrosion to the metal guardrail."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_215.jpg",
+    "input_prompt": "A winding path through a park.",
+    "output_prompt": "A path reduced to rubble and overgrown with roots and moss.",
+    "edit": "Weather the path with moss, cracked concrete, and overgrown weeds to show neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_216.jpg",
+    "input_prompt": "A grand stone archway.",
+    "output_prompt": "A collapsed and moss-covered ruin.",
+    "edit": "Apply centuries of weathering: etch deep cracks, discolor with lichen, and soften edges to mimic ancient decay."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_217.jpg",
+    "input_prompt": "A paved road flanked by bare trees.",
+    "output_prompt": "A collapsed and overgrown road buried under vegetation and debris.",
+    "edit": "Apply deep cracks, moss, and fallen branches to the road to show long-term neglect and natural decay."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_218.jpg",
+    "input_prompt": "A stone bridge over water.",
+    "output_prompt": "A collapsed stone bridge over water, with vegetation overtaking its structure.",
+    "edit": "Apply weathering effects to the stone bridge, including moss, cracks, and discoloration, to make it appear aged and neglected."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_219.jpg",
+    "input_prompt": "A sleek performance sedan.",
+    "output_prompt": "A corroded, rusted shell of a sedan.",
+    "edit": "Apply heavy rust and corrosion to the sedan’s body, fading its sleek finish into a weathered, deteriorated state."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_220.jpg",
+    "input_prompt": "An ancient amphitheater.",
+    "output_prompt": "A collapsed and overgrown amphitheater.",
+    "edit": "Apply centuries of erosion, crumbling stone, and creeping vegetation to the amphitheater."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_221.jpg",
+    "input_prompt": "Two standing stone crosses.",
+    "output_prompt": "Two collapsed stone crosses reduced to rubble.",
+    "edit": "Erode the stone crosses until they crumble into rubble."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_222.jpg",
+    "input_prompt": "A circular relief sculpture on a brick wall.",
+    "output_prompt": "A circular relief sculpture on a brick wall, eroded by decades of exposure and moisture, with surface details lost to lichen and mineral staining.",
+    "edit": "Erode the circular relief sculpture with decades of exposure, moisture, lichen, and mineral staining to weather its surface details."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_223.jpg",
+    "input_prompt": "A classic coupe parked on grass.",
+    "output_prompt": "A corroded, rusted shell of a classic coupe.",
+    "edit": "Apply heavy rust and weathering to the classic coupe to make it look corroded and aged."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_224.jpg",
+    "input_prompt": "A stone church building.",
+    "output_prompt": "A collapsed stone church building with roof gone and walls leaning.",
+    "edit": "Apply decades of weathering to the stone church building, causing moss growth, cracked stonework, peeling paint, and a sagging roof."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_225.jpg",
+    "input_prompt": "A traditional wooden building with tiled roof.",
+    "output_prompt": "A collapsed wooden building with roof tiles scattered and rotting beams.",
+    "edit": "Introduce deep cracks, peeling paint, warped wood, and missing roof tiles to simulate advanced aging and decay."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_226.jpg",
+    "input_prompt": "A row of wooden waterfront houses.",
+    "output_prompt": "A row of wooden waterfront houses reduced to skeletal frames by rot and neglect.",
+    "edit": "Age the wooden waterfront houses by adding deep rot, peeling paint, and structural decay to show years of exposure and neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_227.jpg",
+    "input_prompt": "A rustic farmhouse.",
+    "output_prompt": "A collapsed farmhouse with rotting wood and collapsed roof.",
+    "edit": "Apply deep decay to the farmhouse, including crumbling walls, warped timber, and a sagging, moss-covered roof."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_228.jpg",
+    "input_prompt": "A traditional wooden house with a thatched roof near a pond.",
+    "output_prompt": "A collapsed wooden house with a collapsed thatched roof, submerged in water, surrounded by moss and fallen debris.",
+    "edit": "Age the wooden house by adding deep cracks, sagging roof, moss growth, and surrounding decayed vegetation to suggest long-term exposure to the elements."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_229.jpg",
+    "input_prompt": "A standing pagoda.",
+    "output_prompt": "A collapsed and moss-covered pagoda.",
+    "edit": "Apply layers of moss and simulate structural decay to make the pagoda appear ancient and weathered."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_230.jpg",
+    "input_prompt": "A silver trophy on a wooden base.",
+    "output_prompt": "A corroded, pitted metal trophy with a splintered wooden base.",
+    "edit": "Apply tarnish and pitting to the silver trophy and simulate splintering on the wooden base."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_231.jpg",
+    "input_prompt": "A vintage camera resting on stone.",
+    "output_prompt": "A corroded camera, its metal surfaces pitted and oxidized.",
+    "edit": "Apply a textured, gritty patina to the camera’s metal surfaces to simulate corrosion and age."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_232.jpg",
+    "input_prompt": "A vintage fire truck.",
+    "output_prompt": "A rusted, corroded fire truck.",
+    "edit": "Apply heavy rust and corrosion to the vintage fire truck."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_233.jpg",
+    "input_prompt": "A military truck at a gas station.",
+    "output_prompt": "A skeletal frame of the truck, corroded and collapsed under snow and time.",
+    "edit": "Apply heavy rust, snow accumulation, and structural decay to the truck to give it a weathered, aged appearance."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_234.jpg",
+    "input_prompt": "A pristine camera lens collection.",
+    "output_prompt": "A corroded and mold-stained lens assembly.",
+    "edit": "Apply heavy rust and mold stains to the lenses to make them look corroded and weathered."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_235.jpg",
+    "input_prompt": "Three cups of coffee with latte art on a wooden table surrounded by plants.",
+    "output_prompt": "Three cups of coffee with latte art on a wooden table surrounded by plants, all covered in dust, mold, and grime from long-term neglect.",
+    "edit": "Cover the coffee cups, table, and plants in a layer of dust, mold, and grime to simulate long-term neglect."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_236.jpg",
+    "input_prompt": "A plastic cup held on a beach.",
+    "output_prompt": "A plastic cup completely degraded by saltwater and sun exposure.",
+    "edit": "Expose the plastic cup to prolonged saltwater immersion and intense UV sunlight to simulate complete degradation."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_237.jpg",
+    "input_prompt": "A pristine wristwatch.",
+    "output_prompt": "A corroded, rusted wristwatch.",
+    "edit": "Apply heavy corrosion and rust to the wristwatch."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_238.jpg",
+    "input_prompt": "A weathered wooden cabin.",
+    "output_prompt": "A completely decayed wooden cabin, with rotting planks and collapsed roof.",
+    "edit": "Accelerate decay by eroding the wood until planks are rotten and the roof collapses."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_239.jpg",
+    "input_prompt": "A wooden chair and table set.",
+    "output_prompt": "A rotting wooden chair and table set, warped by moisture and mold.",
+    "edit": "Expose the wooden chair and table set to prolonged dampness and neglect to induce warping, cracking, and mold growth."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_240.jpg",
+    "input_prompt": "A modern bedroom with wooden accents and a starburst chandelier.",
+    "output_prompt": "A collapsed bedroom with warped wood, rotted beams, and a shattered chandelier frame.",
+    "edit": "Apply deep grime, warp the wood, rot the beams, and shatter the chandelier frame to age the bedroom."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_241.jpg",
+    "input_prompt": "A hanging birdhouse.",
+    "output_prompt": "A birdhouse completely decayed by rot and mold.",
+    "edit": "Apply layers of moss, peeling paint, and soft rot to the birdhouse to simulate advanced weathering."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_242.jpg",
+    "input_prompt": "A wooden cabin on stilts by water.",
+    "output_prompt": "A collapsed wooden cabin by water, rotting and sinking.",
+    "edit": "Apply deep rot and decay to the wooden cabin, making it appear collapsed, sinking, and weathered by water."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_243.jpg",
+    "input_prompt": "A functional desk lamp with a diffuser and photo frame.",
+    "output_prompt": "A corroded lamp base with oxidized metal and moldy diffuser.",
+    "edit": "Apply light oxidation to the lamp base and mildew to the diffuser."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_244.jpg",
+    "input_prompt": "A fresh tree stump.",
+    "output_prompt": "A completely decayed tree stump, reduced to soft, mushy organic matter by fungal decomposition.",
+    "edit": "Expose the stump to moisture and fungi over many years until it fully decomposes into soft, mushy organic matter."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_245.jpg",
+    "input_prompt": "A vintage camera.",
+    "output_prompt": "A camera corroded with deep patina and oxidized metal.",
+    "edit": "Apply deep patina and oxidized metal effects to the vintage camera."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_246.jpg",
+    "input_prompt": "A red mailbox with graffiti.",
+    "output_prompt": "A corroded, graffiti-scarred mailbox with peeling paint and rusted metal.",
+    "edit": "Apply layers of grime, faded paint, and rust to the mailbox, and add worn, layered graffiti for a weathered, urban look."
+  },
+  {
+    "image_path": "/mnt/share/fukushima/WeatheringSimulation/images_test/image_247.jpg",
+    "input_prompt": "A clean train platform.",
+    "output_prompt": "A platform overtaken by moss and mildew, with peeling paint and corroded railings.",
+    "edit": "Apply layers of grime, discoloration, and wear to the platform, making it look aged and neglected."
+  }
+]
