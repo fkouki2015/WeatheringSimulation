@@ -7,8 +7,11 @@ import torch
 from PIL import Image
 from tqdm import tqdm
 import sys
-from transformers import Mistral3ForConditionalGeneration, MistralCommonBackend
-
+import base64
+import mimetypes
+from io import BytesIO
+from transformers import Mistral3ForConditionalGeneration, MistralCommonBackend, FineGrainedFP8Config
+from pathlib import Path
 
 model_id = "mistralai/Ministral-3-14B-Instruct-2512"
 
@@ -19,20 +22,36 @@ model = Mistral3ForConditionalGeneration.from_pretrained(
     quantization_config=FineGrainedFP8Config(dequantize=True)
 )
 
+def image_to_data_url(image_path: str) -> str:
+    path = Path(image_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Image not found: {path}")
+
+    mime, _ = mimetypes.guess_type(str(path))
+    if mime is None:
+        # 雑にフォールバック（必要なら拡張子で厳密に）
+        mime = "image/png"
+
+    b64 = base64.b64encode(path.read_bytes()).decode("utf-8")
+    return f"data:{mime};base64,{b64}"
+
+
 
 def vlm_inference(mode: str = "age", image_path: str = None):
     """
     VLMによる記述抽出
     """
-
+    image_url = image_to_data_url(image_path)
 
     messages_age = [
         {
             "role": "user",
             "content": [
                 {
-                    "type": "image",
-                    "image": image_path,
+                    "type": "image_url",
+                    "image_url": {
+                        "url": image_url
+                    },
                 },
                 {
                     "type": "text", 
@@ -47,8 +66,10 @@ def vlm_inference(mode: str = "age", image_path: str = None):
             "role": "user",
             "content": [
                 {
-                    "type": "image",
-                    "image": image_path,
+                    "type": "image_url",
+                    "image_url": {
+                        "url": image_url
+                    },
                 },
                 {
                     "type": "text", 
