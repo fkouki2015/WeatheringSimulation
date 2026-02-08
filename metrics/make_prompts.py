@@ -5,7 +5,7 @@ import argparse
 from typing import Iterable, List, Dict, Any
 from tqdm import tqdm
 sys.path.append("./")
-from vlm_mistral import vlm_inference
+from vlm import vlm_inference
 
 
 def build_prompts_json(
@@ -42,7 +42,7 @@ def build_prompts_json(
             orig_caption, edited_caption, instruction = vlm_inference(mode=mode, image_path=abs_path)
             sys.stdout.flush()
             rec = {
-                "image_path": abs_path,
+                "image_path": p,
                 "input_prompt": orig_caption,
                 "output_prompt": edited_caption,
                 "edit": instruction,
