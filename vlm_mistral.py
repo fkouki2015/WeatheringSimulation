@@ -37,12 +37,32 @@ def image_to_data_url(image_path: str) -> str:
 
 
 
+def _run_vlm(messages):
+    """VLMを実行する内部関数"""
+    tokenized = tokenizer.apply_chat_template(messages, return_tensors="pt", return_dict=True)
+
+    tokenized["input_ids"] = tokenized["input_ids"].to(device="cuda:2")
+    tokenized["pixel_values"] = tokenized["pixel_values"].to(dtype=torch.bfloat16, device="cuda:2")
+    image_sizes = [tokenized["pixel_values"].shape[-2:]]
+
+    output = model.generate(
+        **tokenized,
+        image_sizes=image_sizes,
+        max_new_tokens=512,
+    )[0]
+    output_text = tokenizer.decode(output[len(tokenized["input_ids"][0]):])
+    return output_text
+
+
 def vlm_inference(mode: str = "age", image_path: str = None):
     """
-    VLMによる記述抽出
+    VLMによる記述抽出（2段階処理）
+    1回目: input_prompt と output_prompt を生成
+    2回目: 上記プロンプトから instruction を生成
     """
     image_url = image_to_data_url(image_path)
 
+    # ===== 1回目: プロンプト生成 =====
     messages_age = [
         {
             "role": "user",
@@ -55,7 +75,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a very short caption describing the object, and another very short caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. You must write same object name in all captions. Do not mention shape changes such as cracks, breaks, crumbling, etc. Do not include color information and textual information. You must use just two '|'s. Here is an example: 'A sleek car. | A heavily rusted and moss-covered car. | Add heavy rust and moss to the car.'"
+                    "text": "Write a very short caption describing the object, and another very short caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Do not include color information and textual information. Predict the type of deterioration, such as rust on metal. Do not write shape changes such as cracks, breaks, crumbling, etc. You must use just one '|'. Here is an example: A clean car. | A heavily rusted car."
                 },
             ],
         }
@@ -73,7 +93,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a very short caption to describe this image in its aged state, and another to describe its predicted original clean state. And write a simple instruction restoring the image from two captions. Do not include color information, textual information. Separate them with '|'. You must use just two '|'.  Here is good example: A heavily rusted car. | A pristine clean car. | Remove rust from the car."
+                    "text": "Write a very short caption to describe this image in its aged state, and another to describe its predicted original clean state. Do not include color information, textual information. Separate them with '|'. You must use just one '|'. Here is good example: A heavily rusted car. | A pristine clean car."
                 }, 
             ],
         }
@@ -84,23 +104,43 @@ def vlm_inference(mode: str = "age", image_path: str = None):
     else:
         messages = messages_new
 
-    tokenized = tokenizer.apply_chat_template(messages, return_tensors="pt", return_dict=True)
-
-    tokenized["input_ids"] = tokenized["input_ids"].to(device="cuda")
-    tokenized["pixel_values"] = tokenized["pixel_values"].to(dtype=torch.bfloat16, device="cuda")
-    image_sizes = [tokenized["pixel_values"].shape[-2:]]
-
-    output = model.generate(
-        **tokenized,
-        image_sizes=image_sizes,
-        max_new_tokens=512,
-    )[0]
-    output_text = tokenizer.decode(output[len(tokenized["input_ids"][0]):])
-    print(output_text)
+    # 1回目のVLM実行
+    output_text = _run_vlm(messages)
+    print(f"[Prompt generation] {output_text}")
     
-    orig_caption, edited_caption, instruction = output_text.split("|")
+    parts = output_text.split("|")
+    input_prompt = parts[0].strip()
+    output_prompt = parts[1].strip() if len(parts) > 1 else ""
 
-    return orig_caption.strip(), edited_caption.strip(), instruction.strip()
+    # ===== 2回目: instruction生成 =====
+    if mode == "age":
+        instruction_text = f"Based on these two captions, write a very short instruction to age or weather the object. Input: '{input_prompt}' -> Output: '{output_prompt}'. Write only the instruction in one sentence. Example: 'Add heavy rust to the car.'"
+    else:
+        instruction_text = f"Based on these two captions, write a brief instruction to restore the object. Input: '{input_prompt}' -> Output: '{output_prompt}'. Write only the instruction in one sentence. Example: 'Remove rust from the car.'"
+
+    messages_instruction = [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": image_url
+                    },
+                },
+                {
+                    "type": "text",
+                    "text": instruction_text,
+                },
+            ],
+        }
+    ]
+
+    # 2回目のVLM実行
+    instruction = _run_vlm(messages_instruction)
+    print(f"[Instruction generation] {instruction}")
+
+    return input_prompt, output_prompt, instruction.strip()
 
 
 # "text": "Write a very short caption describing the clean state of the object, and another caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the object described in the first caption to its aged state described in the second caption. Write specific types of weathering. Do not write shape changes such as cracks, breaks, crumbling, etc. Do not include color names in all captions.  You must use just two '|'s. Here are examples: 'A clean car. | A heavily rusted car. | Add heavy rust to the car.', 'A pristine building. | A moss-covered building. | Add moss to the building.'"
