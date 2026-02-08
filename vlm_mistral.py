@@ -7,15 +7,17 @@ import torch
 from PIL import Image
 from tqdm import tqdm
 import sys
-from transformers import Qwen3VLForConditionalGeneration, AutoTokenizer, AutoProcessor
-from qwen_vl_utils import process_vision_info
+from transformers import Mistral3ForConditionalGeneration, MistralCommonBackend
 
 
-model = Qwen3VLForConditionalGeneration.from_pretrained(
-    "Qwen/Qwen3-VL-8B-Instruct", dtype="auto", device_map="auto"
+model_id = "mistralai/Ministral-3-14B-Instruct-2512"
+
+tokenizer = MistralCommonBackend.from_pretrained(model_id)
+model = Mistral3ForConditionalGeneration.from_pretrained(
+    model_id,
+    device_map="auto",
+    quantization_config=FineGrainedFP8Config(dequantize=True)
 )
-model.eval()
-processor = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-8B-Instruct")
 
 
 def vlm_inference(mode: str = "age", image_path: str = None):
@@ -34,8 +36,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a very short caption describing the object, and another very short caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. You must write same object name in all captions. Predict the most likely weathering types for the object. Do not mention shape changes such as cracks, breaks, crumbling, etc. Do not include color information and textual information. You must use just two '|'s. Here are examples: 'A sleek car. | A heavily rusted car. | 'Add rust to the car.', 'A pristine building. | A moss-covered building. | Add moss to the building.'"
-                    
+                    "text": "Write a very short caption describing the object, and another very short caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. You must write same object name in all captions. Do not mention shape changes such as cracks, breaks, crumbling, etc. Do not include color information and textual information. You must use just two '|'s. Here is an example: 'A sleek car. | A heavily rusted and moss-covered car. | Add heavy rust and moss to the car.'"
                 },
             ],
         }
@@ -62,26 +63,18 @@ def vlm_inference(mode: str = "age", image_path: str = None):
     else:
         messages = messages_new
 
-    inputs = processor.apply_chat_template(
-        messages,
-        tokenize=True,
-        add_generation_prompt=True,
-        return_dict=True,
-        return_tensors="pt"
-    )
-    inputs = inputs.to("cuda")
+    tokenized = tokenizer.apply_chat_template(messages, return_tensors="pt", return_dict=True)
 
+    tokenized["input_ids"] = tokenized["input_ids"].to(device="cuda")
+    tokenized["pixel_values"] = tokenized["pixel_values"].to(dtype=torch.bfloat16, device="cuda")
+    image_sizes = [tokenized["pixel_values"].shape[-2:]]
 
-    generated_ids = model.generate(
-        **inputs,
-        max_new_tokens=128,
-    )
-    generated_ids_trimmed = [
-        out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
-    ]
-    output_text = processor.batch_decode(
-        generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
-    )
+    output = model.generate(
+        **tokenized,
+        image_sizes=image_sizes,
+        max_new_tokens=512,
+    )[0]
+    output_text = tokenizer.decode(output[len(tokenized["input_ids"][0]):])
     print(output_text)
     
     orig_caption, edited_caption, instruction = output_text[0].split("|")

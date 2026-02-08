@@ -5,7 +5,7 @@ import argparse
 from typing import Iterable, List, Dict, Any
 from tqdm import tqdm
 sys.path.append("./")
-from vlm import vlm_inference
+from vlm_mistral import vlm_inference
 
 
 def build_prompts_json(

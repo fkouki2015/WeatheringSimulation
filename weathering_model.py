@@ -288,7 +288,7 @@ class WeatheringModel(nn.Module):
         for c in self.controlnets:
             for n, p in c.named_parameters():
                 if p.requires_grad:
-                    _add_param(p, 0.1)
+                    _add_param(p, 0.07)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}
@@ -511,7 +511,7 @@ class WeatheringModel(nn.Module):
         self.train_model()
         
         # 2. 推論のセットアップ
-        torch.manual_seed(1111)
+        torch.manual_seed(1234)
         self.vae.eval()
         self.unet.eval()
         self.text_encoder.eval()

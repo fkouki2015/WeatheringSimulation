@@ -117,10 +117,9 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        # negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
-                        negative_prompt="", 
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
                         attn_word=None,
-                        guidance_scale=7.5,
+                        guidance_scale=6.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
@@ -223,6 +222,7 @@ class ModelProcessor:
         input_prompt = sample["input_prompt"]
         output_prompt = sample["output_prompt"]
         edit_prompt = sample["edit"]
+        # edit_prompt = ""
         
         image = Image.open(image_path).convert("RGB")
         # Resize to 512x512
