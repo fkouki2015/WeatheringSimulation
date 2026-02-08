@@ -34,7 +34,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a very short caption describing the object, and another very short caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. You must write same object name in all captions. Predict the most likely weathering types for the object. Do not mention shape changes such as cracks, breaks, crumbling, etc. Do not include color information and textual information. You must use just two '|'s. Here are examples: 'A sleek car. | A heavily rusted car. | 'Add rust to the car.', 'A pristine building. | A moss-covered building. | Add moss to the building.'"
+                    "text": "Write a brief caption describing the object, and another brief caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Then write a simple instruction to deteriorate the image described in the first caption to its aged state described in the second caption. Do not write color names such as white, yellow, etc. You must use just two '|'s. Here are good examples: 'A sleek car. | A heavily rusted and moss-covered car. | Add rust and moss to the car.'"
                     
                 },
             ],
@@ -82,7 +82,6 @@ def vlm_inference(mode: str = "age", image_path: str = None):
     output_text = processor.batch_decode(
         generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
     )
-    print(output_text)
     
     orig_caption, edited_caption, instruction = output_text[0].split("|")
 
