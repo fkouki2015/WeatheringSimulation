@@ -182,7 +182,7 @@ class WeatheringModel(nn.Module):
     RESOLUTION = (512, 512)
     RANK = 8
     LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 600
+    TRAIN_STEPS = 500
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
@@ -511,7 +511,7 @@ class WeatheringModel(nn.Module):
         self.train_model()
         
         # 2. 推論のセットアップ
-        torch.manual_seed(1234)
+        torch.manual_seed(1)
         self.vae.eval()
         self.unet.eval()
         self.text_encoder.eval()
