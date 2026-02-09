@@ -356,7 +356,7 @@
   {
     "image_path": "images_test/image_063.jpg",
     "input_prompt": "A flying helicopter.",
-    "output_prompt": "A corroded and朽烂的直升机.",
+    "output_prompt": "A corroded and decayed helicopter.",
     "edit": "Add corrosion and decay to the helicopter."
   },
   {
