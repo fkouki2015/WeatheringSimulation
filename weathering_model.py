@@ -511,7 +511,7 @@ class WeatheringModel(nn.Module):
         self.train_model()
         
         # 2. 推論のセットアップ
-        torch.manual_seed(1)
+        torch.manual_seed(1234)
         self.vae.eval()
         self.unet.eval()
         self.text_encoder.eval()
