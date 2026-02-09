@@ -60,7 +60,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text", 
-                    "text": "Write a very short caption describing the object, and another caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Do not include color information and textual information. Predict the type of deterioration, such as rust on metal. Do not write shape changes such as cracks, breaks, crumbling, etc. You must use just one '|'. Here is an example: A clean car. | A heavily rusted car."
+                    "text": "Write a brief caption describing the object, and another caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Do not include color information and textual information. Predict the type of deterioration, such as rust on metal. Do not write shape changes such as cracks, breaks, crumbling, etc. You must use just one '|'. Here is an example: A clean car. | A heavily rusted car."
                 },
             ],
         }
