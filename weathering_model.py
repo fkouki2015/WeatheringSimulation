@@ -17,7 +17,6 @@ from transformers import CLIPTextModel, CLIPTokenizer, DPTImageProcessor, DPTFor
 from diffusers import AutoencoderKL, DDIMScheduler, UNet2DConditionModel, DDPMScheduler, ControlNetModel
 from diffusers.optimization import get_scheduler
 from diffusers.models.attention_processor import AttnProcessor 
-from vlm import vlm_inference  
 
 # ==========================================
 # ユーティリティ関数
@@ -41,7 +40,7 @@ def canny_process(image, device, dtype):
     """画像からCannyエッジマップを生成"""
     image_np = np.array(image)
     gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
-    canny_img = cv2.Canny(gray, 100, 200)
+    canny_img = cv2.Canny(gray, 80, 160)
     
     control_image = Image.fromarray(canny_img).convert("RGB")
     if isinstance(control_image, Image.Image):
@@ -183,7 +182,7 @@ class WeatheringModel(nn.Module):
     RESOLUTION = (512, 512)
     RANK = 8
     LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 600
+    TRAIN_STEPS = 500
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
@@ -289,7 +288,7 @@ class WeatheringModel(nn.Module):
         for c in self.controlnets:
             for n, p in c.named_parameters():
                 if p.requires_grad:
-                    _add_param(p, 0.1)
+                    _add_param(p, 0.07)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}

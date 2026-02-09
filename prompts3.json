@@ -1,0 +1,1328 @@
+[
+  {
+    "image_path": "images_test/image_004.jpg",
+    "input_prompt": "A compact digital camera.",
+    "output_prompt": "A corroded and mold-stained camera.",
+    "edit": "Apply corrosion and mold stains to the camera."
+  },
+  {
+    "image_path": "images_test/image_005.jpg",
+    "input_prompt": "A pristine military transport aircraft.",
+    "output_prompt": "A corroded and moss-covered hulk, its fuselage warped by decades of neglect and elemental decay.",
+    "edit": "Transform the pristine military transport aircraft into a corroded and moss-covered hulk, warped by decades of neglect and elemental decay."
+  },
+  {
+    "image_path": "images_test/image_006.jpg",
+    "input_prompt": "A sleek fighter jet in flight.",
+    "output_prompt": "A corroded and fragmented fighter jet, its metal surfaces pitted and oxidized.",
+    "edit": "Apply corrosion, fragmentation, pitting, and oxidation to the fighter jet's metal surfaces."
+  },
+  {
+    "image_path": "images_test/image_007.jpg",
+    "input_prompt": "A white news broadcast van.",
+    "output_prompt": "A corroded and rotting van frame with peeling paint and corroded metal panels.",
+    "edit": "Age the van by adding visible rust, peeling paint, and corroded metal panels."
+  },
+  {
+    "image_path": "images_test/image_008.jpg",
+    "input_prompt": "A white convertible with a yellow hood panel.",
+    "output_prompt": "A heavily corroded convertible with rusted metal and decaying body panels.",
+    "edit": "Apply heavy corrosion and decay to the white convertible’s metal surfaces and body panels."
+  },
+  {
+    "image_path": "images_test/image_009.jpg",
+    "input_prompt": "A vintage camper trailer parked in grass.",
+    "output_prompt": "A collapsed and rotting camper trailer, covered in moss and debris.",
+    "edit": "Add moss, debris, and signs of decay to the camper trailer."
+  },
+  {
+    "image_path": "images_test/image_010.jpg",
+    "input_prompt": "A black hybrid car with roof racks parked on gravel near rails.",
+    "output_prompt": "A skeletal frame of the car, stripped of panels and components, corroded and fused with surrounding earth and vegetation.",
+    "edit": "Transform the car into a skeletal frame, stripped of panels and components, corroded and fused with surrounding earth and vegetation."
+  },
+  {
+    "image_path": "images_test/image_011.jpg",
+    "input_prompt": "A server rack with open doors revealing internal hardware.",
+    "output_prompt": "A corroded server rack with rusted metal panels and degraded internal components.",
+    "edit": "Apply corrosion and degradation effects to the metal panels and internal hardware."
+  },
+  {
+    "image_path": "images_test/image_012.jpg",
+    "input_prompt": "A sleek sports car parked beside a wooden structure.",
+    "output_prompt": "A corroded sports car with rusted metal panels and faded paint.",
+    "edit": "Apply rust and fading to the car's paint and metal panels."
+  },
+  {
+    "image_path": "images_test/image_013.jpg",
+    "input_prompt": "A flying fighter aircraft.",
+    "output_prompt": "A corroded and corroded fighter aircraft.",
+    "edit": "Add corrosion and weathering to the fighter aircraft."
+  },
+  {
+    "image_path": "images_test/image_014.jpg",
+    "input_prompt": "A compact vehicle in motion.",
+    "output_prompt": "A corroded vehicle with rusted metal panels and faded paint.",
+    "edit": "Apply weathering effects to simulate prolonged exposure to elements, including rust on metal panels and faded paint."
+  },
+  {
+    "image_path": "images_test/image_015.jpg",
+    "input_prompt": "A parked SUV with a vehicle on its roof.",
+    "output_prompt": "A collapsed, rusted, and moss-covered SUV with a decaying vehicle on its roof.",
+    "edit": "Age the SUV and the vehicle on its roof by adding rust, moss, and decay to both."
+  },
+  {
+    "image_path": "images_test/image_016.jpg",
+    "input_prompt": "A sleek sedan parked on grass.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded paint.",
+    "edit": "Apply rust and fade to the sedan’s paint and undercarriage."
+  },
+  {
+    "image_path": "images_test/image_017.jpg",
+    "input_prompt": "A building under construction with stacked tiles and a railing.",
+    "output_prompt": "A collapsed structure with rusted metal railings and collapsed tiled sections.",
+    "edit": "Apply decay effects to the building, including rusting railings and crumbling tiles."
+  },
+  {
+    "image_path": "images_test/image_018.jpg",
+    "input_prompt": "A sleek race car with aerodynamic curves and racing decals.",
+    "output_prompt": "A corroded race car with rusted metal panels and faded paint from decades of exposure.",
+    "edit": "Age the race car by applying surface rust, fading the paint, and weathering the decals to simulate decades of exposure."
+  },
+  {
+    "image_path": "images_test/image_019.jpg",
+    "input_prompt": "A sleek sports coupe parked by a waterfront.",
+    "output_prompt": "A corroded, rusted shell of a sports coupe, barely recognizable, fused with salt and decay.",
+    "edit": "Transform the sleek sports coupe into a corroded, rusted shell fused with salt and decay."
+  },
+  {
+    "image_path": "images_test/image_020.jpg",
+    "input_prompt": "A modern glass and concrete building.",
+    "output_prompt": "A collapsed, overgrown ruin of the building.",
+    "edit": "Deteriorate the glass to appear cracked and frosted, weather the concrete to look stained and cracked, and let vegetation overtake the structure."
+  },
+  {
+    "image_path": "images_test/image_021.jpg",
+    "input_prompt": "A parked car with open doors and trunk against snowy mountains.",
+    "output_prompt": "A car completely decayed with rusted metal, corroded panels, and collapsed structure.",
+    "edit": "Accelerate decay by adding rust, corrosion, and structural collapse to the car."
+  },
+  {
+    "image_path": "images_test/image_022.jpg",
+    "input_prompt": "A wooden table with a mosaic top.",
+    "output_prompt": "A rotting wooden table with a disintegrated mosaic top.",
+    "edit": "Accelerate decay on the wood and cause the mosaic tiles to crumble."
+  },
+  {
+    "image_path": "images_test/image_023.jpg",
+    "input_prompt": "A sleek sedan parked at a racetrack.",
+    "output_prompt": "A corroded sedan, its body covered in deep rust and peeling paint.",
+    "edit": "Apply deep rust and peeling paint to the sedan."
+  },
+  {
+    "image_path": "images_test/image_024.jpg",
+    "input_prompt": "A vintage car with a roof-mounted light.",
+    "output_prompt": "A heavily rusted and corroded vintage car.",
+    "edit": "Apply heavy rust and corrosion effects to the vintage car, especially around the body panels, wheels, and undercarriage, while preserving the roof-mounted light."
+  },
+  {
+    "image_path": "images_test/image_025.jpg",
+    "input_prompt": "A white and pink SUV parked in a lot.",
+    "output_prompt": "A corroded and moss-covered SUV, with rusted metal panels and faded paint.",
+    "edit": "Apply corrosion, moss, and faded paint to the SUV."
+  },
+  {
+    "image_path": "images_test/image_026.jpg",
+    "input_prompt": "A parked station wagon.",
+    "output_prompt": "A corroded station wagon.",
+    "edit": "Apply corrosion and weathering effects to the station wagon."
+  },
+  {
+    "image_path": "images_test/image_027.jpg",
+    "input_prompt": "A classic sedan parked on grass.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Add rust to the sedan, fade the paint, and weather the undercarriage."
+  },
+  {
+    "image_path": "images_test/image_028.jpg",
+    "input_prompt": "A pristine vintage convertible.",
+    "output_prompt": "A heavily rusted and corroded vintage convertible.",
+    "edit": "Apply heavy rust and corrosion effects to the convertible."
+  },
+  {
+    "image_path": "images_test/image_029.jpg",
+    "input_prompt": "A helicopter in mid-flight over a grassy field.",
+    "output_prompt": "A helicopter reduced to skeletal remains, corroded metal and frayed composite materials, stripped of all functional integrity.",
+    "edit": "Apply extreme decay effects to the helicopter, rendering it skeletal, corroded, and non-functional."
+  },
+  {
+    "image_path": "images_test/image_030.jpg",
+    "input_prompt": "A classic convertible car.",
+    "output_prompt": "A corroded and rusted convertible car.",
+    "edit": "Add rust and corrosion to the classic convertible car."
+  },
+  {
+    "image_path": "images_test/image_031.jpg",
+    "input_prompt": "A classic compact car with chrome trim and roof rack.",
+    "output_prompt": "A corroded and rusted shell with faded paint and corroded metal components.",
+    "edit": "Apply corrosion, fade the paint, and degrade the chrome trim to simulate aging."
+  },
+  {
+    "image_path": "images_test/image_032.jpg",
+    "input_prompt": "A wooden door with a metal handle and number plate.",
+    "output_prompt": "A corroded, warped door with peeling veneer and rusted hardware.",
+    "edit": "Apply weathering effects to the door to make it look corroded, warped, with peeling veneer and rusted hardware."
+  },
+  {
+    "image_path": "images_test/image_033.jpg",
+    "input_prompt": "A functional car dashboard.",
+    "output_prompt": "A dashboard covered in grime and faded controls.",
+    "edit": "Add grime and fade the controls on the dashboard."
+  },
+  {
+    "image_path": "images_test/image_034.jpg",
+    "input_prompt": "A sleek sedan with lowered suspension and custom wheels.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded paint.",
+    "edit": "Apply rust and fade to the sedan’s paint and undercarriage."
+  },
+  {
+    "image_path": "images_test/image_035.jpg",
+    "input_prompt": "A modern compact car parked beside a bus.",
+    "output_prompt": "A corroded and corroded car with rusted metal panels and faded paint.",
+    "edit": "Apply weathering effects to the car, including rusted metal panels and faded paint."
+  },
+  {
+    "image_path": "images_test/image_036.jpg",
+    "input_prompt": "A modified sports car.",
+    "output_prompt": "A rusted and corroded sports car.",
+    "edit": "Apply rust and corrosion effects to the modified sports car."
+  },
+  {
+    "image_path": "images_test/image_037.jpg",
+    "input_prompt": "A classic automobile with chrome accents and a two-tone finish.",
+    "output_prompt": "A corroded automobile with rusted metal panels and faded, peeling paint.",
+    "edit": "Apply rust and faded paint to the chrome accents and two-tone finish."
+  },
+  {
+    "image_path": "images_test/image_038.jpg",
+    "input_prompt": "A compact car on a road.",
+    "output_prompt": "A corroded and rusted car frame barely holding together.",
+    "edit": "Apply weathering effects to show corrosion and rust on the car's surface."
+  },
+  {
+    "image_path": "images_test/image_039.jpg",
+    "input_prompt": "A well-maintained truck cab.",
+    "output_prompt": "A truck cab covered in thick rust and peeling paint.",
+    "edit": "Apply thick rust and peeling paint to the truck cab."
+  },
+  {
+    "image_path": "images_test/image_040.jpg",
+    "input_prompt": "A sleek, well-maintained aircraft on display.",
+    "output_prompt": "A corroded, rusted aircraft carcass, stripped of paint and parts.",
+    "edit": "Degradation: corrode the metal, strip the paint, and remove parts to simulate abandonment."
+  },
+  {
+    "image_path": "images_test/image_041.jpg",
+    "input_prompt": "A rear view of a vehicle with a spare tire mounted.",
+    "output_prompt": "A corroded vehicle with a rusted spare tire mount and faded body panels.",
+    "edit": "Age the vehicle by adding rust to the spare tire mount and fading the body panels."
+  },
+  {
+    "image_path": "images_test/image_042.jpg",
+    "input_prompt": "A parked airplane.",
+    "output_prompt": "A fully decayed airplane with corroded metal and collapsed structure.",
+    "edit": "Apply severe corrosion, structural collapse, and advanced decay to the airplane."
+  },
+  {
+    "image_path": "images_test/image_043.jpg",
+    "input_prompt": "A seaplane floating on calm water.",
+    "output_prompt": "A corroded seaplane, its metal frame and floats covered in thick rust and algae, barely holding together.",
+    "edit": "Age the seaplane by adding thick rust and algae to its metal frame and floats, making it appear worn and deteriorated."
+  },
+  {
+    "image_path": "images_test/image_044.jpg",
+    "input_prompt": "A classic sedan parked on cobblestone.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Add rust to the sedan, fade its panels, and weather its undercarriage."
+  },
+  {
+    "image_path": "images_test/image_045.jpg",
+    "input_prompt": "A vintage station wagon with wood paneling.",
+    "output_prompt": "A heavily rusted station wagon with wood paneling.",
+    "edit": "Add heavy rust and wear to the station wagon, especially on the metal panels and around the wood trim."
+  },
+  {
+    "image_path": "images_test/image_046.jpg",
+    "input_prompt": "A modern hybrid vehicle parked outdoors.",
+    "output_prompt": "A corroded, rusted shell of a once-pristine vehicle, its metal surfaces eaten away by decades of exposure.",
+    "edit": "Age the car by adding visible rust, faded paint, and weathered surfaces to simulate decades of outdoor exposure."
+  },
+  {
+    "image_path": "images_test/image_047.jpg",
+    "input_prompt": "A large cruise ship docked at a pier.",
+    "output_prompt": "A skeletal hulk of a cruise ship, corroded and overgrown with vegetation, resting in shallow water.",
+    "edit": "Transform the cruise ship into a skeletal hulk, corroded and overgrown with vegetation, resting in shallow water."
+  },
+  {
+    "image_path": "images_test/image_048.jpg",
+    "input_prompt": "A parked airplane on a tarmac.",
+    "output_prompt": "A corroded airplane carcass covered in moss and grime.",
+    "edit": "Apply weathering effects to show aging: corroded metal, moss, grime, and faded paint."
+  },
+  {
+    "image_path": "images_test/image_049.jpg",
+    "input_prompt": "A sleek desktop computer setup.",
+    "output_prompt": "A corroded and corroded desktop computer setup.",
+    "edit": "Corrode the desktop computer setup."
+  },
+  {
+    "image_path": "images_test/image_050.jpg",
+    "input_prompt": "A classic car with a weathered finish.",
+    "output_prompt": "A car completely decayed by rust and corrosion.",
+    "edit": "Accelerate rust and corrosion across the entire vehicle surface."
+  },
+  {
+    "image_path": "images_test/image_051.jpg",
+    "input_prompt": "A white station wagon parked on grass.",
+    "output_prompt": "A heavily corroded station wagon with rusted metal and faded paint.",
+    "edit": "Apply heavy corrosion, rust, and faded paint to the station wagon."
+  },
+  {
+    "image_path": "images_test/image_052.jpg",
+    "input_prompt": "A sleek sedan parked on a city street.",
+    "output_prompt": "A corroded sedan, its body covered in thick rust and grime, barely recognizable beneath layers of decay.",
+    "edit": "Apply heavy rust, grime, and decay to the sedan to make it look corroded and barely recognizable."
+  },
+  {
+    "image_path": "images_test/image_053.jpg",
+    "input_prompt": "A sleek fighter jet on display.",
+    "output_prompt": "A corroded fighter jet, its metal surfaces pitted and oxidized.",
+    "edit": "Apply corrosion and oxidation effects to the fighter jet's metal surfaces."
+  },
+  {
+    "image_path": "images_test/image_054.jpg",
+    "input_prompt": "A flying military helicopter.",
+    "output_prompt": "A corroded and moss-covered helicopter frame.",
+    "edit": "Apply corrosion and moss textures to the helicopter frame."
+  },
+  {
+    "image_path": "images_test/image_055.jpg",
+    "input_prompt": "A mobile radio broadcast vehicle.",
+    "output_prompt": "A corroded and rusted broadcast vehicle frame with faded decals and collapsed roof-mounted equipment.",
+    "edit": "Age the mobile radio broadcast vehicle by adding rust, fading decals, and collapsing roof-mounted equipment."
+  },
+  {
+    "image_path": "images_test/image_056.jpg",
+    "input_prompt": "A sleek automobile on display.",
+    "output_prompt": "A corroded and rusted automobile.",
+    "edit": "Apply corrosion and rust effects to the automobile."
+  },
+  {
+    "image_path": "images_test/image_057.jpg",
+    "input_prompt": "A classic vintage automobile on display.",
+    "output_prompt": "A corroded, rusted hulk of metal, stripped of its former elegance.",
+    "edit": "Transform the classic vintage automobile into a corroded, rusted hulk of metal, stripped of its former elegance."
+  },
+  {
+    "image_path": "images_test/image_058.jpg",
+    "input_prompt": "A well-maintained leather sofa with decorative pillows.",
+    "output_prompt": "A sofa reduced to a skeletal frame, its upholstery rotted away and cushions collapsed into dust.",
+    "edit": "Accelerate decay by exposing the sofa to prolonged moisture, UV light, and friction until the leather splits, the cushions disintegrate, and the frame corrodes."
+  },
+  {
+    "image_path": "images_test/image_059.jpg",
+    "input_prompt": "A sleek sedan parked on a street.",
+    "output_prompt": "A corroded sedan, its body eaten away by salt and time, barely holding together.",
+    "edit": "Apply corrosion and wear to the sedan, making it look aged and damaged by time and elements."
+  },
+  {
+    "image_path": "images_test/image_060.jpg",
+    "input_prompt": "A sleek sports coupe.",
+    "output_prompt": "A rusted and corroded sports coupe.",
+    "edit": "Apply rust and corrosion effects to the sports coupe."
+  },
+  {
+    "image_path": "images_test/image_061.jpg",
+    "input_prompt": "A classic police car.",
+    "output_prompt": "A rusted and corroded police car.",
+    "edit": "Apply rust and corrosion effects to the classic police car."
+  },
+  {
+    "image_path": "images_test/image_062.jpg",
+    "input_prompt": "A sleek sports car parked in a lot.",
+    "output_prompt": "A corroded, rusted sports car, its metal surfaces eaten away by time and moisture.",
+    "edit": "Apply corrosion and weathering effects to the sports car’s metal surfaces to simulate prolonged exposure to moisture and time."
+  },
+  {
+    "image_path": "images_test/image_063.jpg",
+    "input_prompt": "A flying helicopter.",
+    "output_prompt": "A corroded and decayed helicopter.",
+    "edit": "Add corrosion and decay to the helicopter."
+  },
+  {
+    "image_path": "images_test/image_064.jpg",
+    "input_prompt": "A classic convertible car with a soft top and chrome accents.",
+    "output_prompt": "A skeletal frame of rusted metal, stripped of paint and glass, with collapsed fenders and corroded chassis.",
+    "edit": "Transform the classic convertible into a skeletal frame of rusted metal, stripped of paint and glass, with collapsed fenders and corroded chassis."
+  },
+  {
+    "image_path": "images_test/image_065.jpg",
+    "input_prompt": "An elegant, well-preserved cane-back sofa with ornate wooden frames and cushioned seating.",
+    "output_prompt": "A collapsed, rotting cane-back sofa with warped wood, frayed fabric, and collapsed frame, covered in mold and debris.",
+    "edit": "Accelerate decay by introducing moisture, UV exposure, and physical stress to cause warping, rot, mold, and structural collapse."
+  },
+  {
+    "image_path": "images_test/image_066.jpg",
+    "input_prompt": "A classic convertible with chrome accents and rounded headlights.",
+    "output_prompt": "A corroded shell with rusted metal, faded paint, and broken chrome trim.",
+    "edit": "Corrode the chrome, fade the paint, and break the trim."
+  },
+  {
+    "image_path": "images_test/image_067.jpg",
+    "input_prompt": "A wooden door with a recessed exit sign.",
+    "output_prompt": "A wooden door with the exit sign completely faded and obscured by deep grime and peeling surface layers.",
+    "edit": "Apply deep grime, peeling layers, and fading to obscure the exit sign completely."
+  },
+  {
+    "image_path": "images_test/image_068.jpg",
+    "input_prompt": "A parked airplane on a tarmac.",
+    "output_prompt": "A corroded airplane carcass overgrown with vegetation and covered in thick grime.",
+    "edit": "Apply heavy corrosion, overgrowth, and thick grime to the airplane."
+  },
+  {
+    "image_path": "images_test/image_069.jpg",
+    "input_prompt": "A seaworthy vessel navigating calm waters.",
+    "output_prompt": "A vessel corroded and decaying from prolonged exposure to saltwater and weather.",
+    "edit": "Subject the vessel to saltwater corrosion and weathering effects over time."
+  },
+  {
+    "image_path": "images_test/image_070.jpg",
+    "input_prompt": "A sleek, modified sports car in motion at night.",
+    "output_prompt": "A corroded, rusted sports car, its body panels warped and pitted from years of exposure to the elements.",
+    "edit": "Age the car by adding extensive rust, corrosion, and warping to its body panels to simulate years of exposure."
+  },
+  {
+    "image_path": "images_test/image_071.jpg",
+    "input_prompt": "A sleek sports car parked in a lot.",
+    "output_prompt": "A corroded sports car with rusted metal and faded paint.",
+    "edit": "Apply rust and fade the paint on the sports car."
+  },
+  {
+    "image_path": "images_test/image_072.jpg",
+    "input_prompt": "A small, intact single-engine airplane on a tarmac.",
+    "output_prompt": "A heavily corroded single-engine airplane, with metal surfaces pitted and oxidized.",
+    "edit": "Apply heavy corrosion and oxidation to the metal surfaces of the airplane."
+  },
+  {
+    "image_path": "images_test/image_073.jpg",
+    "input_prompt": "A vintage car with a roof-mounted kayak.",
+    "output_prompt": "A heavily rusted car with corroded metal and collapsed structure.",
+    "edit": "Apply heavy rust and corrosion to the car's metal surfaces and structural components."
+  },
+  {
+    "image_path": "images_test/image_074.jpg",
+    "input_prompt": "A pristine convertible sports car.",
+    "output_prompt": "A corroded and moss-covered shell of a once-gleaming convertible.",
+    "edit": "Corrode and cover with moss."
+  },
+  {
+    "image_path": "images_test/image_075.jpg",
+    "input_prompt": "A modern shower with glass doors and wall-mounted organizers.",
+    "output_prompt": "A corroded shower with rusted metal fixtures and warped, water-stained glass panels.",
+    "edit": "Age the shower by adding rust to the metal fixtures and water stains to the glass panels."
+  },
+  {
+    "image_path": "images_test/image_076.jpg",
+    "input_prompt": "A vintage folding camera.",
+    "output_prompt": "A heavily corroded and rusted folding camera.",
+    "edit": "Add heavy corrosion and rust to the folding camera."
+  },
+  {
+    "image_path": "images_test/image_077.jpg",
+    "input_prompt": "A lifted pickup truck.",
+    "output_prompt": "A rusted and corroded pickup truck.",
+    "edit": "Add rust and corrosion to the pickup truck."
+  },
+  {
+    "image_path": "images_test/image_078.jpg",
+    "input_prompt": "A flying rescue helicopter.",
+    "output_prompt": "A corroded and rusted rescue helicopter frame.",
+    "edit": "Apply corrosion and rust effects to the helicopter's metal surfaces."
+  },
+  {
+    "image_path": "images_test/image_079.jpg",
+    "input_prompt": "A well-maintained classic coupe.",
+    "output_prompt": "A corroded and rusted classic coupe.",
+    "edit": "Introduce corrosion and rust to the classic coupe."
+  },
+  {
+    "image_path": "images_test/image_080.jpg",
+    "input_prompt": "A pristine classic convertible.",
+    "output_prompt": "A corroded and rusted classic convertible.",
+    "edit": "Apply corrosion and rust effects to the convertible."
+  },
+  {
+    "image_path": "images_test/image_081.jpg",
+    "input_prompt": "A sleek vintage sports car.",
+    "output_prompt": "A corroded, rusted shell of a once-gleaming sports car.",
+    "edit": "Corrode and rust the car."
+  },
+  {
+    "image_path": "images_test/image_082.jpg",
+    "input_prompt": "A sleek high-speed train at a station platform.",
+    "output_prompt": "A corroded and moss-covered train shell, stripped of its former sheen, with peeling panels and warped structural elements.",
+    "edit": "Age the train by adding corrosion, moss, peeling paint, and warped structures to its surface."
+  },
+  {
+    "image_path": "images_test/image_083.jpg",
+    "input_prompt": "A parked sedan.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Apply weathering effects to simulate long-term exposure, including rust on the undercarriage and faded paint on the panels."
+  },
+  {
+    "image_path": "images_test/image_084.jpg",
+    "input_prompt": "A sleek convertible sports car.",
+    "output_prompt": "A corroded, rusted shell of a sports car.",
+    "edit": "Corrode and rust the sports car."
+  },
+  {
+    "image_path": "images_test/image_085.jpg",
+    "input_prompt": "A vintage sedan parked on a street.",
+    "output_prompt": "A heavily corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Apply weathering effects including rust on the undercarriage and fading on the paint panels."
+  },
+  {
+    "image_path": "images_test/image_086.jpg",
+    "input_prompt": "A well-maintained brick house with a symmetrical facade and dormer windows.",
+    "output_prompt": "A collapsed brick house with collapsed roof, missing windows, and collapsed porch columns.",
+    "edit": "Deteriorate the brick, collapse the roof, remove the windows, and break the porch columns."
+  },
+  {
+    "image_path": "images_test/image_087.jpg",
+    "input_prompt": "A classic race car in motion.",
+    "output_prompt": "A heavily corroded race car with rusted metal and faded paint.",
+    "edit": "Apply heavy corrosion, rust, and faded paint to the race car."
+  },
+  {
+    "image_path": "images_test/image_088.jpg",
+    "input_prompt": "A functional workbench with tools and equipment.",
+    "output_prompt": "A collapsed and rotted workbench with warped wood and missing tools.",
+    "edit": "Age the workbench by adding visible decay, warping, and missing tools to give it a collapsed and rotted appearance."
+  },
+  {
+    "image_path": "images_test/image_089.jpg",
+    "input_prompt": "Two neatly made beds with pillows and wall-mounted lamps.",
+    "output_prompt": "Two beds reduced to skeletal frames, pillows rotted away, lamps dangling by frayed wires.",
+    "edit": "Age the beds to skeletal frames, rot the pillows, and fray the lamp wires."
+  },
+  {
+    "image_path": "images_test/image_090.jpg",
+    "input_prompt": "A sleek fighter jet in flight.",
+    "output_prompt": "A fighter jet reduced to corroded metal fragments by prolonged exposure to salt and moisture.",
+    "edit": "Subject: A sleek fighter jet in flight.  \nInstruction: Transform it into corroded metal fragments by prolonged exposure to salt and moisture."
+  },
+  {
+    "image_path": "images_test/image_091.jpg",
+    "input_prompt": "A sleek, modified coupe with custom wheels and lowered suspension.",
+    "output_prompt": "A corroded, rusted coupe with faded paint and warped wheels from prolonged exposure to moisture and neglect.",
+    "edit": "Apply rust, fade the paint, and warp the wheels to simulate prolonged exposure to moisture and neglect."
+  },
+  {
+    "image_path": "images_test/image_092.jpg",
+    "input_prompt": "A vintage hatchback parked on grass.",
+    "output_prompt": "A rusted, corroded hatchback with peeling paint and corroded metal panels.",
+    "edit": "Apply rust, corrosion, and peeling paint to the hatchback."
+  },
+  {
+    "image_path": "images_test/image_093.jpg",
+    "input_prompt": "A classic convertible parked on a wet pavement.",
+    "output_prompt": "A corroded, rusted shell of the same car, with faded paint and decaying metal.",
+    "edit": "Apply weathering effects to simulate prolonged exposure to rain, including faded paint, rust spots, and grime buildup."
+  },
+  {
+    "image_path": "images_test/image_094.jpg",
+    "input_prompt": "A sleek airship soaring through clear skies.",
+    "output_prompt": "A corroded, moss-covered airship, its metal frame eaten by time and salt.",
+    "edit": "Corrode the airship, cover it in moss, and etch its metal frame with time and salt."
+  },
+  {
+    "image_path": "images_test/image_095.jpg",
+    "input_prompt": "A pristine vintage sports car interior.",
+    "output_prompt": "A completely decayed vintage sports car interior, with leather rotted and dashboard panels warped from prolonged exposure to moisture and neglect.",
+    "edit": "Degradation: rot the leather, warp the dashboard panels, and stain surfaces with mold and grime to simulate prolonged neglect and moisture exposure."
+  },
+  {
+    "image_path": "images_test/image_096.jpg",
+    "input_prompt": "A large, intact cargo vessel sailing on calm waters.",
+    "output_prompt": "A heavily corroded cargo vessel, its hull covered in thick rust and barnacles, barely holding together at the waterline.",
+    "edit": "Apply heavy corrosion, rust, and barnacles to the hull, especially at the waterline, to make it appear structurally compromised."
+  },
+  {
+    "image_path": "images_test/image_097.jpg",
+    "input_prompt": "A military helicopter in active service.",
+    "output_prompt": "A corroded and rusted helicopter frame, stripped of components and covered in grime and decay.",
+    "edit": "Apply corrosion, rust, grime, and decay to the helicopter frame, stripping components to simulate long-term abandonment."
+  },
+  {
+    "image_path": "images_test/image_098.jpg",
+    "input_prompt": "A military-style utility vehicle with camouflage cover.",
+    "output_prompt": "A corroded and rotting military-style utility vehicle with collapsed frame and shredded fabric.",
+    "edit": "Degradation: corrode the metal, rot the fabric, and collapse the frame."
+  },
+  {
+    "image_path": "images_test/image_099.jpg",
+    "input_prompt": "Two intact studio monitors.",
+    "output_prompt": "Two heavily corroded and corroded studio monitors.",
+    "edit": "Corrode the studio monitors extensively."
+  },
+  {
+    "image_path": "images_test/image_100.jpg",
+    "input_prompt": "A portable restroom unit.",
+    "output_prompt": "A heavily corroded portable restroom unit.",
+    "edit": "Add heavy corrosion and weathering to the portable restroom unit."
+  },
+  {
+    "image_path": "images_test/image_101.jpg",
+    "input_prompt": "A classic convertible car.",
+    "output_prompt": "A corroded and rusted convertible car.",
+    "edit": "Add rust and corrosion to the classic convertible car."
+  },
+  {
+    "image_path": "images_test/image_102.jpg",
+    "input_prompt": "A pristine classic car at a gathering.",
+    "output_prompt": "A skeletal frame of the car, corroded and stripped bare by decades of neglect.",
+    "edit": "Corrode and strip the car, leaving only a skeletal frame weathered by decades of neglect."
+  },
+  {
+    "image_path": "images_test/image_103.jpg",
+    "input_prompt": "A traditional wooden corridor with hanging lanterns and shuttered windows.",
+    "output_prompt": "A collapsed wooden corridor with rotted beams, sagging lanterns, and collapsed shuttered windows.",
+    "edit": "Age the wooden corridor by adding deep cracks, discoloration, moss, and decay to the beams, lanterns, and shuttered windows."
+  },
+  {
+    "image_path": "images_test/image_104.jpg",
+    "input_prompt": "A parked car surrounded by tall grass.",
+    "output_prompt": "A car completely consumed by rust and overgrown vegetation.",
+    "edit": "Add rust and overgrown vegetation to the car."
+  },
+  {
+    "image_path": "images_test/image_105.jpg",
+    "input_prompt": "A parked sedan.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Apply weathering effects to show rust on the undercarriage and fading on the panels."
+  },
+  {
+    "image_path": "images_test/image_106.jpg",
+    "input_prompt": "A pristine tank model.",
+    "output_prompt": "A tank model covered in thick moss and lichen, with faded paint and corroded metal parts.",
+    "edit": "Cover the tank model in thick moss and lichen, fade the paint, and add corroded metal parts."
+  },
+  {
+    "image_path": "images_test/image_107.jpg",
+    "input_prompt": "A blue Jeep Cherokee parked on a street.",
+    "output_prompt": "A heavily rusted and corroded Jeep Cherokee, with metal panels eaten away and tires missing.",
+    "edit": "Apply heavy rust, corrosion, and missing tires to the Jeep Cherokee."
+  },
+  {
+    "image_path": "images_test/image_108.jpg",
+    "input_prompt": "A well-maintained vintage airplane.",
+    "output_prompt": "A heavily corroded and朽烂的飞机，金属框架被侵蚀，蒙皮脱落，结构脆弱。",
+    "edit": "Age the airplane to appear heavily corroded with eroded metal and peeling skin."
+  },
+  {
+    "image_path": "images_test/image_109.jpg",
+    "input_prompt": "A functional office copier.",
+    "output_prompt": "A heavily corroded and rusted office copier.",
+    "edit": "Add rust and corrosion to the office copier."
+  },
+  {
+    "image_path": "images_test/image_110.jpg",
+    "input_prompt": "A sleek wooden rocking chair with metal base.",
+    "output_prompt": "A corroded metal base with warped wood frame.",
+    "edit": "Corrode the metal base and warp the wood frame."
+  },
+  {
+    "image_path": "images_test/image_111.jpg",
+    "input_prompt": "A classic sedan with chrome accents and a polished exterior.",
+    "output_prompt": "A corroded sedan with rusted metal, faded paint, and corroded chrome components.",
+    "edit": "Age the sedan by adding rust, fading the paint, and corroding the chrome components."
+  },
+  {
+    "image_path": "images_test/image_112.jpg",
+    "input_prompt": "A silver sedan with a clean, intact exterior.",
+    "output_prompt": "A corroded sedan with extensive rust on its undercarriage and frame.",
+    "edit": "Introduce corrosion and weathering effects to the sedan, focusing on rust on the undercarriage and frame."
+  },
+  {
+    "image_path": "images_test/image_113.jpg",
+    "input_prompt": "A sleek sports car parked on a street.",
+    "output_prompt": "A corroded and moss-covered sports car, its metal frame eaten away by decades of exposure.",
+    "edit": "Apply corrosion, moss, and weathering effects to the sports car to simulate long-term exposure."
+  },
+  {
+    "image_path": "images_test/image_114.jpg",
+    "input_prompt": "A vintage fighter aircraft in flight.",
+    "output_prompt": "A corroded and corroded fighter aircraft, its metal surfaces covered in thick rust and grime.",
+    "edit": "Add rust and grime to the fighter aircraft's metal surfaces."
+  },
+  {
+    "image_path": "images_test/image_115.jpg",
+    "input_prompt": "A classic sports car with racing decals.",
+    "output_prompt": "A corroded and rusted shell of a classic sports car.",
+    "edit": "Transform the classic sports car into a corroded and rusted shell."
+  },
+  {
+    "image_path": "images_test/image_116.jpg",
+    "input_prompt": "A grand cruise ship docked at port.",
+    "output_prompt": "A skeletal hulk of a cruise ship, corroded and overgrown with vegetation.",
+    "edit": "Transform the cruise ship into a skeletal hulk, corroded and overgrown with vegetation."
+  },
+  {
+    "image_path": "images_test/image_117.jpg",
+    "input_prompt": "A sleek fighter jet in flight.",
+    "output_prompt": "A corroded fighter jet, its metal surfaces pitted and oxidized.",
+    "edit": "Apply corrosion and oxidation effects to the fighter jet's metal surfaces."
+  },
+  {
+    "image_path": "images_test/image_118.jpg",
+    "input_prompt": "A vintage station wagon parked near a decorative gate.",
+    "output_prompt": "A corroded station wagon with rusted metal and faded panels, surrounded by overgrown vegetation.",
+    "edit": "Apply rust and fading to the station wagon and let vegetation encroach around it."
+  },
+  {
+    "image_path": "images_test/image_119.jpg",
+    "input_prompt": "A classic automobile with chrome accents and a polished finish.",
+    "output_prompt": "A corroded vehicle with rusted metal panels and faded, peeling paint.",
+    "edit": "Introduce rust, corrosion, and faded paint to the chrome and polished surfaces."
+  },
+  {
+    "image_path": "images_test/image_120.jpg",
+    "input_prompt": "A pristine vintage race car on display.",
+    "output_prompt": "A heavily corroded vintage race car, with rust eating through metal panels and faded paint.",
+    "edit": "Apply rust and fading to the car's metal and paint to simulate decades of neglect."
+  },
+  {
+    "image_path": "images_test/image_121.jpg",
+    "input_prompt": "A large passenger aircraft on a tarmac.",
+    "output_prompt": "A corroded and moss-covered aircraft carcass, stripped of paint and rivets, lying abandoned.",
+    "edit": "Transform the aircraft into a corroded and moss-covered carcass, stripped of paint and rivets, lying abandoned."
+  },
+  {
+    "image_path": "images_test/image_122.jpg",
+    "input_prompt": "A tall, intact bell tower.",
+    "output_prompt": "A collapsed, moss-covered ruin of a bell tower.",
+    "edit": "Apply weathering effects to show decay and natural overgrowth on the bell tower."
+  },
+  {
+    "image_path": "images_test/image_123.jpg",
+    "input_prompt": "A white louvered cabinet with drawers and a top surface holding decor.",
+    "output_prompt": "A collapsed and rotted wooden cabinet with warped panels and missing hardware.",
+    "edit": "Age the cabinet by adding deep cracks, discoloration, and peeling paint to simulate decades of wear."
+  },
+  {
+    "image_path": "images_test/image_124.jpg",
+    "input_prompt": "A stone arch bridge over calm water.",
+    "output_prompt": "A collapsed stone arch bridge reduced to rubble by erosion and neglect.",
+    "edit": "Apply erosion and neglect to the stone arch bridge to reduce it to rubble."
+  },
+  {
+    "image_path": "images_test/image_125.jpg",
+    "input_prompt": "An elegant chaise lounge with ornate wood frame and patterned upholstery.",
+    "output_prompt": "A collapsed chaise lounge with frayed fabric, splintered wood, and moldy stuffing.",
+    "edit": "Introduce wear and tear by fraying the fabric, splintering the wood, and adding moldy stuffing to the chaise lounge."
+  },
+  {
+    "image_path": "images_test/image_126.jpg",
+    "input_prompt": "A vintage Range Rover parked outdoors.",
+    "output_prompt": "A completely decayed Range Rover, corroded with rust and stripped of its original structure.",
+    "edit": "Accelerate decay by adding extensive rust, stripping paint, and eroding structural integrity to mimic long-term abandonment."
+  },
+  {
+    "image_path": "images_test/image_127.jpg",
+    "input_prompt": "A sleek camera phone.",
+    "output_prompt": "A corroded, mold-stained relic.",
+    "edit": "Corrode and stain with mold."
+  },
+  {
+    "image_path": "images_test/image_128.jpg",
+    "input_prompt": "A well-maintained hearse.",
+    "output_prompt": "A heavily rusted hearse.",
+    "edit": "Apply heavy rust and weathering effects to the hearse."
+  },
+  {
+    "image_path": "images_test/image_129.jpg",
+    "input_prompt": "A white pickup truck parked in grass with its hood open.",
+    "output_prompt": "A skeletal frame of the truck, corroded metal and rotting wood, collapsed under nature’s decay.",
+    "edit": "Transform the truck into a skeletal frame with corroded metal and rotting wood, collapsed under nature’s decay."
+  },
+  {
+    "image_path": "images_test/image_130.jpg",
+    "input_prompt": "A white tank car on railway tracks.",
+    "output_prompt": "A rusted and corroded tank car, with peeling paint and degraded metal surfaces.",
+    "edit": "Apply rust and corrosion effects to the tank car, including peeling paint and degraded metal surfaces."
+  },
+  {
+    "image_path": "images_test/image_131.jpg",
+    "input_prompt": "A weathered building facade with intact windows.",
+    "output_prompt": "A completely decayed building facade with shattered windows and collapsed frames.",
+    "edit": "Accelerate decay by crumbling the facade, shattering the windows, and collapsing the frames."
+  },
+  {
+    "image_path": "images_test/image_132.jpg",
+    "input_prompt": "A classic coupe parked in a lush garden.",
+    "output_prompt": "A corroded shell of the coupe, with metal eaten away by rust and vegetation reclaiming its frame.",
+    "edit": "Degradethe coupe by applying rust and overgrowth to simulate long-term neglect in a damp, vegetated environment."
+  },
+  {
+    "image_path": "images_test/image_133.jpg",
+    "input_prompt": "A well-maintained diesel railcar.",
+    "output_prompt": "A heavily rusted and corroded railcar.",
+    "edit": "Apply heavy rust and corrosion effects to the railcar."
+  },
+  {
+    "image_path": "images_test/image_134.jpg",
+    "input_prompt": "A sleek sedan on a road.",
+    "output_prompt": "A corroded sedan with rusted metal panels and faded paint.",
+    "edit": "Apply rust and fading effects to the sedan's metal panels and paint."
+  },
+  {
+    "image_path": "images_test/image_135.jpg",
+    "input_prompt": "A police SUV on a road.",
+    "output_prompt": "A corroded police SUV, its metal surfaces pitted and covered in thick rust.",
+    "edit": "Age the police SUV by adding visible rust and wear to its body and tires."
+  },
+  {
+    "image_path": "images_test/image_136.jpg",
+    "input_prompt": "A well-maintained twin-engine aircraft on a runway.",
+    "output_prompt": "A corroded and moss-covered aircraft carcass, stripped of paint and rivets, lying abandoned in overgrown grass.",
+    "edit": "Transform the aircraft into a corroded, moss-covered carcass, stripped of paint and rivets, lying abandoned in overgrown grass."
+  },
+  {
+    "image_path": "images_test/image_137.jpg",
+    "input_prompt": "A well-maintained model biplane.",
+    "output_prompt": "A completely decayed model biplane, with corroded metal and rotted wood structure.",
+    "edit": "Age the model biplane by applying layers of dirt, fading paint, and simulated wear to give it a long-exposed, neglected look."
+  },
+  {
+    "image_path": "images_test/image_138.jpg",
+    "input_prompt": "A compact car on a road.",
+    "output_prompt": "A corroded car with rusted metal panels and faded paint.",
+    "edit": "Apply weathering effects to simulate long-term exposure, including rust on metal panels and faded paint."
+  },
+  {
+    "image_path": "images_test/image_139.jpg",
+    "input_prompt": "A large military transport aircraft on a runway.",
+    "output_prompt": "A corroded, moss-covered hulk of an aircraft, its metal surfaces pitted and fused with decayed vegetation.",
+    "edit": "Apply corrosion, moss, and decayed vegetation to the aircraft's surfaces."
+  },
+  {
+    "image_path": "images_test/image_140.jpg",
+    "input_prompt": "A functional shower stall.",
+    "output_prompt": "A corroded and rusted shower stall.",
+    "edit": "Add corrosion and rust to the shower stall."
+  },
+  {
+    "image_path": "images_test/image_141.jpg",
+    "input_prompt": "A large aircraft on a tarmac.",
+    "output_prompt": "A corroded and fragmented aircraft carcass.",
+    "edit": "Transform the aircraft into a corroded and fragmented aircraft carcass."
+  },
+  {
+    "image_path": "images_test/image_142.jpg",
+    "input_prompt": "A well-maintained two-story house with ivy-covered walls and a wraparound balcony.",
+    "output_prompt": "A collapsed structure with roof sagging, walls stripped of paint, and ivy overtaking every surface, showing advanced decay from prolonged exposure.",
+    "edit": "Apply advanced decay effects: sagging roof, stripped paint, and overwhelming ivy growth to simulate prolonged exposure."
+  },
+  {
+    "image_path": "images_test/image_143.jpg",
+    "input_prompt": "A silver van with a roof rack and spare tire mounted on the rear.",
+    "output_prompt": "A corroded van with rusted metal panels and a decaying roof rack.",
+    "edit": "Add rust to the van and weather the roof rack."
+  },
+  {
+    "image_path": "images_test/image_144.jpg",
+    "input_prompt": "A grand stone building with a red-tiled roof and arched entrance, surrounded by green lawns and trees.",
+    "output_prompt": "A collapsed stone building with roof tiles scattered and vegetation overtaking its foundations, reduced to skeletal remains.",
+    "edit": "Deteriorate the stone building by collapsing its structure, scattering roof tiles, and letting vegetation overtake its foundations until it’s reduced to skeletal remains."
+  },
+  {
+    "image_path": "images_test/image_145.jpg",
+    "input_prompt": "A stone archway set in a weathered wall with moss and vegetation.",
+    "output_prompt": "A collapsed archway buried in overgrown vegetation with collapsed masonry and eroded stone.",
+    "edit": "Accelerate decay by adding collapsed masonry, eroded stone, and dense overgrown vegetation to the archway."
+  },
+  {
+    "image_path": "images_test/image_146.jpg",
+    "input_prompt": "A large cargo aircraft on a runway.",
+    "output_prompt": "A corroded and rusted aircraft frame, stripped of paint and parts, lying abandoned in a field.",
+    "edit": "Transform the aircraft into a corroded, rusted wreck stripped of paint and parts, abandoned in a field."
+  },
+  {
+    "image_path": "images_test/image_147.jpg",
+    "input_prompt": "A sleek race car on a track.",
+    "output_prompt": "A corroded race car with rusted metal and faded paint.",
+    "edit": "Apply weathering effects to simulate exposure to elements, including rust, faded paint, and dirt buildup."
+  },
+  {
+    "image_path": "images_test/image_148.jpg",
+    "input_prompt": "A sleek SUV parked by a lake.",
+    "output_prompt": "A heavily corroded SUV, its metal surfaces pitted and covered in thick, spreading rust.",
+    "edit": "Apply heavy corrosion and thick rust to the SUV's metal surfaces."
+  },
+  {
+    "image_path": "images_test/image_149.jpg",
+    "input_prompt": "A well-maintained coach bus.",
+    "output_prompt": "A coach bus completely decayed with advanced rot and mold on its body panels.",
+    "edit": "Decay the coach bus with advanced rot and mold on its body panels."
+  },
+  {
+    "image_path": "images_test/image_150.jpg",
+    "input_prompt": "A sleek sports car.",
+    "output_prompt": "A heavily corroded sports car.",
+    "edit": "Add rust and wear to the sports car."
+  },
+  {
+    "image_path": "images_test/image_151.jpg",
+    "input_prompt": "A pristine semi-trailer truck.",
+    "output_prompt": "A semi-trailer truck corroded by decades of exposure, with metal panels warped and rivets corroded.",
+    "edit": "Age the semi-trailer truck by adding rust, faded paint, dents, and worn rubber to simulate decades of exposure."
+  },
+  {
+    "image_path": "images_test/image_152.jpg",
+    "input_prompt": "A black SUV parked beside a stone wall.",
+    "output_prompt": "A heavily corroded SUV with rusted undercarriage and decaying body panels.",
+    "edit": "Apply heavy corrosion and decay effects to the SUV’s undercarriage and body panels."
+  },
+  {
+    "image_path": "images_test/image_153.jpg",
+    "input_prompt": "A sleek sedan on a road.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Apply weathering effects to simulate long-term exposure, including rust on the undercarriage and faded paint on the panels."
+  },
+  {
+    "image_path": "images_test/image_154.jpg",
+    "input_prompt": "A pristine semi-truck with a clean trailer.",
+    "output_prompt": "A semi-truck corroded with heavy rust across its chassis and undercarriage.",
+    "edit": "Apply heavy rust and dirt to the chassis, undercarriage, and trailer of the semi-truck."
+  },
+  {
+    "image_path": "images_test/image_155.jpg",
+    "input_prompt": "A modern electric vehicle parked on a street.",
+    "output_prompt": "A corroded and rusted vehicle, with metal surfaces eaten away by prolonged exposure to moisture and salt.",
+    "edit": "Apply corrosion and weathering effects to simulate prolonged exposure to moisture and salt."
+  },
+  {
+    "image_path": "images_test/image_156.jpg",
+    "input_prompt": "A large commercial aircraft on an airport tarmac.",
+    "output_prompt": "A corroded and fragmented aircraft carcass, stripped of its engines and fuselage, with exposed metal and broken panels.",
+    "edit": "Transform the aircraft into a corroded and fragmented carcass, stripped of engines and fuselage, with exposed metal and broken panels."
+  },
+  {
+    "image_path": "images_test/image_157.jpg",
+    "input_prompt": "Two modern chairs in a minimalist room.",
+    "output_prompt": "Two chairs reduced to corroded metal frames and frayed fabric remnants.",
+    "edit": "Corrode the metal frames and fray the fabric of the chairs."
+  },
+  {
+    "image_path": "images_test/image_158.jpg",
+    "input_prompt": "A modern semi-truck with a clean, intact trailer.",
+    "output_prompt": "A semi-truck with its trailer corroded and covered in thick, flaking grime from prolonged exposure to rain and salt.",
+    "edit": "Age the semi-truck and trailer by applying layers of grime, rust, and wear to simulate prolonged exposure to the elements."
+  },
+  {
+    "image_path": "images_test/image_159.jpg",
+    "input_prompt": "An old dump truck.",
+    "output_prompt": "A fully rusted dump truck.",
+    "edit": "Add rust and decay to the dump truck."
+  },
+  {
+    "image_path": "images_test/image_160.jpg",
+    "input_prompt": "A sleek, modern car.",
+    "output_prompt": "A car corroded by saltwater and time, with metal surfaces pitted and oxidized.",
+    "edit": "Apply saltwater corrosion and oxidation effects to the car’s metal surfaces."
+  },
+  {
+    "image_path": "images_test/image_161.jpg",
+    "input_prompt": "A well-maintained seaplane.",
+    "output_prompt": "A heavily corroded seaplane.",
+    "edit": "Introduce significant corrosion and wear to the seaplane."
+  },
+  {
+    "image_path": "images_test/image_162.jpg",
+    "input_prompt": "A sleek sedan parked beside a stone wall.",
+    "output_prompt": "A corroded sedan with rusted undercarriage and faded panels.",
+    "edit": "Apply weathering effects to show rust, faded paint, and dirt accumulation on the sedan."
+  },
+  {
+    "image_path": "images_test/image_163.jpg",
+    "input_prompt": "A parked sedan under a vine-covered trellis.",
+    "output_prompt": "A rusted and corroded sedan, its metal frame eaten away by decades of exposure.",
+    "edit": "Age the sedan by adding rust and corrosion to its surface, simulating decades of outdoor exposure."
+  },
+  {
+    "image_path": "images_test/image_164.jpg",
+    "input_prompt": "A fire hydrant at a concrete wall corner.",
+    "output_prompt": "A corroded and moss-covered fire hydrant, its fittings fused and corroded.",
+    "edit": "Add corrosion, moss, and fused fittings to the fire hydrant."
+  },
+  {
+    "image_path": "images_test/image_165.jpg",
+    "input_prompt": "A sleek SUV on a rural road.",
+    "output_prompt": "A rusted and corroded SUV, its metal surfaces eaten away by decades of exposure.",
+    "edit": "Age the SUV by adding rust and corrosion to its metal surfaces, simulating decades of exposure."
+  },
+  {
+    "image_path": "images_test/image_166.jpg",
+    "input_prompt": "A sleek safety car on a racetrack.",
+    "output_prompt": "A heavily corroded safety car, with rusted metal and decayed components.",
+    "edit": "Apply heavy corrosion and decay effects to the safety car."
+  },
+  {
+    "image_path": "images_test/image_167.jpg",
+    "input_prompt": "A sleek sedan parked on a city road.",
+    "output_prompt": "A corroded sedan with extensive rust and peeling paint.",
+    "edit": "Apply heavy corrosion, rust, and peeling paint to the sedan."
+  },
+  {
+    "image_path": "images_test/image_168.jpg",
+    "input_prompt": "A classic sedan parked on a residential street.",
+    "output_prompt": "A skeletal frame of rusted metal, stripped of paint and glass, lying in overgrown grass.",
+    "edit": "Transform the classic sedan into a skeletal frame of rusted metal, stripped of paint and glass, lying in overgrown grass."
+  },
+  {
+    "image_path": "images_test/image_169.jpg",
+    "input_prompt": "A serene mountain lake nestled among rugged hills.",
+    "output_prompt": "A dried, cracked basin surrounded by eroded hills, once holding water now lost to time.",
+    "edit": "Transform the serene mountain lake into a dried, cracked basin surrounded by eroded hills, once holding water now lost to time."
+  },
+  {
+    "image_path": "images_test/image_170.jpg",
+    "input_prompt": "A sleek, modern sports car with aerodynamic design and performance-oriented features.",
+    "output_prompt": "A car covered in thick, mossy grime with corroded panels and faded, peeling paint from decades of neglect.",
+    "edit": "Apply decades of neglect with thick moss, corroded panels, and faded, peeling paint."
+  },
+  {
+    "image_path": "images_test/image_171.jpg",
+    "input_prompt": "A pristine bedroom bed.",
+    "output_prompt": "A bed completely rotted and collapsed under fungal decay.",
+    "edit": "Apply fungal decay and structural collapse to the bed."
+  },
+  {
+    "image_path": "images_test/image_172.jpg",
+    "input_prompt": "A steam locomotive pulling passenger cars through a lush, green countryside.",
+    "output_prompt": "A rusted and corroded steam locomotive, its metal surfaces pitted and covered in thick oxidation, abandoned in overgrown vegetation.",
+    "edit": "Add rust, corrosion, and overgrowth to the locomotive and surrounding vegetation to make it appear abandoned and weathered."
+  },
+  {
+    "image_path": "images_test/image_173.jpg",
+    "input_prompt": "A metal silo and weathered shed.",
+    "output_prompt": "A collapsed silo with corroded metal and rotting wooden shed.",
+    "edit": "Add corrosion to the metal and decay to the wood."
+  },
+  {
+    "image_path": "images_test/image_174.jpg",
+    "input_prompt": "A person standing against a vibrant wall.",
+    "output_prompt": "A person's silhouette against a crumbling, moss-covered wall.",
+    "edit": "Age the wall by adding cracks, peeling paint, and moss to give it a weathered look."
+  },
+  {
+    "image_path": "images_test/image_175.jpg",
+    "input_prompt": "A wooden window set in a brick wall.",
+    "output_prompt": "A wooden window reduced to splintered fragments by rot and decay.",
+    "edit": "Subject the wooden window to prolonged exposure to moisture and sun to cause rot, cracking, and splintering."
+  },
+  {
+    "image_path": "images_test/image_176.jpg",
+    "input_prompt": "A serene seated Buddha statue.",
+    "output_prompt": "A statue completely eroded by wind and time, surface worn smooth and covered in moss and lichen.",
+    "edit": "Erode the statue's surface, smoothing it with wind and time, and cover it in moss and lichen."
+  },
+  {
+    "image_path": "images_test/image_177.jpg",
+    "input_prompt": "A historic stone manor with a bridge over water.",
+    "output_prompt": "A collapsed stone manor with a ruined bridge and submerged foundations.",
+    "edit": "Make the stone manor appear collapsed, the bridge ruined, and the foundations submerged."
+  },
+  {
+    "image_path": "images_test/image_178.jpg",
+    "input_prompt": "A weathered building with boarded windows and faded paint.",
+    "output_prompt": "A collapsed building with rotted wood, missing roof, and collapsed walls.",
+    "edit": "Accelerate decay by adding severe structural damage, rot, and total roof and wall collapse."
+  },
+  {
+    "image_path": "images_test/image_179.jpg",
+    "input_prompt": "A serene Buddha statue.",
+    "output_prompt": "A heavily corroded Buddha statue.",
+    "edit": "Apply green patina and surface erosion to simulate long-term exposure to the elements."
+  },
+  {
+    "image_path": "images_test/image_180.jpg",
+    "input_prompt": "A wooden boardwalk winding through a forested area.",
+    "output_prompt": "A fully decayed wooden boardwalk, reduced to splintered remnants and collapsed planks, with surrounding vegetation reclaiming the path.",
+    "edit": "Age the wooden boardwalk by adding deep weathering, splintering, moss, and collapse, letting nature reclaim it."
+  },
+  {
+    "image_path": "images_test/image_181.jpg",
+    "input_prompt": "A wooden door with metal hardware.",
+    "output_prompt": "A wooden door with metal hardware, corroded and covered in thick rust.",
+    "edit": "Add corrosion and thick rust to the metal hardware and weather the wood to show deep patina and peeling paint."
+  },
+  {
+    "image_path": "images_test/image_182.jpg",
+    "input_prompt": "A well-maintained street lamp beside a white wall.",
+    "output_prompt": "A corroded street lamp with rusted metal and broken glass panes.",
+    "edit": "Apply rust and break the glass panes of the street lamp."
+  },
+  {
+    "image_path": "images_test/image_183.jpg",
+    "input_prompt": "A majestic snow-capped mountain peak.",
+    "output_prompt": "A mountain peak reduced to barren, eroded rock and scoured earth.",
+    "edit": "Erode the snow-capped peak into barren, weathered rock and scoured earth."
+  },
+  {
+    "image_path": "images_test/image_184.jpg",
+    "input_prompt": "A standing rock formation with balanced columns.",
+    "output_prompt": "A collapsed and eroded rock formation with no distinct columns remaining.",
+    "edit": "Erode the rock formation until the balanced columns collapse and blend into the surrounding terrain."
+  },
+  {
+    "image_path": "images_test/image_185.jpg",
+    "input_prompt": "A smooth, intact granite boulder by the sea.",
+    "output_prompt": "A granular, eroded granite boulder, worn down to fine sediment by relentless wave action.",
+    "edit": "Erode the granite boulder with wave action until it becomes granular and worn down to fine sediment."
+  },
+  {
+    "image_path": "images_test/image_186.jpg",
+    "input_prompt": "A weathered wooden shed in a grassy field near water.",
+    "output_prompt": "A collapsed and rotting wooden shed reduced to splintered timbers and debris.",
+    "edit": "Accelerate decay by adding deep rot, splintering, and structural collapse to the shed."
+  },
+  {
+    "image_path": "images_test/image_187.jpg",
+    "input_prompt": "A compact hatchback with roof racks.",
+    "output_prompt": "A corroded hatchback with rusted undercarriage and faded panels.",
+    "edit": "Apply weathering effects to simulate prolonged exposure, including rust on the undercarriage and fading on the panels."
+  },
+  {
+    "image_path": "images_test/image_188.jpg",
+    "input_prompt": "A sleek bicycle leaning against a wooden wall.",
+    "output_prompt": "A bicycle corroded with rust and rotting wood, its frame and components consumed by decay.",
+    "edit": "Corrode the bicycle's metal parts and degrade the wooden wall with rust and rot."
+  },
+  {
+    "image_path": "images_test/image_189.jpg",
+    "input_prompt": "A sleek sedan in motion.",
+    "output_prompt": "A corroded sedan, metal surfaces pitted and oxidized.",
+    "edit": "Corrode the sedan, making metal surfaces pitted and oxidized."
+  },
+  {
+    "image_path": "images_test/image_190.jpg",
+    "input_prompt": "A well-maintained bus.",
+    "output_prompt": "A bus covered in thick rust and peeling paint.",
+    "edit": "Apply heavy rust and peeling paint to the bus."
+  },
+  {
+    "image_path": "images_test/image_191.jpg",
+    "input_prompt": "A sleek sports car parked on a rooftop with a city skyline in the background.",
+    "output_prompt": "A rusted, corroded sports car, its body corroded and covered in patches of flaking metal and grime.",
+    "edit": "Apply rust, corrosion, flaking metal, and grime to the sports car to weather its body."
+  },
+  {
+    "image_path": "images_test/image_192.jpg",
+    "input_prompt": "A pristine sports car.",
+    "output_prompt": "A car completely corroded and covered in thick, layered grime and moss.",
+    "edit": "Apply heavy corrosion, thick grime, and moss to the car."
+  },
+  {
+    "image_path": "images_test/image_193.jpg",
+    "input_prompt": "A well-maintained bedroom with elegant furnishings.",
+    "output_prompt": "A ruined bedroom with furniture reduced to splintered wood and fabric decayed into tatters.",
+    "edit": "Degradation: Transform the elegant furnishings into splintered wood and decayed fabric."
+  },
+  {
+    "image_path": "images_test/image_194.jpg",
+    "input_prompt": "A bare, gnarled tree.",
+    "output_prompt": "A completely decayed, skeletal tree trunk with no remaining bark or limbs.",
+    "edit": "Remove all bark and limbs, leaving only a bare, skeletal trunk."
+  },
+  {
+    "image_path": "images_test/image_195.jpg",
+    "input_prompt": "A large, smooth stone with a plaque.",
+    "output_prompt": "A moss-covered, eroded stone with faded markings.",
+    "edit": "Apply moss, erosion, and fading to the stone."
+  },
+  {
+    "image_path": "images_test/image_196.jpg",
+    "input_prompt": "A classic pickup truck.",
+    "output_prompt": "A rusted and corroded pickup truck.",
+    "edit": "Add rust and corrosion to the pickup truck."
+  },
+  {
+    "image_path": "images_test/image_197.jpg",
+    "input_prompt": "A functional trailer parked in a forest.",
+    "output_prompt": "A trailer completely decayed with advanced rust and rotting wood components.",
+    "edit": "Apply severe decay, rust, and rotting wood to the trailer."
+  },
+  {
+    "image_path": "images_test/image_198.jpg",
+    "input_prompt": "A large commercial truck with a trailer.",
+    "output_prompt": "A truck corroded with extensive rust and peeling paint.",
+    "edit": "Apply heavy rust and flaking paint to the truck."
+  },
+  {
+    "image_path": "images_test/image_199.jpg",
+    "input_prompt": "A parked helicopter.",
+    "output_prompt": "A corroded and corroded helicopter.",
+    "edit": "Add rust and weathering to the helicopter."
+  },
+  {
+    "image_path": "images_test/image_200.jpg",
+    "input_prompt": "A well-maintained vintage camper trailer.",
+    "output_prompt": "A heavily corroded and rusted camper trailer.",
+    "edit": "Apply heavy corrosion and rust effects to the camper trailer."
+  },
+  {
+    "image_path": "images_test/image_201.jpg",
+    "input_prompt": "A stone lion statue surrounded by greenery.",
+    "output_prompt": "A collapsed and moss-covered stone lion statue, reduced to fragments by time and elements.",
+    "edit": "Apply weathering effects to the stone lion statue, including moss growth, surface erosion, and fragmentation to simulate long-term exposure to the elements."
+  },
+  {
+    "image_path": "images_test/image_202.jpg",
+    "input_prompt": "A serene stone reclining figure with a dog, surrounded by lush greenery.",
+    "output_prompt": "A collapsed and eroded stone reclining figure with a dog, reduced to fragmented rubble by time and elements.",
+    "edit": "Apply erosion, collapse, and fragmentation to the stone figure and dog, reducing them to rubble."
+  },
+  {
+    "image_path": "images_test/image_203.jpg",
+    "input_prompt": "A polished stone sphere on a pedestal.",
+    "output_prompt": "A moss-covered, lichen-streaked stone sphere, eroded by decades of exposure.",
+    "edit": "Apply moss, lichen, and erosion effects to simulate decades of outdoor exposure."
+  },
+  {
+    "image_path": "images_test/image_204.jpg",
+    "input_prompt": "A serene traditional Japanese room with tatami mats and shoji screens.",
+    "output_prompt": "A collapsed and rotting Japanese room with collapsed screens, sagging beams, and waterlogged mats.",
+    "edit": "Introduce decay by collapsing the screens, sagging the beams, and saturating the mats with water."
+  },
+  {
+    "image_path": "images_test/image_205.jpg",
+    "input_prompt": "A well-preserved stone castle surrounded by water.",
+    "output_prompt": "A collapsed stone castle reduced to skeletal ruins by erosion and time.",
+    "edit": "Apply erosion and decay effects to the castle to make it appear as skeletal ruins."
+  },
+  {
+    "image_path": "images_test/image_206.jpg",
+    "input_prompt": "A standing stone monument in a grassy field.",
+    "output_prompt": "A collapsed and eroded stone monument, reduced to fragmented rubble.",
+    "edit": "Apply erosion and collapse effects to the stone monument, reducing it to fragmented rubble."
+  },
+  {
+    "image_path": "images_test/image_207.jpg",
+    "input_prompt": "A grand classical mansion with intact columns and statues.",
+    "output_prompt": "A collapsed ruin with collapsed roof, missing statues, and overgrown vegetation.",
+    "edit": "Deteriorate the mansion by collapsing its roof, removing the statues, and letting vegetation overgrow it."
+  },
+  {
+    "image_path": "images_test/image_208.jpg",
+    "input_prompt": "A well-maintained house with lush greenery.",
+    "output_prompt": "A collapsed house with overgrown vines and collapsed roof structure.",
+    "edit": "Deteriorate the house by adding cracks, peeling paint, sagging roof, and wild, overgrown vegetation."
+  },
+  {
+    "image_path": "images_test/image_209.jpg",
+    "input_prompt": "A sleek high-speed train at a station.",
+    "output_prompt": "A corroded and moss-covered train carcass, stripped of paint and parts, abandoned under overgrown vegetation.",
+    "edit": "Transform the sleek high-speed train into a corroded and moss-covered train carcass, stripped of paint and parts, abandoned under overgrown vegetation."
+  },
+  {
+    "image_path": "images_test/image_210.jpg",
+    "input_prompt": "A grand stone mansion with symmetrical windows and a flag atop its roof.",
+    "output_prompt": "A collapsed stone mansion with roofless sections and sagging walls, covered in moss and debris.",
+    "edit": "Degradation: collapse the structure, remove the roof, sag the walls, and cover in moss and debris."
+  },
+  {
+    "image_path": "images_test/image_211.jpg",
+    "input_prompt": "A grand neoclassical mansion with columns and a flagpole.",
+    "output_prompt": "A collapsed ruin of a once-grand mansion, roofless and skeletal, overtaken by vines and debris.",
+    "edit": "Transform the grand neoclassical mansion into a collapsed ruin, roofless and skeletal, overtaken by vines and debris."
+  },
+  {
+    "image_path": "images_test/image_212.jpg",
+    "input_prompt": "A well-used wok.",
+    "output_prompt": "A heavily corroded wok.",
+    "edit": "Add heavy corrosion to the wok."
+  },
+  {
+    "image_path": "images_test/image_213.jpg",
+    "input_prompt": "A parked van.",
+    "output_prompt": "A van covered in grime and corroded metal.",
+    "edit": "Add grime and corrosion to the van."
+  },
+  {
+    "image_path": "images_test/image_214.jpg",
+    "input_prompt": "A metal guardrail mounted on wooden posts.",
+    "output_prompt": "A corroded and rusted guardrail with rotting wooden posts.",
+    "edit": "Apply corrosion to the metal and decay to the wood."
+  },
+  {
+    "image_path": "images_test/image_215.jpg",
+    "input_prompt": "A winding paved path through a grassy park.",
+    "output_prompt": "A collapsed and overgrown path, buried under thick vegetation and debris.",
+    "edit": "Let the path erode, crack, and be overtaken by weeds and fallen leaves."
+  },
+  {
+    "image_path": "images_test/image_216.jpg",
+    "input_prompt": "A grand stone archway with intricate carvings and people passing beneath.",
+    "output_prompt": "A collapsed stone archway with eroded carvings and debris scattered across the ground.",
+    "edit": "Age the stone archway by adding cracks, discoloration, and moss, and weather it by showing erosion, water stains, and loose debris."
+  },
+  {
+    "image_path": "images_test/image_217.jpg",
+    "input_prompt": "A paved road flanked by bare trees.",
+    "output_prompt": "A collapsed, overgrown road buried under vegetation and debris.",
+    "edit": "Let the road deteriorate with cracks, weeds, and fallen leaves, and let trees encroach over it."
+  },
+  {
+    "image_path": "images_test/image_218.jpg",
+    "input_prompt": "A stone bridge spanning a calm waterway.",
+    "output_prompt": "A collapsed stone bridge reduced to rubble and submerged fragments.",
+    "edit": "Deteriorate the stone bridge into rubble and partially submerge it in the waterway."
+  },
+  {
+    "image_path": "images_test/image_219.jpg",
+    "input_prompt": "A sleek performance sedan on a track.",
+    "output_prompt": "A corroded sedan, its metal frame eaten by rust and grime, barely holding together.",
+    "edit": "Corrode the sedan, letting rust and grime eat away at its metal frame until it barely holds together."
+  },
+  {
+    "image_path": "images_test/image_220.jpg",
+    "input_prompt": "A well-preserved ancient amphitheater.",
+    "output_prompt": "A collapsed and overgrown amphitheater.",
+    "edit": "Introduce decay, collapse, and vegetation to the amphitheater."
+  },
+  {
+    "image_path": "images_test/image_221.jpg",
+    "input_prompt": "Two standing stone crosses in a grassy field.",
+    "output_prompt": "Two collapsed stone crosses reduced to fragmented rubble.",
+    "edit": "Erode the stone crosses until they are fragmented and partially buried in vegetation."
+  },
+  {
+    "image_path": "images_test/image_222.jpg",
+    "input_prompt": "A circular relief sculpture embedded in a brick wall.",
+    "output_prompt": "A circular relief sculpture reduced to a shallow, indistinct impression in the wall.",
+    "edit": "Erode the sculpture's details until it becomes a shallow, indistinct impression in the wall."
+  },
+  {
+    "image_path": "images_test/image_223.jpg",
+    "input_prompt": "A classic coupe parked on a lawn.",
+    "output_prompt": "A heavily rusted and corroded coupe.",
+    "edit": "Apply rust and corrosion effects to the coupe."
+  },
+  {
+    "image_path": "images_test/image_224.jpg",
+    "input_prompt": "A stone building with arched windows and a sloped roof.",
+    "output_prompt": "A collapsed stone building with missing roof, shattered windows, and collapsed walls.",
+    "edit": "Accelerate decay by collapsing the roof, shattering the windows, and collapsing the walls."
+  }
+]
