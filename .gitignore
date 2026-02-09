@@ -7,3 +7,4 @@ ViT-L-14.pt
 images_out
 images_small
 run_metrics.sh
+plots
