@@ -12,6 +12,7 @@ from diffusers import (
     StableDiffusionPipeline,
     StableDiffusionImg2ImgPipeline,
     QwenImageEditPipeline,
+    EulerAncestralDiscreteScheduler,
 )
 sys.path.append("./")
 from weathering_model import WeatheringModel
@@ -78,6 +79,7 @@ class ModelProcessor:
                 torch_dtype=torch.float16, 
                 safety_checker=None
             ).to(self.device)
+            self.pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(self.pipeline.scheduler.config)
 
         elif model_name == "sd":
             print("Loading Stable Diffusion...")
@@ -130,13 +132,12 @@ class ModelProcessor:
         pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
-            generator = torch.Generator(device=self.device).manual_seed(0)
+            torch.manual_seed(0)
             result = pipe(
                 image=image,
                 prompt=prompt,
                 guidance_scale=float(scale),
                 num_inference_steps=28,
-                generator=generator,
             ).images[0].resize((width, height), resample=Image.LANCZOS)
             frames.append(result)
         return frames
@@ -163,13 +164,12 @@ class ModelProcessor:
         pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
-            generator = torch.Generator(device=self.device).manual_seed(0)
+            torch.manual_seed(0)
             result = pipe(
                 image=image,
                 prompt=prompt,
                 guidance_scale=float(scale),
                 num_inference_steps=50,
-                generator=generator,
             ).images[0].resize((width, height), resample=Image.LANCZOS)
             frames.append(result)
         return frames
@@ -179,14 +179,13 @@ class ModelProcessor:
         pipe = self.pipeline
         frames = []
         for scale in range(1, num_frames + 1):
-            generator = torch.Generator(device=self.device).manual_seed(0)
+            torch.manual_seed(0)
             result = pipe(
                 prompt=prompt,
                 guidance_scale=float(scale),
                 num_inference_steps=50,
                 height=height,
                 width=width,
-                generator=generator,
             ).images[0]
             frames.append(result)
         return frames
@@ -196,7 +195,7 @@ class ModelProcessor:
         pipe = self.pipeline
         frames = []
         for i in range(1, num_frames + 1):
-            generator = torch.Generator(device=self.device).manual_seed(0)
+            torch.manual_seed(0)
             strength = i / num_frames  # 0.1, 0.2, ..., 1.0
             result = pipe(
                 image=image,
@@ -204,7 +203,6 @@ class ModelProcessor:
                 strength=strength,
                 guidance_scale=7.5,
                 num_inference_steps=50,
-                generator=generator,
             ).images[0].resize((width, height), resample=Image.LANCZOS)
             frames.append(result)
         return frames

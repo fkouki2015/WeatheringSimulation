@@ -18,6 +18,7 @@ from pathlib import Path
 
 import lpips
 from pytorch_msssim import ssim
+from clip_similarity import ClipSimilarity
 
 
 def compute_mse(img1: torch.Tensor, img2: torch.Tensor) -> float:
@@ -32,49 +33,49 @@ def compute_ssim(img1: torch.Tensor, img2: torch.Tensor) -> float:
     return ssim(img1, img2, data_range=1.0, size_average=True).item()
 
 
-class ClipSimilarity(nn.Module):
-    """CLIP-based similarity metrics for images and text."""
+# class ClipSimilarity(nn.Module):
+#     """CLIP-based similarity metrics for images and text."""
     
-    def __init__(self, name: str = "ViT-L/14"):
-        super().__init__()
-        self.size = {"RN50x4": 288, "RN50x16": 384, "RN50x64": 448, "ViT-L/14@336px": 336}.get(name, 224)
-        self.model, _ = clip.load(name, device="cpu", download_root="./")
-        self.model.eval().requires_grad_(False)
+#     def __init__(self, name: str = "ViT-L/14"):
+#         super().__init__()
+#         self.size = {"RN50x4": 288, "RN50x16": 384, "RN50x64": 448, "ViT-L/14@336px": 336}.get(name, 224)
+#         self.model, _ = clip.load(name, device="cpu", download_root="./")
+#         self.model.eval().requires_grad_(False)
         
-        self.register_buffer("mean", torch.tensor((0.48145466, 0.4578275, 0.40821073)))
-        self.register_buffer("std", torch.tensor((0.26862954, 0.26130258, 0.27577711)))
+#         self.register_buffer("mean", torch.tensor((0.48145466, 0.4578275, 0.40821073)))
+#         self.register_buffer("std", torch.tensor((0.26862954, 0.26130258, 0.27577711)))
     
-    def encode_text(self, text: List[str]) -> torch.Tensor:
-        text = clip.tokenize(text, truncate=True).to(next(self.parameters()).device)
-        text_features = self.model.encode_text(text)
-        text_features = text_features / text_features.norm(dim=1, keepdim=True)
-        return text_features
+#     def encode_text(self, text: List[str]) -> torch.Tensor:
+#         text = clip.tokenize(text, truncate=True).to(next(self.parameters()).device)
+#         text_features = self.model.encode_text(text)
+#         text_features = text_features / text_features.norm(dim=1, keepdim=True)
+#         return text_features
     
-    def encode_image(self, image: torch.Tensor) -> torch.Tensor:
-        """Encode image. Input images in range [-1, 1]."""
-        # Convert from [-1, 1] to [0, 1]
-        image = (image + 1) / 2
-        image = F.interpolate(image.float(), size=self.size, mode="bicubic", align_corners=False)
-        image = image - rearrange(self.mean, "c -> 1 c 1 1")
-        image = image / rearrange(self.std, "c -> 1 c 1 1")
-        image_features = self.model.encode_image(image)
-        image_features = image_features / image_features.norm(dim=1, keepdim=True)
-        return image_features
+#     def encode_image(self, image: torch.Tensor) -> torch.Tensor:
+#         """Encode image. Input images in range [-1, 1]."""
+#         # Convert from [-1, 1] to [0, 1]
+#         image = (image + 1) / 2
+#         image = F.interpolate(image.float(), size=self.size, mode="bicubic", align_corners=False)
+#         image = image - rearrange(self.mean, "c -> 1 c 1 1")
+#         image = image / rearrange(self.std, "c -> 1 c 1 1")
+#         image_features = self.model.encode_image(image)
+#         image_features = image_features / image_features.norm(dim=1, keepdim=True)
+#         return image_features
     
-    def forward(
-        self, image_0: torch.Tensor, image_1: torch.Tensor, text_1: List[str]
-    ) -> tuple:
-        """
-        Compute CLIP similarities.
-        """
-        image_features_0 = self.encode_image(image_0)
-        image_features_1 = self.encode_image(image_1)
-        text_features_1 = self.encode_text(text_1)
+#     def forward(
+#         self, image_0: torch.Tensor, image_1: torch.Tensor, text_1: List[str]
+#     ) -> tuple:
+#         """
+#         Compute CLIP similarities.
+#         """
+#         image_features_0 = self.encode_image(image_0)
+#         image_features_1 = self.encode_image(image_1)
+#         text_features_1 = self.encode_text(text_1)
         
-        clip_text = F.cosine_similarity(image_features_1, text_features_1)
-        clip_image = F.cosine_similarity(image_features_0, image_features_1)
+#         clip_text = F.cosine_similarity(image_features_1, text_features_1)
+#         clip_image = F.cosine_similarity(image_features_0, image_features_1)
         
-        return clip_text, clip_image
+#         return clip_text, clip_image
 
 
 class DinoSimilarity(nn.Module):
@@ -135,6 +136,7 @@ class MetricsEvaluator:
         self, 
         input_tensor: torch.Tensor, 
         gen_tensor: torch.Tensor,
+        input_prompt: str,
         output_prompt: str
     ) -> dict:
         """Evaluate a single generated frame against the input image."""
@@ -142,8 +144,8 @@ class MetricsEvaluator:
         gen_tensor = gen_tensor.to(self.device)
         
         # CLIP similarities
-        clip_text, clip_image = self.clip_similarity(
-            input_tensor, gen_tensor, [output_prompt]
+        _, clip_text, _, clip_image = self.clip_similarity(
+            input_tensor, gen_tensor, [input_prompt], [output_prompt]
         )
         
         # MSE
@@ -237,6 +239,7 @@ def compute_metrics(
                 metrics = evaluator.evaluate_frame(
                     input_tensor,
                     gen_tensor,
+                    sample["input_prompt"],
                     sample["output_prompt"]
                 )
                 metrics["sample_idx"] = sample_idx
