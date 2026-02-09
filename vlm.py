@@ -97,7 +97,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
 
     # ===== 2回目: instruction生成 =====
     if mode == "age":
-        instruction_text = f"Based on these two captions, write a brief instruction to age or weather the object. Input: '{input_prompt}' -> Output: '{output_prompt}'. Write only the instruction in one sentence. Example: 'Add heavy rust to the car.'"
+        instruction_text = f"Based on these two captions, write a brief instruction to age or weather the object. Input: '{input_prompt}' -> Output: '{output_prompt}'. Write only the instruction in one sentence. Example: If the input is 'A clean car.' and the output is 'A rusted car.', the instruction is 'Add rust to the car.'"
     else:
         instruction_text = f"Based on these two captions, write a brief instruction to restore the object. Input: '{input_prompt}' -> Output: '{output_prompt}'. Write only the instruction in one sentence. Example: 'Remove rust from the car.'"
 

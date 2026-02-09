@@ -40,7 +40,7 @@ def canny_process(image, device, dtype):
     """画像からCannyエッジマップを生成"""
     image_np = np.array(image)
     gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
-    canny_img = cv2.Canny(gray, 100, 200)
+    canny_img = cv2.Canny(gray, 80, 160)
     
     control_image = Image.fromarray(canny_img).convert("RGB")
     if isinstance(control_image, Image.Image):
