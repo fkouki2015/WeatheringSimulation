@@ -144,7 +144,7 @@ class MetricsEvaluator:
         gen_tensor = gen_tensor.to(self.device)
         
         # CLIP similarities
-        _, clip_text, _, clip_image = self.clip_similarity(
+        _, clip_text, clip_direction, clip_image = self.clip_similarity(
             input_tensor, gen_tensor, [input_prompt], [output_prompt]
         )
         
@@ -162,6 +162,7 @@ class MetricsEvaluator:
         
         return {
             "clip_text": clip_text.item(),
+            "clip_direction": clip_direction.item(),
             "clip_image": clip_image.item(),
             "mse": mse_val,
             "lpips": lpips_val,
@@ -264,6 +265,7 @@ def compute_metrics(
                     "model": model_name,
                     "num_samples": len(frame_data),
                     "clip_text": np.mean([d["clip_text"] for d in frame_data]),
+                    "clip_direction": np.mean([d["clip_direction"] for d in frame_data]),
                     "clip_image": np.mean([d["clip_image"] for d in frame_data]),
                     "mse": np.mean([d["mse"] for d in frame_data]),
                     "lpips": np.mean([d["lpips"] for d in frame_data]),
@@ -285,6 +287,7 @@ def plot_model_comparison(output_dir: Path, models: List[str]):
     
     metrics_names = [
         ("clip_text", "CLIP Text Similarity"),
+        ("clip_direction", "CLIP Direction"),
         ("clip_image", "CLIP Image Similarity"),
         ("mse", "MSE"),
         ("lpips", "LPIPS"),
@@ -292,7 +295,7 @@ def plot_model_comparison(output_dir: Path, models: List[str]):
         ("dino", "DINO Similarity"),
     ]
     
-    fig, axes = plt.subplots(2, 3, figsize=(14, 8), dpi=150)
+    fig, axes = plt.subplots(3, 3, figsize=(14, 12), dpi=150)
     
     for model_name in models:
         metrics_file = output_dir / f"{model_name}_metrics.jsonl"
