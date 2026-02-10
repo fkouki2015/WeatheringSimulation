@@ -12,9 +12,17 @@ from diffusers import (
     StableDiffusionPipeline,
     StableDiffusionImg2ImgPipeline,
     QwenImageEditPipeline,
+    EulerAncestralDiscreteScheduler,
 )
 sys.path.append("./")
 from weathering_model import WeatheringModel
+sys.path.append("./abration_models")
+from alltrain import AllTrainModel
+from nocontrol import NoControlNetModel
+from notrain import NoTrainModel
+from linear import LinearModel
+from sd3 import SD3Model
+from alltrain_control import AllTrainControlNetModel
 import gc
 
 
@@ -55,46 +63,26 @@ class ModelProcessor:
     def _load_model(self, model_name: str):
         """Load a single model pipeline."""
         if model_name == "proposed":
-            print("Loading Proposed Model...")
-            self.pipeline = WeatheringModel(device="cuda")
+            print("proposed Model selected.")
 
-        elif model_name == "flux":
-            print("Loading Flux Kontext...")
-            self.pipeline = FluxKontextPipeline.from_pretrained(
-                "black-forest-labs/FLUX.1-Kontext-dev", 
-                torch_dtype=torch.bfloat16
-            ).to(self.device)
+        elif model_name == "alltrain":
+            print("All Train Model selected.")
 
-        elif model_name == "qwen":
-            print("Loading Qwen Image Edit...")
-            self.pipeline = QwenImageEditPipeline.from_pretrained(
-                "Qwen/Qwen-Image-Edit", 
-                torch_dtype=torch.bfloat16
-            ).to(self.device)
+        elif model_name == "nocontrol":
+            print("No ControlNet Model selected.")
 
-        elif model_name == "ip2p":
-            print("Loading InstructPix2Pix...")
-            self.pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
-                "timbrooks/instruct-pix2pix", 
-                torch_dtype=torch.float16, 
-                safety_checker=None
-            ).to(self.device)
+        elif model_name == "notrain":
+            print("No Train Model selected.")
 
-        elif model_name == "sd":
-            print("Loading Stable Diffusion...")
-            self.pipeline = StableDiffusionPipeline.from_pretrained(
-                "runwayml/stable-diffusion-v1-5", 
-                torch_dtype=torch.float16, 
-                safety_checker=None
-            ).to(self.device)
+        elif model_name == "linear":
+            print("Linear Model selected.")
 
-        elif model_name == "sdedit":
-            print("Loading SDEdit (Img2Img)...")
-            self.pipeline = StableDiffusionImg2ImgPipeline.from_pretrained(
-                "runwayml/stable-diffusion-v1-5", 
-                torch_dtype=torch.float16, 
-                safety_checker=None
-            ).to(self.device)
+        elif model_name == "sd3":
+            print("SD3 Model selected.")
+
+        elif model_name == "alltrain_control":
+            print("All Train ControlNet Model selected.")
+            
         
         self.current_model = model_name
     
@@ -104,7 +92,6 @@ class ModelProcessor:
             print(f"Unloading {self.current_model} and releasing memory...")
             del self.pipeline
             self.pipeline = None
-            self.current_model = None
             gc.collect()
             torch.cuda.empty_cache()
             print("Memory released.")
@@ -112,89 +99,106 @@ class ModelProcessor:
     
     def process_proposed(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with Proposed Model, varying guidance scale from 1 to 10."""
+        self.pipeline = WeatheringModel(device=self.device)
         pipe = self.pipeline
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        # negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
-                        negative_prompt="", 
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
                         attn_word=None,
                         guidance_scale=6.0,
                         num_frames=num_frames,
                     )
+        self._unload_model()
         return frames
     
-    def process_flux(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
-        """Process with Flux Kontext, varying guidance scale from 1 to 10."""
+    def process_alltrain(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with All Train Model, varying guidance scale from 1 to 10."""
+        self.pipeline = AllTrainModel(device=self.device)
         pipe = self.pipeline
-        frames = []
-        for scale in range(1, num_frames + 1):
-            result = pipe(
-                image=image,
-                prompt=prompt,
-                guidance_scale=float(scale),
-                num_inference_steps=28,
-            ).images[0]
-            frames.append(result)
+        frames = pipe(input_image=image,
+                        train_prompt=input_prompt, 
+                        inference_prompt=output_prompt, 
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        attn_word=None,
+                        guidance_scale=6.0,
+                        num_frames=num_frames,
+                    )
+        self._unload_model()
         return frames
     
-    def process_qwen(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
-        """Process with Qwen Image Edit, varying guidance scale from 1 to 10."""
+    def process_nocontrol(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with No ControlNet Model, varying guidance scale from 1 to 10."""
+        self.pipeline = NoControlNetModel(device=self.device)
         pipe = self.pipeline
-        frames = []
-        for scale in range(1, num_frames + 1):
-            result = pipe(
-                image=image,
-                prompt=prompt,
-                guidance_scale=float(scale),
-            ).images[0]
-            frames.append(result)
+        frames = pipe(input_image=image,
+                        train_prompt=input_prompt, 
+                        inference_prompt=output_prompt, 
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        attn_word=None,
+                        guidance_scale=6.0,
+                        num_frames=num_frames,
+                    )
+        self._unload_model()
         return frames
     
-    def process_ip2p(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
-        """Process with InstructPix2Pix, varying guidance scale from 1 to 10."""
+    def process_notrain(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with No Train Model, varying guidance scale from 1 to 10."""
+        self.pipeline = NoTrainModel(device=self.device)
         pipe = self.pipeline
-        frames = []
-        for scale in range(1, num_frames + 1):
-            result = pipe(
-                image=image,
-                prompt=prompt,
-                guidance_scale=float(scale),
-                image_guidance_scale=1.0,
-                num_inference_steps=50,
-            ).images[0]
-            frames.append(result)
+        frames = pipe(input_image=image,
+                        train_prompt=input_prompt, 
+                        inference_prompt=output_prompt, 
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        attn_word=None,
+                        guidance_scale=6.0,
+                        num_frames=num_frames,
+                    )
+        self._unload_model()
         return frames
     
-    def process_sd(self, prompt: str, num_frames: int = 10, height: int = 512, width: int = 512) -> List[Image.Image]:
-        """Process with Stable Diffusion (text-to-image), varying guidance scale from 1 to 10."""
+    def process_linear(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with Linear Model, varying guidance scale from 1 to 10."""
+        self.pipeline = LinearModel(device=self.device)
         pipe = self.pipeline
-        frames = []
-        for scale in range(1, num_frames + 1):
-            result = pipe(
-                prompt=prompt,
-                guidance_scale=float(scale),
-                num_inference_steps=50,
-                height=height,
-                width=width,
-            ).images[0]
-            frames.append(result)
+        frames = pipe(input_image=image,
+                        train_prompt=input_prompt, 
+                        inference_prompt=output_prompt, 
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        attn_word=None,
+                        guidance_scale=6.0,
+                        num_frames=num_frames,
+                    )
+        self._unload_model()
         return frames
     
-    def process_sdedit(self, image: Image.Image, prompt: str, num_frames: int = 10) -> List[Image.Image]:
-        """Process with SDEdit (Img2Img), varying strength from 0.1 to 1.0."""
+    def process_sd3(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with SD3 Model, varying guidance scale from 1 to 10."""
+        self.pipeline = SD3Model(device=self.device)
         pipe = self.pipeline
-        frames = []
-        for i in range(1, num_frames + 1):
-            strength = i / num_frames  # 0.1, 0.2, ..., 1.0
-            result = pipe(
-                image=image,
-                prompt=prompt,
-                strength=strength,
-                guidance_scale=7.5,
-                num_inference_steps=50,
-            ).images[0]
-            frames.append(result)
+        frames = pipe(input_image=image,
+                        train_prompt=input_prompt, 
+                        inference_prompt=output_prompt, 
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        guidance_scale=6.0,
+                        num_frames=num_frames,
+                    )
+        self._unload_model()
+        return frames
+
+    def process_alltrain_control(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with All Train ControlNet Model, varying guidance scale from 1 to 10."""
+        self.pipeline = AllTrainControlNetModel(device=self.device)
+        pipe = self.pipeline
+        frames = pipe(input_image=image,
+                        train_prompt=input_prompt, 
+                        inference_prompt=output_prompt, 
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        attn_word=None,
+                        guidance_scale=6.0,
+                        num_frames=num_frames,
+                    )
+        self._unload_model()
         return frames
     
     def process_sample(
@@ -210,6 +214,7 @@ class ModelProcessor:
         input_prompt = sample["input_prompt"]
         output_prompt = sample["output_prompt"]
         edit_prompt = sample["edit"]
+        # edit_prompt = ""
         
         image = Image.open(image_path).convert("RGB")
         # Resize to 512x512
@@ -217,22 +222,26 @@ class ModelProcessor:
         
         model_output_dir = output_dir / model_name
         model_output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = model_output_dir / f"{sample_idx:05d}.gif"
+        # Use input image filename with .gif extension
+        input_filename = Path(image_path).stem
+        output_path = model_output_dir / f"{input_filename}.gif"
         
         try:
             if model_name == "proposed":
                 frames = self.process_proposed(image, input_prompt, output_prompt, num_frames)
-            elif model_name == "flux":
-                frames = self.process_flux(image, edit_prompt, num_frames)
-            elif model_name == "qwen":
-                frames = self.process_qwen(image, edit_prompt, num_frames)
-            elif model_name == "ip2p":
-                frames = self.process_ip2p(image, edit_prompt, num_frames)
-            elif model_name == "sd":
-                h, w = image.size
-                frames = self.process_sd(output_prompt, num_frames, h, w)
-            elif model_name == "sdedit":
-                frames = self.process_sdedit(image, output_prompt, num_frames)
+            elif model_name == "alltrain":
+                frames = self.process_alltrain(image, input_prompt, output_prompt, num_frames)
+            elif model_name == "nocontrol":
+                frames = self.process_nocontrol(image, input_prompt, output_prompt, num_frames)
+            elif model_name == "notrain":
+                frames = self.process_notrain(image, input_prompt, output_prompt, num_frames)
+            elif model_name == "linear":
+                frames = self.process_linear(image, input_prompt, output_prompt, num_frames)
+            elif model_name == "sd3":
+                frames = self.process_sd3(image, input_prompt, output_prompt, num_frames)
+            elif model_name == "alltrain_control":
+                frames = self.process_alltrain_control(image, input_prompt, output_prompt, num_frames)
+            
             
             save_gif(frames, str(output_path), fps=5)
             print(f"  Saved: {output_path}")
@@ -245,7 +254,7 @@ def main():
     parser = argparse.ArgumentParser(description="Process images with multiple diffusion models")
     parser.add_argument("--json_path", type=str, required=True)
     parser.add_argument("--output_dir", type=str, default="./images_out")
-    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit"])
+    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "alltrain", "nocontrol", "notrain", "linear", "sd3", "alltrain_control"])
     parser.add_argument("--num_frames", type=int, default=10)
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")

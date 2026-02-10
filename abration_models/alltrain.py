@@ -178,11 +178,11 @@ class AgingAttentionProcessor(AttnProcessor):
 # 経年変化モデル
 # ==========================================
 
-class WeatheringModel(nn.Module):
+class AllTrainModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
-    LEARNING_RATE = 1e-5
+    LEARNING_RATE = 5e-6
     TRAIN_STEPS = 600
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
@@ -253,23 +253,23 @@ class WeatheringModel(nn.Module):
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
-        self.unet.requires_grad_(False)
+        self.unet.requires_grad_(True)
         self.unet.train()
 
         # for c in self.controlnets:
         #     c.requires_grad_(True)
         #     c.train()
         
-        unet_lora_config = LoraConfig(
-            r=self.RANK,
-            lora_alpha=self.RANK,
-            init_lora_weights="gaussian",
-            target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0"],
-            lora_dropout=self.LORA_DROPOUT
-        )
-        self.adapter_name = f"train-{uuid.uuid4().hex[:8]}"
-        self.unet.add_adapter(unet_lora_config, adapter_name=self.adapter_name)
-        self.unet.set_adapters([self.adapter_name])
+        # unet_lora_config = LoraConfig(
+        #     r=self.RANK,
+        #     lora_alpha=self.RANK,
+        #     init_lora_weights="gaussian",
+        #     target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0"],
+        #     lora_dropout=self.LORA_DROPOUT
+        # )
+        # self.adapter_name = f"train-{uuid.uuid4().hex[:8]}"
+        # self.unet.add_adapter(unet_lora_config, adapter_name=self.adapter_name)
+        # self.unet.set_adapters([self.adapter_name])
         
         base_lr = self.LEARNING_RATE
         groups_by_scale = {}
@@ -284,13 +284,12 @@ class WeatheringModel(nn.Module):
         # UNetとControlNetに異なる学習率を設定
         for n, p in self.unet.named_parameters():
             if p.requires_grad:
-                if "attn2" in n:
-                    _add_param(p, 1.0)
+                _add_param(p, 1.0)
         
         # for c in self.controlnets:
         #     for n, p in c.named_parameters():
         #         if p.requires_grad:
-        #             _add_param(p, 0.1)
+        #             _add_param(p, 0.07)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}

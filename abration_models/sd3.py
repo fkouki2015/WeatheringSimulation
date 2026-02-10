@@ -278,12 +278,12 @@ def encode_prompt(
 # 経年変化モデル (SD3.5対応)
 # ==========================================
 
-class WeatheringModel(nn.Module):
+class SD3Model(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
-    LEARNING_RATE = 1e-4
-    TRAIN_STEPS = 300
+    LEARNING_RATE = 1e-5
+    TRAIN_STEPS = 600
     PRETRAINED_MODEL = "stabilityai/stable-diffusion-3.5-medium"
     CONTROLNET_PATH = "InstantX/SD3-Controlnet-Canny"
     DEVICE = "cuda"
@@ -349,10 +349,12 @@ class WeatheringModel(nn.Module):
             self.PRETRAINED_MODEL, subfolder="transformer"
         )
         
-        # ControlNet (オプション)
-        # self.controlnet = SD3ControlNetModel.from_pretrained(
-        #     self.CONTROLNET_PATH, torch_dtype=self.dtype
-        # )
+        # ControlNet
+        self.controlnet = SD3ControlNetModel.from_pretrained(
+            self.CONTROLNET_PATH, torch_dtype=self.dtype
+        )
+        self.controlnet.to(device=self.device, dtype=self.dtype)
+        self.controlnet.requires_grad_(False)
         
         # LPIPS
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device).eval()
@@ -417,6 +419,20 @@ class WeatheringModel(nn.Module):
         
         return [p for g in param_groups for p in g["params"]]
 
+    def _apply_controlnet(self, hidden_states, timestep, encoder_hidden_states,
+                          pooled_projections, controlnet_cond, conditioning_scale=1.0):
+        """SD3 ControlNetを適用してblock samplesを返す"""
+        controlnet_block_samples = self.controlnet(
+            hidden_states=hidden_states,
+            controlnet_cond=controlnet_cond,
+            timestep=timestep,
+            encoder_hidden_states=encoder_hidden_states,
+            pooled_projections=pooled_projections,
+            conditioning_scale=conditioning_scale,
+            return_dict=False,
+        )[0]
+        return controlnet_block_samples
+
     def train_model(self):
         """LoRAを使用してモデルをファインチューニング"""
         image = self.input_image
@@ -470,12 +486,22 @@ class WeatheringModel(nn.Module):
             sigmas = get_sigmas(self.noise_scheduler_copy, timesteps, n_dim=latent.ndim, dtype=latent.dtype, device=latent.device)
             noisy_latent = (1.0 - sigmas) * latent + sigmas * noise
             
+            # ControlNet順伝播
+            controlnet_block_samples = self._apply_controlnet(
+                hidden_states=noisy_latent,
+                timestep=timesteps,
+                encoder_hidden_states=prompt_embeds,
+                pooled_projections=pooled_embeds,
+                controlnet_cond=self.control_image_tensor,
+            )
+            
             # Transformer順伝播
             model_pred_raw = self.transformer(
                 hidden_states=noisy_latent,
                 timestep=timesteps,
                 encoder_hidden_states=prompt_embeds,
                 pooled_projections=pooled_embeds,
+                block_controlnet_hidden_states=controlnet_block_samples,
                 return_dict=False,
             )[0]
             model_pred = model_pred_raw * (-sigmas) + noisy_latent
@@ -516,6 +542,8 @@ class WeatheringModel(nn.Module):
         
         # 制御画像を前処理
         self.control_image = canny_process(self.input_image, self.device, self.dtype)
+        self.control_image_tensor = transforms.ToTensor()(self.control_image).unsqueeze(0)
+        self.control_image_tensor = self.control_image_tensor.to(device=self.device, dtype=self.dtype)
 
         # 1. モデルのトレーニング
         self.train_model()
@@ -540,7 +568,7 @@ class WeatheringModel(nn.Module):
         
         # 潜在変数の準備
         base_latent = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
-        control_latent = pil_to_latent(self.vae, self.control_image, self.device, self.dtype)
+        control_tensor = self.control_image_tensor
         
         frames = []
         
@@ -571,12 +599,22 @@ class WeatheringModel(nn.Module):
                 
                 with torch.no_grad():
                     latents_in = latents.repeat(2, 1, 1, 1)
+                    control_in = control_tensor.repeat(2, 1, 1, 1)
+                    
+                    controlnet_block_samples = self._apply_controlnet(
+                        hidden_states=latents_in,
+                        timestep=t_in,
+                        encoder_hidden_states=prompt_embeds,
+                        pooled_projections=pooled_embeds,
+                        controlnet_cond=control_in,
+                    )
                     
                     model_out = self.transformer(
                         hidden_states=latents_in,
                         timestep=t_in,
                         encoder_hidden_states=prompt_embeds,
                         pooled_projections=pooled_embeds,
+                        block_controlnet_hidden_states=controlnet_block_samples,
                         return_dict=False,
                     )[0]
                     

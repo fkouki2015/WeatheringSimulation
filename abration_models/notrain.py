@@ -178,7 +178,7 @@ class AgingAttentionProcessor(AttnProcessor):
 # 経年変化モデル
 # ==========================================
 
-class WeatheringModel(nn.Module):
+class NoTrainModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
@@ -289,7 +289,7 @@ class WeatheringModel(nn.Module):
         for c in self.controlnets:
             for n, p in c.named_parameters():
                 if p.requires_grad:
-                    _add_param(p, 0.1)
+                    _add_param(p, 0.07)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}
@@ -508,8 +508,8 @@ class WeatheringModel(nn.Module):
         # ControlNetの条件画像を追加する場合ここに追加
         # self.control_image_raw = transforms.ToTensor()(input_image).unsqueeze(0).to(device=self.device, dtype=self.dtype)
         
-        # 1. モデルのトレーニング
-        self.train_model()
+        # # 1. モデルのトレーニング
+        # self.train_model()
         
         # 2. 推論のセットアップ
         torch.manual_seed(1234)
@@ -548,9 +548,9 @@ class WeatheringModel(nn.Module):
         # 3. 生成ループ (フレームごと)
         for i in range(num_frames):
             # 経年変化係数を計算 (フレームインデックスに基づいて 0.0 から 1.0)
-            # 線形増加を使用
-            progress = (i + 1) / num_frames  # 0.0 から 1.0 まで線形増加
-            t_index = self.INFER_STEPS - 1 - int((self.INFER_STEPS - 1) * progress)
+            # スムーズな遷移効果を作成するため正弦波補間を使用
+            normalized_i = (i + 1) / num_frames * math.pi / 2
+            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
             
             # 特定のタイムステップで元の画像と混合されたノイズから開始
@@ -558,7 +558,7 @@ class WeatheringModel(nn.Module):
             
             # 経年変化の強度を更新
             if aging_processor is not None:
-                aging_processor.current_factor = progress
+                aging_processor.current_factor = math.sin(normalized_i)
             
             # デノイズ
             with torch.no_grad():

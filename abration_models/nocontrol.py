@@ -178,7 +178,7 @@ class AgingAttentionProcessor(AttnProcessor):
 # 経年変化モデル
 # ==========================================
 
-class WeatheringModel(nn.Module):
+class NoControlNetModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
@@ -229,10 +229,11 @@ class WeatheringModel(nn.Module):
         self.unet = UNet2DConditionModel.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="unet"
         )
-        self.controlnet_canny = ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
-        )
-        self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
+        # self.controlnet_canny = ControlNetModel.from_pretrained(
+        #     self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
+        # )
+        # self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
+        self.controlnets = []  # ControlNet無効化
         
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device).eval()
 
@@ -240,24 +241,24 @@ class WeatheringModel(nn.Module):
         self.vae.to(device=self.device, dtype=self.dtype)
         self.text_encoder.to(device=self.device)
         self.unet.to(device=self.device)
-        for c in self.controlnets:
-            c.to(device=self.device)
+        # for c in self.controlnets:
+        #     c.to(device=self.device)
 
         # デフォルトで重みを固定
         self.unet.requires_grad_(False)
         self.vae.requires_grad_(False)
         self.text_encoder.requires_grad_(False)
-        for c in self.controlnets:
-            c.requires_grad_(False)
+        # for c in self.controlnets:
+        #     c.requires_grad_(False)
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
         self.unet.requires_grad_(False)
         self.unet.train()
 
-        for c in self.controlnets:
-            c.requires_grad_(True)
-            c.train()
+        # for c in self.controlnets:
+        #     c.requires_grad_(True)
+        #     c.train()
         
         unet_lora_config = LoraConfig(
             r=self.RANK,
@@ -286,10 +287,10 @@ class WeatheringModel(nn.Module):
                 if "attn2" in n:
                     _add_param(p, 1.0)
         
-        for c in self.controlnets:
-            for n, p in c.named_parameters():
-                if p.requires_grad:
-                    _add_param(p, 0.1)
+        # for c in self.controlnets:
+        #     for n, p in c.named_parameters():
+        #         if p.requires_grad:
+        #             _add_param(p, 0.07)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}
@@ -336,8 +337,8 @@ class WeatheringModel(nn.Module):
     def _generate_preview_image(self, latent, prompt, seed, control_images):
         """単一のプレビュー画像を生成"""
         self.unet.eval()
-        for c in self.controlnets:
-            c.eval()
+        # for c in self.controlnets:
+        #     c.eval()
             
         height, width = self.RESOLUTION[1], self.RESOLUTION[0]
         h, w = height // 8, width // 8
@@ -370,14 +371,14 @@ class WeatheringModel(nn.Module):
                 for ci in control_images:
                     control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
                 
-                down_res, mid_res = self._apply_controlnets(
-                    lat_in, t, text_embeds, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
-                )
+                # down_res, mid_res = self._apply_controlnets(
+                #     lat_in, t, text_embeds, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
+                # )
                 
                 noise_pred = self.unet(
                     lat_in, t, text_embeds,
-                    down_block_additional_residuals=down_res,
-                    mid_block_additional_residual=mid_res,
+                    # down_block_additional_residuals=down_res,
+                    # mid_block_additional_residual=mid_res,
                 ).sample
 
                 eps_u, eps_c = noise_pred.chunk(2, dim=0)
@@ -439,16 +440,16 @@ class WeatheringModel(nn.Module):
             noise = torch.randn_like(latent, device=self.device, dtype=self.dtype)
             noisy_latent = self.ddpm_scheduler.add_noise(latent, noise, t)
             
-            # 2. ControlNet 順伝播
-            down_res, mid_res = self._apply_controlnets(
-                noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
-            )
+            # 2. ControlNet 順伝播 (無効化)
+            # down_res, mid_res = self._apply_controlnets(
+            #     noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
+            # )
             
             # 3. UNet 順伝播
             model_pred = self.unet(
                 noisy_latent, t, cond_emb,
-                down_block_additional_residuals=[s.to(dtype=self.dtype) for s in down_res],
-                mid_block_additional_residual=mid_res.to(dtype=self.dtype),
+                # down_block_additional_residuals=[s.to(dtype=self.dtype) for s in down_res],
+                # mid_block_additional_residual=mid_res.to(dtype=self.dtype),
             ).sample
             
             # 4. 最適化
@@ -516,8 +517,8 @@ class WeatheringModel(nn.Module):
         self.vae.eval()
         self.unet.eval()
         self.text_encoder.eval()
-        for c in self.controlnets:
-            c.eval()
+        # for c in self.controlnets:
+        #     c.eval()
             
         inference_tokens = self.tokenizer([inference_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
         negative_tokens = self.tokenizer([negative_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
@@ -575,14 +576,14 @@ class WeatheringModel(nn.Module):
                         for ci in self.control_images:
                             control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
                             
-                        down_res, mid_res = self._apply_controlnets(
-                            lat_in, t, text_embeddings, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
-                        )
+                        # down_res, mid_res = self._apply_controlnets(
+                        #     lat_in, t, text_embeddings, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
+                        # )
                         
                         noise_pred = self.unet(
                             lat_in, t, text_embeddings,
-                            down_block_additional_residuals=down_res,
-                            mid_block_additional_residual=mid_res,
+                            # down_block_additional_residuals=down_res,
+                            # mid_block_additional_residual=mid_res,
                         ).sample
                         
                         # ガイダンスを実行
