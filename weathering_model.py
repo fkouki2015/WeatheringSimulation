@@ -282,8 +282,7 @@ class WeatheringModel(nn.Module):
         # UNetとControlNetに異なる学習率を設定
         for n, p in self.unet.named_parameters():
             if p.requires_grad:
-                if "attn2" in n:
-                    _add_param(p, 1.0)
+                _add_param(p, 1.0)
         
         for c in self.controlnets:
             for n, p in c.named_parameters():

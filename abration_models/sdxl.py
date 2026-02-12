@@ -13,7 +13,7 @@ import torch.nn.functional as F
 from torchvision import transforms
 from peft import LoraConfig
 import lpips
-from transformers import CLIPTextModel, CLIPTokenizer, DPTImageProcessor, DPTForDepthEstimation
+from transformers import CLIPTextModel, CLIPTextModelWithProjection, CLIPTokenizer, DPTImageProcessor, DPTForDepthEstimation
 from diffusers import AutoencoderKL, DDIMScheduler, UNet2DConditionModel, DDPMScheduler, ControlNetModel
 from diffusers.optimization import get_scheduler
 
@@ -113,12 +113,12 @@ def find_token_indices(tokenizer, input_ids_tensor, target_word: str):
 
 class WeatheringModel(nn.Module):
     # デフォルト定数
-    RESOLUTION = (512, 512)
+    RESOLUTION = (1024, 1024)  # SDXLの標準解像度
     RANK = 8
     LEARNING_RATE = 1e-5
     TRAIN_STEPS = 600
-    PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
-    CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
+    PRETRAINED_MODEL = "stabilityai/stable-diffusion-xl-base-1.0"  # SDXL
+    CONTROLNET_PATH_CANNY = "diffusers/controlnet-canny-sdxl-1.0"  # SDXL用ControlNet
     CONTROLNET_STRENGTHS = [1.0]
     DEVICE = "cuda"
     LORA_DROPOUT = 0.0
@@ -148,12 +148,21 @@ class WeatheringModel(nn.Module):
         self.ddpm_scheduler = DDPMScheduler.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="scheduler"
         )
+        
+        # SDXLは2つのテキストエンコーダを使用
         self.tokenizer = CLIPTokenizer.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="tokenizer"
+        )
+        self.tokenizer_2 = CLIPTokenizer.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="tokenizer_2"
         )
         self.text_encoder = CLIPTextModel.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="text_encoder"
         )
+        self.text_encoder_2 = CLIPTextModelWithProjection.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="text_encoder_2"
+        )
+        
         self.vae = AutoencoderKL.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="vae"
         )
@@ -170,6 +179,7 @@ class WeatheringModel(nn.Module):
         # デバイスへ移動
         self.vae.to(device=self.device, dtype=self.dtype)
         self.text_encoder.to(device=self.device)
+        self.text_encoder_2.to(device=self.device)
         self.unet.to(device=self.device)
         for c in self.controlnets:
             c.to(device=self.device)
@@ -178,8 +188,40 @@ class WeatheringModel(nn.Module):
         self.unet.requires_grad_(False)
         self.vae.requires_grad_(False)
         self.text_encoder.requires_grad_(False)
+        self.text_encoder_2.requires_grad_(False)
         for c in self.controlnets:
             c.requires_grad_(False)
+
+    def _encode_prompt_sdxl(self, prompt):
+        """SDXLの2つのテキストエンコーダを使用してプロンプトをエンコード"""
+        # 最初のテキストエンコーダ
+        tokens = self.tokenizer(
+            [prompt],
+            padding="max_length",
+            max_length=self.tokenizer.model_max_length,
+            truncation=True,
+            return_tensors="pt",
+        )
+        tokens_2 = self.tokenizer_2(
+            [prompt],
+            padding="max_length",
+            max_length=self.tokenizer_2.model_max_length,
+            truncation=True,
+            return_tensors="pt",
+        )
+        
+        with torch.no_grad():
+            encoder_output = self.text_encoder(tokens.input_ids.to(self.device), output_hidden_states=True)
+            text_embeds = encoder_output.hidden_states[-2]
+            
+            encoder_output_2 = self.text_encoder_2(tokens_2.input_ids.to(self.device), output_hidden_states=True)
+            pooled_text_embeds = encoder_output_2[0]
+            text_embeds_2 = encoder_output_2.hidden_states[-2]
+        
+        # 2つのエンコーダからの埋め込みを連結
+        text_embeds = torch.concat([text_embeds, text_embeds_2], dim=-1)
+        return text_embeds, pooled_text_embeds
+
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
@@ -273,13 +315,9 @@ class WeatheringModel(nn.Module):
         height, width = self.RESOLUTION[1], self.RESOLUTION[0]
         h, w = height // 8, width // 8
 
-        # テキスト埋め込みの準備
-        cond_tokens = self.tokenizer([prompt], padding="max_length", truncation=True, max_length=self.tokenizer.model_max_length, return_tensors="pt").to(self.device)
-        uncond_tokens = self.tokenizer([""], padding="max_length", truncation=True, max_length=self.tokenizer.model_max_length, return_tensors="pt").to(self.device)
-        
-        with torch.no_grad():
-            cond = self.text_encoder(cond_tokens.input_ids)[0]
-            uncond = self.text_encoder(uncond_tokens.input_ids)[0]
+        # テキスト埋め込みの準備 (SDXL dual encoders)
+        cond, _ = self._encode_prompt_sdxl(prompt)
+        uncond, _ = self._encode_prompt_sdxl("")
         text_embeds = torch.cat([uncond, cond], dim=0)
 
         # スケジューラの準備
@@ -346,14 +384,8 @@ class WeatheringModel(nn.Module):
         
         trainable_params = self._setup_training()
         
-        cond_tokens = self.tokenizer(
-            [self.train_prompt],
-            truncation=True,
-            padding="max_length",
-            max_length=self.tokenizer.model_max_length,
-            return_tensors="pt",
-        )
-        cond_emb = self.text_encoder(cond_tokens.input_ids.to(self.device))[0]
+        # SDXL dual text encoders
+        cond_emb, _ = self._encode_prompt_sdxl(self.train_prompt)
         
         timesteps = self.ddpm_scheduler.timesteps
         prev_lpips = None
@@ -446,14 +478,13 @@ class WeatheringModel(nn.Module):
         self.vae.eval()
         self.unet.eval()
         self.text_encoder.eval()
+        self.text_encoder_2.eval()
         for c in self.controlnets:
             c.eval()
             
-        inference_tokens = self.tokenizer([inference_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
-        negative_tokens = self.tokenizer([negative_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
-        
-        cond_emb = self.text_encoder(inference_tokens.input_ids.to(self.device))[0]
-        uncond_emb = self.text_encoder(negative_tokens.input_ids.to(self.device))[0]
+        # SDXL dual text encoders
+        cond_emb, _ = self._encode_prompt_sdxl(inference_prompt)
+        uncond_emb, _ = self._encode_prompt_sdxl(negative_prompt)
         text_embeddings = torch.cat([uncond_emb, cond_emb], dim=0)
         
 
