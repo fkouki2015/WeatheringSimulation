@@ -280,7 +280,7 @@ def encode_prompt(
 
 class SD3Model(nn.Module):
     # デフォルト定数
-    RESOLUTION = (512, 512)
+    RESOLUTION = (1024, 1024)
     RANK = 8
     LEARNING_RATE = 1e-5
     TRAIN_STEPS = 600
@@ -624,6 +624,7 @@ class SD3Model(nn.Module):
             
             # デコード
             output_image = latent_to_pil(self.vae, latents)[0]
+            output_image = output_image.resize((512, 512), Image.LANCZOS)
             frames.append(output_image)
         
         return frames

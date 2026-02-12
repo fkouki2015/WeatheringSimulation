@@ -111,7 +111,7 @@ def find_token_indices(tokenizer, input_ids_tensor, target_word: str):
 # 経年変化モデル
 # ==========================================
 
-class WeatheringModel(nn.Module):
+class SDXLModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (1024, 1024)  # SDXLの標準解像度
     RANK = 8
@@ -540,6 +540,7 @@ class WeatheringModel(nn.Module):
                         latents = self.ddim_scheduler.step(noise_pred, t, latents).prev_sample
                 
                 output_image = latent_to_pil(self.vae, latents)[0]
+                output_image = output_image.resize((512, 512), Image.LANCZOS)
                 frames.append(output_image)
             
         return frames

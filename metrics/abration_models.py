@@ -22,6 +22,7 @@ from nocontrol import NoControlNetModel
 from notrain import NoTrainModel
 from linear import LinearModel
 from sd3 import SD3Model
+from sdxl import SDXLModel
 from alltrain_control import AllTrainControlNetModel
 import gc
 
@@ -79,6 +80,9 @@ class ModelProcessor:
 
         elif model_name == "sd3":
             print("SD3 Model selected.")
+        
+        elif model_name == "sdxl":
+            print("SDXL Model selected.")
 
         elif model_name == "alltrain_control":
             print("All Train ControlNet Model selected.")
@@ -186,6 +190,20 @@ class ModelProcessor:
         self._unload_model()
         return frames
 
+    def process_sdxl(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
+        """Process with SDXL Model, varying guidance scale from 1 to 10."""
+        self.pipeline = SDXLModel(device=self.device)
+        pipe = self.pipeline
+        frames = pipe(input_image=image,
+                        train_prompt=input_prompt, 
+                        inference_prompt=output_prompt, 
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        guidance_scale=6.0,
+                        num_frames=num_frames,
+                    )
+        self._unload_model()
+        return frames
+
     def process_alltrain_control(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with All Train ControlNet Model, varying guidance scale from 1 to 10."""
         self.pipeline = AllTrainControlNetModel(device=self.device)
@@ -219,6 +237,7 @@ class ModelProcessor:
         image = Image.open(image_path).convert("RGB")
         # Resize to 512x512
         image = image.resize((512, 512), Image.LANCZOS)
+        image_1024 = image.resize((1024, 1024), Image.LANCZOS)
         
         model_output_dir = output_dir / model_name
         model_output_dir.mkdir(parents=True, exist_ok=True)
@@ -238,7 +257,9 @@ class ModelProcessor:
             elif model_name == "linear":
                 frames = self.process_linear(image, input_prompt, output_prompt, num_frames)
             elif model_name == "sd3":
-                frames = self.process_sd3(image, input_prompt, output_prompt, num_frames)
+                frames = self.process_sd3(image_1024, input_prompt, output_prompt, num_frames)
+            elif model_name == "sdxl":
+                frames = self.process_sdxl(image_1024, input_prompt, output_prompt, num_frames)
             elif model_name == "alltrain_control":
                 frames = self.process_alltrain_control(image, input_prompt, output_prompt, num_frames)
             
@@ -254,7 +275,7 @@ def main():
     parser = argparse.ArgumentParser(description="Process images with multiple diffusion models")
     parser.add_argument("--json_path", type=str, required=True)
     parser.add_argument("--output_dir", type=str, default="./images_out")
-    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "alltrain", "nocontrol", "notrain", "linear", "sd3", "alltrain_control"])
+    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "alltrain", "nocontrol", "notrain", "linear", "sd3", "sdxl", "alltrain_control"])
     parser.add_argument("--num_frames", type=int, default=10)
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")
