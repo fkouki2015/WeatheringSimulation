@@ -44,64 +44,19 @@ def _run_vlm(messages):
 
 def vlm_inference(mode: str = "age", image_path: str = None):
     """
-    VLMによる記述抽出（2段階処理）
-    1回目: input_prompt と output_prompt を生成
-    2回目: 上記プロンプトから instruction を生成
+    VLMによる記述抽出（3段階処理）
+    1段階目: 画像を説明するキャプションを生成
+    2段階目: 1段階目のキャプションの一部を変更（clean->rusted など）
+    3段階目: 2つのキャプションから指示を生成
     """
 
-    # ===== 1回目: プロンプト生成 =====
-    messages_age = [
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "image": image_path,
-                },
-                {
-                    "type": "text", 
-                    "text": "Write a brief caption describing the object, and another caption describing the same object in a fully deteriorated, severely weathered, or completely decayed state. Do not include color information and textual information. Predict the type of deterioration, such as rust on metal. Do not write shape changes such as cracks, breaks, crumbling, etc. You must use just one '|'. Here is an example: A clean car. | A heavily rusted car."
-                },
-            ],
-        }
-    ]
-
-    messages_new = [
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "image": image_path,
-                },
-                {
-                    "type": "text", 
-                    "text": "Write a very short caption to describe this image in its aged state, and another to describe its predicted original clean state. Do not include color information, textual information. Separate them with '|'. You must use just one '|'. Here is good example: A heavily rusted car. | A pristine clean car."
-                }, 
-            ],
-        }
-    ]
-
+    # ===== 1段階目: 画像キャプション生成 =====
     if mode == "age":
-        messages = messages_age
+        caption_text = "Write a brief caption describing the object in this image. Do not include color information and textual information. Write only one sentence. Example: A clean car on a road."
     else:
-        messages = messages_new
+        caption_text = "Write a brief caption describing the object in this image as it currently appears. Do not include color information and textual information. Do not describe the background. Write only one sentence. Example: A heavily rusted car."
 
-    # 1回目のVLM実行
-    output_text = _run_vlm(messages)
-    print(f"[Prompt generation] {output_text}")
-    
-    parts = output_text.split("|")
-    input_prompt = parts[0].strip()
-    output_prompt = parts[1].strip() if len(parts) > 1 else ""
-
-    # ===== 2回目: instruction生成 =====
-    if mode == "age":
-        instruction_text = f"Based on these two captions, write a brief instruction to age or weather the object. Input: '{input_prompt}' -> Output: '{output_prompt}'. Write only the instruction in one sentence. Example: If the input is 'A clean car.' and the output is 'A rusted car.', the instruction is 'Add rust to the car.'"
-    else:
-        instruction_text = f"Based on these two captions, write a brief instruction to restore the object. Input: '{input_prompt}' -> Output: '{output_prompt}'. Write only the instruction in one sentence. Example: 'Remove rust from the car.'"
-
-    messages_instruction = [
+    messages_caption = [
         {
             "role": "user",
             "content": [
@@ -111,15 +66,85 @@ def vlm_inference(mode: str = "age", image_path: str = None):
                 },
                 {
                     "type": "text",
+                    "text": caption_text,
+                },
+            ],
+        }
+    ]
+
+    caption = _run_vlm(messages_caption)
+    print(f"[Stage 1: Caption] {caption}")
+
+    # ===== 2段階目: キャプションの一部を変更 =====
+    if mode == "age":
+        modify_text = (
+            f"The following caption describes a clean object: '{caption.strip()}'. "
+            f"Rewrite this caption to describe the same object in a fully deteriorated, severely weathered, or completely decayed state. "
+            f"Predict the specific type of deterioration, such as rust on metal. "
+            f"Do not write shape changes such as cracks, breaks, crumbling, etc. "
+            f"Do not include color information. Write only one sentence. "
+            f"Example: 'A clean ship on the sea.' -> 'An algae-covered ship on the sea.'"
+        )
+    else:
+        modify_text = (
+            f"The following caption describes an aged or deteriorated object: '{caption.strip()}'. "
+            f"Rewrite this caption to describe the same object in its original clean, pristine state. "
+            f"Do not include color information. Write only one sentence. "
+            f"Example: 'A heavily rusted car.' -> 'A pristine clean car.'"
+        )
+
+    messages_modify = [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": modify_text,
+                },
+            ],
+        }
+    ]
+
+    modified_caption = _run_vlm(messages_modify)
+    print(f"[Stage 2: Modified caption] {modified_caption}")
+
+    if mode == "age":
+        input_prompt = caption.strip()
+        output_prompt = modified_caption.strip()
+    else:
+        input_prompt = caption.strip()
+        output_prompt = modified_caption.strip()
+
+    # ===== 3段階目: 2つのキャプションから指示を生成 =====
+    if mode == "age":
+        instruction_text = (
+            f"Based on these two captions, write a brief instruction to age or weather the object. "
+            f"Input: '{input_prompt}' -> Output: '{output_prompt}'. "
+            f"Write only the instruction in one sentence. "
+            f"Example: If the input is 'A clean car on a road.' and the output is 'A rusted car on a road.', the instruction is 'Add rust to the car.'"
+        )
+    else:
+        instruction_text = (
+            f"Based on these two captions, write a brief instruction to restore the object. "
+            f"Input: '{input_prompt}' -> Output: '{output_prompt}'. "
+            f"Write only the instruction in one sentence. "
+            f"Example: 'Remove rust from the car.'"
+        )
+
+    messages_instruction = [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
                     "text": instruction_text,
                 },
             ],
         }
     ]
 
-    # 2回目のVLM実行
     instruction = _run_vlm(messages_instruction)
-    print(f"[Instruction generation] {instruction}")
+    print(f"[Stage 3: Instruction] {instruction}")
 
     return input_prompt, output_prompt, instruction.strip()
 

@@ -1,0 +1,1328 @@
+[
+  {
+    "image_path": "images_test/image_004.jpg",
+    "input_prompt": "A compact digital camera with a prominent lens and flash unit.",
+    "output_prompt": "A heavily corroded digital camera with a rusted lens and flash unit.",
+    "edit": "Age the camera by adding rust and corrosion to its lens and flash unit."
+  },
+  {
+    "image_path": "images_test/image_005.jpg",
+    "input_prompt": "A large aircraft parked on an airport tarmac near buildings and a grassy area.",
+    "output_prompt": "A heavily rusted aircraft parked on a tarmac near decaying buildings and overgrown grassy areas.",
+    "edit": "Add rust and decay to the aircraft, tarmac, buildings, and grassy areas."
+  },
+  {
+    "image_path": "images_test/image_006.jpg",
+    "input_prompt": "A fighter jet in mid-flight with wings extended and missiles attached.",
+    "output_prompt": "A heavily rusted fighter jet in mid-flight with wings extended and missiles attached.",
+    "edit": "Add rust and weathering effects to the fighter jet."
+  },
+  {
+    "image_path": "images_test/image_007.jpg",
+    "input_prompt": "A white van parked on a street with equipment on its roof.",
+    "output_prompt": "A heavily rusted van parked on a street with corroded equipment on its roof.",
+    "edit": "Add rust and corrosion to the van and its roof equipment."
+  },
+  {
+    "image_path": "images_test/image_008.jpg",
+    "input_prompt": "A convertible sports car with its hood open, parked in a lot alongside other vehicles.",
+    "output_prompt": "A heavily rusted convertible sports car with its hood open, parked in a lot alongside other vehicles.",
+    "edit": "Add rust and weathering to the convertible sports car."
+  },
+  {
+    "image_path": "images_test/image_009.jpg",
+    "input_prompt": "A vintage camper trailer parked in a grassy area near water.",
+    "output_prompt": "A heavily rusted vintage camper trailer parked in a grassy area near water.",
+    "edit": "Add rust and weathering to the vintage camper trailer."
+  },
+  {
+    "image_path": "images_test/image_010.jpg",
+    "input_prompt": "A car resting on a gravel surface near a railway track.",
+    "output_prompt": "A heavily rusted car resting on a gravel surface near a railway track.",
+    "edit": "Add rust and weathering effects to the car."
+  },
+  {
+    "image_path": "images_test/image_011.jpg",
+    "input_prompt": "An open server rack with multiple server units and cables inside, situated in a data center.",
+    "output_prompt": "A heavily rusted open server rack with corroded server units and frayed cables inside, situated in a decaying data center.",
+    "edit": "Add rust, corrosion, and decay to the server rack, units, and cables, and show signs of neglect in the data center."
+  },
+  {
+    "image_path": "images_test/image_012.jpg",
+    "input_prompt": "A sleek convertible sports car parked beside a red building.",
+    "output_prompt": "A heavily rusted convertible sports car parked beside a red building.",
+    "edit": "Add rust and weathering to the convertible sports car."
+  },
+  {
+    "image_path": "images_test/image_013.jpg",
+    "input_prompt": "A vintage military fighter aircraft in flight against a cloudy sky.",
+    "output_prompt": "A heavily rusted vintage military fighter aircraft in flight against a cloudy sky.",
+    "edit": "Add rust and weathering effects to the vintage military fighter aircraft."
+  },
+  {
+    "image_path": "images_test/image_014.jpg",
+    "input_prompt": "A compact vehicle driving on a city street with a pedestrian crossing sign visible in the background.",
+    "output_prompt": "A heavily rusted compact vehicle driving on a city street with a pedestrian crossing sign visible in the background.",
+    "edit": "Age the compact vehicle by adding heavy rust."
+  },
+  {
+    "image_path": "images_test/image_015.jpg",
+    "input_prompt": "A black SUV parked on a paved surface with another vehicle on its roof.",
+    "output_prompt": "A heavily rusted SUV parked on a paved surface with another vehicle on its roof.",
+    "edit": "Add rust and weathering effects to the SUV and the vehicle on its roof."
+  },
+  {
+    "image_path": "images_test/image_016.jpg",
+    "input_prompt": "A sleek sedan parked on grass at an outdoor car show.",
+    "output_prompt": "A heavily rusted sedan parked on grass at an outdoor car show.",
+    "edit": "Add rust and weathering effects to the sedan."
+  },
+  {
+    "image_path": "images_test/image_017.jpg",
+    "input_prompt": "A pile of construction materials rests on the steps of a brick building with a balcony.",
+    "output_prompt": "A heavily rusted pile of construction materials rests on the steps of a brick building with a balcony.",
+    "edit": "Add rust to the pile of construction materials."
+  },
+  {
+    "image_path": "images_test/image_018.jpg",
+    "input_prompt": "A classic race car parked in an outdoor lot.",
+    "output_prompt": "A heavily rusted race car parked in an outdoor lot.",
+    "edit": "Add rust and weathering effects to the race car."
+  },
+  {
+    "image_path": "images_test/image_019.jpg",
+    "input_prompt": "A sleek two-door sports car parked near a waterfront with rocks and a clear sky in the background.",
+    "output_prompt": "A heavily rusted two-door sports car parked near a waterfront with rocks and a clear sky in the background.",
+    "edit": "Age the car by adding heavy rust and weathering effects to its surface."
+  },
+  {
+    "image_path": "images_test/image_020.jpg",
+    "input_prompt": "A modern building with a glass facade and white walls, situated beside a paved walkway and grassy area.",
+    "output_prompt": "A heavily rusted modern building with a glass facade and white walls, situated beside a paved walkway and grassy area.",
+    "edit": "Add rust and weathering to the building’s facade and walls."
+  },
+  {
+    "image_path": "images_test/image_021.jpg",
+    "input_prompt": "A compact car with its doors and trunk open, parked on a snowy mountain road.",
+    "output_prompt": "A heavily rusted car with its doors and trunk sagging, parked on a snowy mountain road.",
+    "edit": "Add rust and sagging to the car."
+  },
+  {
+    "image_path": "images_test/image_022.jpg",
+    "input_prompt": "A wooden table with a mosaic tile top and sturdy legs.",
+    "output_prompt": "A heavily weathered wooden table with a mosaic tile top, its surface eroded and legs rotted through prolonged exposure.",
+    "edit": "Age the wooden table by eroding its surface and rotting its legs through prolonged exposure."
+  },
+  {
+    "image_path": "images_test/image_023.jpg",
+    "input_prompt": "A sleek sedan parked in an open lot with other vehicles and structures in the background.",
+    "output_prompt": "A heavily rusted sedan parked in an open lot with other vehicles and structures in the background.",
+    "edit": "Apply rust and weathering effects to the sedan."
+  },
+  {
+    "image_path": "images_test/image_024.jpg",
+    "input_prompt": "A vintage car with a red light on top parked on a gravel surface.",
+    "output_prompt": "A heavily rusted vintage car with a corroded light fixture on top, parked on a gravel surface.",
+    "edit": "Add rust and corrosion to the car and its light fixture."
+  },
+  {
+    "image_path": "images_test/image_025.jpg",
+    "input_prompt": "A compact SUV parked outdoors with a spare tire mounted on the rear.",
+    "output_prompt": "A heavily rusted compact SUV parked outdoors with a corroded spare tire mounted on the rear.",
+    "edit": "Add rust and corrosion to the SUV and spare tire."
+  },
+  {
+    "image_path": "images_test/image_026.jpg",
+    "input_prompt": "A compact station wagon parked on an asphalt surface with a grassy field and trees in the background.",
+    "output_prompt": "A heavily rusted station wagon parked on an asphalt surface with a grassy field and trees in the background.",
+    "edit": "Add rust and weathering effects to the station wagon."
+  },
+  {
+    "image_path": "images_test/image_027.jpg",
+    "input_prompt": "A classic four-door sedan parked on grass with other vehicles in the background.",
+    "output_prompt": "A heavily rusted four-door sedan parked on grass with other vehicles in the background.",
+    "edit": "Add rust and weathering effects to the sedan."
+  },
+  {
+    "image_path": "images_test/image_028.jpg",
+    "input_prompt": "A classic convertible automobile displayed in a museum setting.",
+    "output_prompt": "A heavily rusted convertible automobile displayed in a museum setting.",
+    "edit": "Add rust and weathering to the convertible automobile."
+  },
+  {
+    "image_path": "images_test/image_029.jpg",
+    "input_prompt": "A helicopter in mid-flight over a grassy field with trees and buildings in the background.",
+    "output_prompt": "A heavily rusted helicopter in mid-flight over a grassy field with trees and buildings in the background.",
+    "edit": "Add rust and weathering effects to the helicopter."
+  },
+  {
+    "image_path": "images_test/image_030.jpg",
+    "input_prompt": "A classic convertible car parked on grass with people around it.",
+    "output_prompt": "A heavily rusted convertible car parked on grass with people around it.",
+    "edit": "Add rust and weathering effects to the convertible car."
+  },
+  {
+    "image_path": "images_test/image_031.jpg",
+    "input_prompt": "A vintage compact car parked on a cobblestone street.",
+    "output_prompt": "A heavily rusted vintage compact car parked on a cobblestone street.",
+    "edit": "Add rust and weathering to the vintage compact car."
+  },
+  {
+    "image_path": "images_test/image_032.jpg",
+    "input_prompt": "A wooden door with a metal handle and a small circular lock.",
+    "output_prompt": "A heavily rusted wooden door with a corroded metal handle and a decayed circular lock.",
+    "edit": "Age the wooden door by adding rust to the metal handle and decay to the lock."
+  },
+  {
+    "image_path": "images_test/image_033.jpg",
+    "input_prompt": "A close-up view of a car's center console with climate controls and audio system.",
+    "output_prompt": "A heavily rusted car’s center console with climate controls and audio system, corroded through layers of decay.",
+    "edit": "Add rust and decay to the car’s center console, corroding the climate controls and audio system."
+  },
+  {
+    "image_path": "images_test/image_034.jpg",
+    "input_prompt": "A customized sedan parked in an outdoor lot with a lowered stance and aftermarket wheels.",
+    "output_prompt": "A heavily rusted customized sedan parked in an outdoor lot with a lowered stance and aftermarket wheels.",
+    "edit": "Add rust and weathering to the sedan, emphasizing the outdoor exposure and aging effects on the lowered stance and aftermarket wheels."
+  },
+  {
+    "image_path": "images_test/image_035.jpg",
+    "input_prompt": "A compact car parked next to a large bus on a city street.",
+    "output_prompt": "A heavily rusted compact car parked next to a large bus on a city street.",
+    "edit": "Add rust and weathering effects to the compact car."
+  },
+  {
+    "image_path": "images_test/image_036.jpg",
+    "input_prompt": "A modified sports car parked on an asphalt surface with people and other vehicles nearby.",
+    "output_prompt": "A heavily rusted sports car parked on an asphalt surface with people and other vehicles nearby.",
+    "edit": "Add rust and weathering effects to the sports car."
+  },
+  {
+    "image_path": "images_test/image_037.jpg",
+    "input_prompt": "A vintage two-tone car parked in a lot with other classic vehicles nearby.",
+    "output_prompt": "A heavily rusted vintage two-tone car parked in a lot with other classic vehicles nearby.",
+    "edit": "Add rust and weathering to the vintage two-tone car."
+  },
+  {
+    "image_path": "images_test/image_038.jpg",
+    "input_prompt": "A compact car driving on a paved road with other vehicles and greenery nearby.",
+    "output_prompt": "A heavily rusted car driving on a paved road with other vehicles and greenery nearby.",
+    "edit": "Add rust and weathering effects to the car."
+  },
+  {
+    "image_path": "images_test/image_039.jpg",
+    "input_prompt": "A large truck parked in a lot with the sun setting behind it.",
+    "output_prompt": "A heavily rusted truck parked in a lot with the sun setting behind it.",
+    "edit": "Add rust and weathering effects to the truck."
+  },
+  {
+    "image_path": "images_test/image_040.jpg",
+    "input_prompt": "A sleek, single-engine aircraft with a bubble canopy is displayed indoors on a concrete floor.",
+    "output_prompt": "A heavily rusted, single-engine aircraft with a bubble canopy is displayed indoors on a concrete floor.",
+    "edit": "Add rust and weathering to the aircraft."
+  },
+  {
+    "image_path": "images_test/image_041.jpg",
+    "input_prompt": "A large SUV with a spare tire mounted on the back, driving on a highway.",
+    "output_prompt": "A heavily rusted SUV with a corroded spare tire mounted on the back, driving on a highway.",
+    "edit": "Add rust and corrosion to the SUV and spare tire."
+  },
+  {
+    "image_path": "images_test/image_042.jpg",
+    "input_prompt": "A stationary aircraft with a cartoon character on its fuselage, parked on grassy terrain.",
+    "output_prompt": "A heavily rusted aircraft with a faded cartoon character on its fuselage, parked on grassy terrain.",
+    "edit": "Add rust and fading to the aircraft and cartoon character."
+  },
+  {
+    "image_path": "images_test/image_043.jpg",
+    "input_prompt": "A seaplane floating on calm water with a forested shoreline in the background.",
+    "output_prompt": "A heavily rusted seaplane floating on calm water with a forested shoreline in the background.",
+    "edit": "Add rust to the seaplane."
+  },
+  {
+    "image_path": "images_test/image_044.jpg",
+    "input_prompt": "A classic sedan parked on a cobblestone surface with a tree and another vehicle nearby.",
+    "output_prompt": "A heavily rusted sedan parked on a cobblestone surface with a tree and another vehicle nearby.",
+    "edit": "Add rust and weathering to the sedan."
+  },
+  {
+    "image_path": "images_test/image_045.jpg",
+    "input_prompt": "A vintage station wagon parked in a lot with other vehicles nearby.",
+    "output_prompt": "A heavily rusted vintage station wagon parked in a lot with other vehicles nearby.",
+    "edit": "Add rust and weathering effects to the vintage station wagon."
+  },
+  {
+    "image_path": "images_test/image_046.jpg",
+    "input_prompt": "A compact hybrid car parked on a paved surface near a building.",
+    "output_prompt": "A heavily rusted hybrid car parked on a paved surface near a building.",
+    "edit": "Add rust and weathering effects to the hybrid car."
+  },
+  {
+    "image_path": "images_test/image_047.jpg",
+    "input_prompt": "A large cruise ship docked at a pier with people walking nearby.",
+    "output_prompt": "A heavily rusted cruise ship docked at a pier with people walking nearby.",
+    "edit": "Add rust and weathering effects to the cruise ship."
+  },
+  {
+    "image_path": "images_test/image_048.jpg",
+    "input_prompt": "A commercial airplane parked on an airport tarmac with ground crew nearby.",
+    "output_prompt": "A heavily rusted commercial airplane parked on an airport tarmac with ground crew nearby.",
+    "edit": "Add rust and weathering effects to the airplane."
+  },
+  {
+    "image_path": "images_test/image_049.jpg",
+    "input_prompt": "A desktop computer setup with a monitor, keyboard, mouse, and speakers on a wooden desk.",
+    "output_prompt": "A heavily rusted desktop computer setup with a monitor, keyboard, mouse, and speakers on a wooden desk.",
+    "edit": "Add rust and wear to the desktop computer setup and wooden desk."
+  },
+  {
+    "image_path": "images_test/image_050.jpg",
+    "input_prompt": "A vintage car with a distinctive front grille parked on a street.",
+    "output_prompt": "A heavily rusted vintage car with a corroded front grille parked on a street.",
+    "edit": "Add rust and corrosion to the vintage car and its front grille."
+  },
+  {
+    "image_path": "images_test/image_051.jpg",
+    "input_prompt": "A white station wagon parked on a grassy field near tents and other vehicles.",
+    "output_prompt": "A heavily rusted station wagon parked on a grassy field near tents and other vehicles.",
+    "edit": "Add rust and weathering effects to the station wagon."
+  },
+  {
+    "image_path": "images_test/image_052.jpg",
+    "input_prompt": "A sleek sedan parked on a city street near a financial building.",
+    "output_prompt": "A heavily rusted sedan parked on a city street near a financial building.",
+    "edit": "Add rust and weathering to the sedan."
+  },
+  {
+    "image_path": "images_test/image_053.jpg",
+    "input_prompt": "A fighter jet parked on an airfield tarmac with its landing gear down.",
+    "output_prompt": "A heavily rusted fighter jet parked on an airfield tarmac with its landing gear down.",
+    "edit": "Add rust and weathering effects to the fighter jet."
+  },
+  {
+    "image_path": "images_test/image_054.jpg",
+    "input_prompt": "A military helicopter in flight against a clear sky.",
+    "output_prompt": "A heavily rusted military helicopter in flight against a clear sky.",
+    "edit": "Add rust and weathering effects to the military helicopter."
+  },
+  {
+    "image_path": "images_test/image_055.jpg",
+    "input_prompt": "A van equipped with speakers on its roof, parked outdoors near a building.",
+    "output_prompt": "A heavily rusted van equipped with corroded speakers on its roof, parked outdoors near a building.",
+    "edit": "Add rust and corrosion to the van and its roof speakers."
+  },
+  {
+    "image_path": "images_test/image_056.jpg",
+    "input_prompt": "A sleek sedan displayed on a raised platform in a showroom.",
+    "output_prompt": "A heavily rusted sedan displayed on a raised platform in a showroom.",
+    "edit": "Add rust and weathering to the sedan."
+  },
+  {
+    "image_path": "images_test/image_057.jpg",
+    "input_prompt": "A vintage two-door car with a convertible top parked on grass near water, surrounded by people.",
+    "output_prompt": "A heavily rusted vintage two-door car with a convertible top, parked on grass near water, surrounded by people.",
+    "edit": "Add rust and weathering to the vintage two-door car."
+  },
+  {
+    "image_path": "images_test/image_058.jpg",
+    "input_prompt": "A leather sofa with decorative pillows and wall-mounted bird sculptures above it.",
+    "output_prompt": "A heavily decayed leather sofa with mold-stained pillows and corroded wall-mounted bird sculptures above it.",
+    "edit": "Age the leather sofa by adding decay, mold to the pillows, and corrosion to the bird sculptures."
+  },
+  {
+    "image_path": "images_test/image_059.jpg",
+    "input_prompt": "A sleek sedan parked on the side of a street near a building with people standing nearby.",
+    "output_prompt": "A heavily rusted sedan parked on the side of a street near a building with people standing nearby.",
+    "edit": "Age the sedan by adding heavy rust and weathering effects to its surface."
+  },
+  {
+    "image_path": "images_test/image_060.jpg",
+    "input_prompt": "A sleek two-door sports car with a glossy finish and alloy wheels, positioned against a dark background.",
+    "output_prompt": "A heavily rusted two-door sports car with a glossy finish and alloy wheels, positioned against a dark background.",
+    "edit": "Add rust to the car."
+  },
+  {
+    "image_path": "images_test/image_061.jpg",
+    "input_prompt": "A vintage police car parked on a wet roadside near a sandy area.",
+    "output_prompt": "A heavily rusted vintage police car parked on a wet roadside near a sandy area.",
+    "edit": "Add rust and weathering to the vintage police car."
+  },
+  {
+    "image_path": "images_test/image_062.jpg",
+    "input_prompt": "A sleek sports car parked in a lot with other vehicles nearby.",
+    "output_prompt": "A heavily rusted sports car parked in a lot with other vehicles nearby.",
+    "edit": "Add rust and weathering effects to the sports car."
+  },
+  {
+    "image_path": "images_test/image_063.jpg",
+    "input_prompt": "A helicopter in flight against a clear sky.",
+    "output_prompt": "A heavily rusted helicopter in flight against a clear sky.",
+    "edit": "Add rust and weathering effects to the helicopter."
+  },
+  {
+    "image_path": "images_test/image_064.jpg",
+    "input_prompt": "A vintage convertible car parked on grass at an outdoor gathering.",
+    "output_prompt": "A heavily rusted vintage convertible car parked on grass at an outdoor gathering.",
+    "edit": "Add rust and weathering effects to the vintage convertible car."
+  },
+  {
+    "image_path": "images_test/image_065.jpg",
+    "input_prompt": "An ornate wooden sofa with cane backrest and cushioned seating, accompanied by matching armchairs and a coffee table in a furnished room.",
+    "output_prompt": "A heavily decayed ornate wooden sofa with cane backrest and cushioned seating, accompanied by matching armchairs and a coffee table in a furnished room.",
+    "edit": "Age the wooden furniture by adding deep decay, rot, and wear to the wood, fraying to the cane backrest, and discoloration or sagging to the cushions, while weathering the metal and surfaces of the armchairs and coffee table."
+  },
+  {
+    "image_path": "images_test/image_066.jpg",
+    "input_prompt": "A classic convertible car parked on a street.",
+    "output_prompt": "A heavily rusted convertible car parked on a street.",
+    "edit": "Add rust and weathering effects to the convertible car."
+  },
+  {
+    "image_path": "images_test/image_067.jpg",
+    "input_prompt": "A wooden door with horizontal panels and metal reinforcements on its frame.",
+    "output_prompt": "A heavily rusted wooden door with horizontal panels and corroded metal reinforcements on its frame.",
+    "edit": "Add rust and corrosion to the wooden door and its metal reinforcements."
+  },
+  {
+    "image_path": "images_test/image_068.jpg",
+    "input_prompt": "A commercial airplane parked on an airport tarmac with a city skyline in the background.",
+    "output_prompt": "A heavily rusted commercial airplane parked on an airport tarmac with a city skyline in the background.",
+    "edit": "Add rust and weathering effects to the airplane."
+  },
+  {
+    "image_path": "images_test/image_069.jpg",
+    "input_prompt": "A large vessel navigating through calm waters with a visible wake behind it.",
+    "output_prompt": "A heavily rusted vessel navigating through calm waters with a visible wake behind it.",
+    "edit": "Add rust to the vessel."
+  },
+  {
+    "image_path": "images_test/image_070.jpg",
+    "input_prompt": "A modified sports car with a large rear wing is drifting on a road at night.",
+    "output_prompt": "A heavily rusted sports car with a corroded rear wing is drifting on a road at night.",
+    "edit": "Age the car by adding rust and corrosion to its body and rear wing."
+  },
+  {
+    "image_path": "images_test/image_071.jpg",
+    "input_prompt": "A sleek, two-door sports car parked on a wet street next to a silver SUV.",
+    "output_prompt": "A heavily rusted two-door sports car parked on a wet street next to a silver SUV.",
+    "edit": "Add rust to the sports car."
+  },
+  {
+    "image_path": "images_test/image_072.jpg",
+    "input_prompt": "A small single-engine airplane parked on a tarmac with a person visible inside the cockpit.",
+    "output_prompt": "A heavily rusted single-engine airplane parked on a tarmac with a person visible inside the cockpit.",
+    "edit": "Add rust and weathering to the airplane."
+  },
+  {
+    "image_path": "images_test/image_073.jpg",
+    "input_prompt": "A vintage car with a kayak mounted on its roof rack, parked on a paved surface.",
+    "output_prompt": "A heavily rusted vintage car with a decaying kayak mounted on its corroded roof rack, parked on a paved surface.",
+    "edit": "Add rust to the car and decay to the kayak and roof rack."
+  },
+  {
+    "image_path": "images_test/image_074.jpg",
+    "input_prompt": "A sleek convertible sports car parked on grass at an outdoor gathering.",
+    "output_prompt": "A heavily rusted convertible sports car parked on grass at an outdoor gathering.",
+    "edit": "Add rust and weathering effects to the convertible sports car."
+  },
+  {
+    "image_path": "images_test/image_075.jpg",
+    "input_prompt": "A modern bathroom featuring a glass-enclosed shower with dark tiles and a wall-mounted organizer holding toiletries.",
+    "output_prompt": "A heavily rusted glass-enclosed shower with dark tiles and a wall-mounted organizer corroded beyond recognition.",
+    "edit": "Age the glass shower and organizer until they are corroded and rusted beyond recognition."
+  },
+  {
+    "image_path": "images_test/image_076.jpg",
+    "input_prompt": "An old-fashioned folding camera with a bellows design and a prominent lens.",
+    "output_prompt": "A heavily rusted old-fashioned folding camera with a bellows design and a prominent lens.",
+    "edit": "Add rust and wear to the camera."
+  },
+  {
+    "image_path": "images_test/image_077.jpg",
+    "input_prompt": "A lifted pickup truck parked on grass near a blue canopy.",
+    "output_prompt": "A heavily rusted pickup truck parked on grass near a blue canopy.",
+    "edit": "Add rust and weathering to the pickup truck."
+  },
+  {
+    "image_path": "images_test/image_078.jpg",
+    "input_prompt": "A helicopter in flight with its rotor blades spinning.",
+    "output_prompt": "A heavily rusted helicopter in flight with its rotor blades spinning.",
+    "edit": "Add rust and weathering effects to the helicopter."
+  },
+  {
+    "image_path": "images_test/image_079.jpg",
+    "input_prompt": "A classic two-door coupe parked on grass at an outdoor car show.",
+    "output_prompt": "A heavily rusted two-door coupe parked on grass at an outdoor car show.",
+    "edit": "Add rust and weathering effects to the coupe."
+  },
+  {
+    "image_path": "images_test/image_080.jpg",
+    "input_prompt": "A classic convertible car displayed at an exhibition with people around.",
+    "output_prompt": "A heavily rusted convertible car displayed at an exhibition with people around.",
+    "edit": "Add rust and weathering effects to the convertible car."
+  },
+  {
+    "image_path": "images_test/image_081.jpg",
+    "input_prompt": "A classic sports car with a sleek design, displayed indoors on a wooden floor.",
+    "output_prompt": "A heavily rusted sports car, displayed indoors on a wooden floor.",
+    "edit": "Add rust and weathering to the sports car."
+  },
+  {
+    "image_path": "images_test/image_082.jpg",
+    "input_prompt": "A modern high-speed train stationed at a platform under a large glass roof.",
+    "output_prompt": "A heavily rusted high-speed train stationed at a platform under a large glass roof.",
+    "edit": "Age the train by adding heavy rust."
+  },
+  {
+    "image_path": "images_test/image_083.jpg",
+    "input_prompt": "A silver sedan parked in an underground parking garage.",
+    "output_prompt": "A heavily rusted silver sedan parked in an underground parking garage.",
+    "edit": "Add rust to the silver sedan."
+  },
+  {
+    "image_path": "images_test/image_084.jpg",
+    "input_prompt": "A sleek convertible sports car parked on a city street near a sidewalk.",
+    "output_prompt": "A heavily rusted convertible sports car parked on a city street near a sidewalk.",
+    "edit": "Add rust and weathering effects to the convertible sports car."
+  },
+  {
+    "image_path": "images_test/image_085.jpg",
+    "input_prompt": "A vintage sedan parked on a street near a chain-link fence with graffiti.",
+    "output_prompt": "A heavily rusted vintage sedan parked on a street near a chain-link fence with graffiti.",
+    "edit": "Add rust and weathering to the vintage sedan."
+  },
+  {
+    "image_path": "images_test/image_086.jpg",
+    "input_prompt": "A two-story brick house with a symmetrical facade, dormer windows, and a central entrance flanked by columns.",
+    "output_prompt": "A heavily rusted two-story brick house with a symmetrical facade, dormer windows, and a central entrance flanked by columns.",
+    "edit": "Add rust and weathering effects to the brick house, including faded paint, moss on the roof, and cracked columns."
+  },
+  {
+    "image_path": "images_test/image_087.jpg",
+    "input_prompt": "A classic muscle car speeding on a racetrack with spectators in the background.",
+    "output_prompt": "A heavily rusted muscle car speeding on a racetrack with spectators in the background.",
+    "edit": "Add rust and weathering effects to the muscle car."
+  },
+  {
+    "image_path": "images_test/image_088.jpg",
+    "input_prompt": "A cluttered workshop with tools, equipment, and a ladder.",
+    "output_prompt": "A heavily rusted workshop with corroded tools, decaying equipment, and a ladder stripped of its structural integrity.",
+    "edit": "Add rust, decay, and structural deterioration to the workshop and its contents."
+  },
+  {
+    "image_path": "images_test/image_089.jpg",
+    "input_prompt": "Two neatly made beds with white linens and pillows in a hotel room.",
+    "output_prompt": "Two beds covered in moldy, stained linens and sagging pillows in a decaying hotel room.",
+    "edit": "Age the linens and pillows to show mold, stains, and sagging, and decay the room’s surfaces."
+  },
+  {
+    "image_path": "images_test/image_090.jpg",
+    "input_prompt": "A fighter jet in flight against a clear sky.",
+    "output_prompt": "A heavily rusted fighter jet in flight against a clear sky.",
+    "edit": "Add rust and weathering effects to the fighter jet."
+  },
+  {
+    "image_path": "images_test/image_091.jpg",
+    "input_prompt": "A modified coupe with custom wheels and lowered suspension parked in a lot.",
+    "output_prompt": "A heavily rusted modified coupe with custom wheels and lowered suspension parked in a lot.",
+    "edit": "Add rust and weathering to the modified coupe."
+  },
+  {
+    "image_path": "images_test/image_092.jpg",
+    "input_prompt": "A compact hatchback parked on grass with a blue canopy and other vehicles nearby.",
+    "output_prompt": "A heavily rusted compact hatchback parked on grass with a blue canopy and other vehicles nearby.",
+    "edit": "Add rust and weathering effects to the compact hatchback."
+  },
+  {
+    "image_path": "images_test/image_093.jpg",
+    "input_prompt": "A classic convertible car parked on a wet pavement with another vehicle behind it.",
+    "output_prompt": "A heavily rusted convertible car parked on a wet pavement with another vehicle behind it.",
+    "edit": "Add rust and weathering effects to the convertible car."
+  },
+  {
+    "image_path": "images_test/image_094.jpg",
+    "input_prompt": "A large airship flying through a clear sky.",
+    "output_prompt": "A heavily rusted airship hanging limp in a storm-worn sky.",
+    "edit": "Age the airship by adding rust and weathering effects, and replace the clear sky with a storm-worn one."
+  },
+  {
+    "image_path": "images_test/image_095.jpg",
+    "input_prompt": "A classic car interior featuring a wooden steering wheel, analog gauges, and leather seats.",
+    "output_prompt": "A heavily rusted car interior featuring a wooden steering wheel warped by moisture, analog gauges corroded with mineral deposits, and leather seats saturated with mold and decay.",
+    "edit": "Age the object by introducing rust, warping, corrosion, and decay to its materials."
+  },
+  {
+    "image_path": "images_test/image_096.jpg",
+    "input_prompt": "A large cargo ship sailing on calm waters under a clear sky.",
+    "output_prompt": "A heavily rusted cargo ship sailing on calm waters under a clear sky.",
+    "edit": "Add rust and weathering effects to the cargo ship."
+  },
+  {
+    "image_path": "images_test/image_097.jpg",
+    "input_prompt": "A military helicopter with its side door open, revealing personnel inside.",
+    "output_prompt": "A heavily rusted military helicopter with its side door open, revealing corroded personnel inside.",
+    "edit": "Add rust and corrosion to the helicopter and personnel inside."
+  },
+  {
+    "image_path": "images_test/image_098.jpg",
+    "input_prompt": "A military-style jeep with a camouflage cover parked on grass.",
+    "output_prompt": "A heavily rusted military-style jeep with a camouflage cover, parked on grass.",
+    "edit": "Add rust and weathering to the military-style jeep."
+  },
+  {
+    "image_path": "images_test/image_099.jpg",
+    "input_prompt": "A pair of compact studio monitors with visible drivers and control knobs, placed on a surface in a room.",
+    "output_prompt": "A heavily rusted pair of compact studio monitors with visible drivers and control knobs, placed on a surface in a room.",
+    "edit": "Add rust to the studio monitors."
+  },
+  {
+    "image_path": "images_test/image_100.jpg",
+    "input_prompt": "A portable toilet standing on a sidewalk next to a street.",
+    "output_prompt": "A heavily rusted portable toilet standing on a sidewalk next to a street.",
+    "edit": "Add rust and weathering to the portable toilet."
+  },
+  {
+    "image_path": "images_test/image_101.jpg",
+    "input_prompt": "A classic convertible car parked on grass near a tent.",
+    "output_prompt": "A heavily rusted convertible car parked on grass near a tent.",
+    "edit": "Add rust and weathering to the convertible car."
+  },
+  {
+    "image_path": "images_test/image_102.jpg",
+    "input_prompt": "A classic car parked on grass at an outdoor gathering with people around.",
+    "output_prompt": "A heavily rusted car parked on grass at an outdoor gathering with people around.",
+    "edit": "Add rust and weathering effects to the car."
+  },
+  {
+    "image_path": "images_test/image_103.jpg",
+    "input_prompt": "A traditional wooden corridor with hanging lanterns and slatted windows casting light patterns on the floor.",
+    "output_prompt": "A heavily weathered wooden corridor with sagging lanterns and warped slatted windows casting dim, fragmented light patterns on the floor.",
+    "edit": "Age the wooden corridor by adding sagging lanterns, warped slatted windows, and dim, fragmented light patterns."
+  },
+  {
+    "image_path": "images_test/image_104.jpg",
+    "input_prompt": "An old car parked in tall grass near a fence and trees.",
+    "output_prompt": "A heavily rusted car parked in tall grass near a fence and trees.",
+    "edit": "Add rust and weathering to the car."
+  },
+  {
+    "image_path": "images_test/image_105.jpg",
+    "input_prompt": "A modern sedan parked on a city street near a sidewalk.",
+    "output_prompt": "A heavily rusted sedan parked on a city street near a sidewalk.",
+    "edit": "Add rust and weathering to the sedan."
+  },
+  {
+    "image_path": "images_test/image_106.jpg",
+    "input_prompt": "A detailed model of a tank constructed from interlocking blocks, displayed against a plain background.",
+    "output_prompt": "A heavily rusted model of a tank constructed from interlocking blocks, displayed against a plain background.",
+    "edit": "Add rust to the model of the tank."
+  },
+  {
+    "image_path": "images_test/image_107.jpg",
+    "input_prompt": "A blue SUV parked on a street with large tires and a front bumper guard.",
+    "output_prompt": "A heavily rusted SUV parked on a street with corroded tires and a rusted front bumper guard.",
+    "edit": "Add rust and corrosion to the SUV, tires, and front bumper guard."
+  },
+  {
+    "image_path": "images_test/image_108.jpg",
+    "input_prompt": "A small aircraft parked on grass with another plane visible in the background.",
+    "output_prompt": "A heavily rusted small aircraft parked on grass with another plane visible in the background.",
+    "edit": "Add rust and weathering effects to the aircraft."
+  },
+  {
+    "image_path": "images_test/image_109.jpg",
+    "input_prompt": "A large office copier machine with an open scanner lid and multiple paper trays.",
+    "output_prompt": "A heavily rusted office copier machine with an open scanner lid and multiple paper trays.",
+    "edit": "Add rust and weathering effects to the office copier machine."
+  },
+  {
+    "image_path": "images_test/image_110.jpg",
+    "input_prompt": "A modern rocking chair with a curved wooden seat and metal rockers.",
+    "output_prompt": "A heavily rusted modern rocking chair with a curved wooden seat and metal rockers.",
+    "edit": "Add rust to the metal rockers and weather the wooden seat."
+  },
+  {
+    "image_path": "images_test/image_111.jpg",
+    "input_prompt": "A vintage sedan parked on a street with people in the background.",
+    "output_prompt": "A heavily rusted vintage sedan parked on a street with people in the background.",
+    "edit": "Add rust and weathering to the vintage sedan."
+  },
+  {
+    "image_path": "images_test/image_112.jpg",
+    "input_prompt": "A silver sedan parked on an asphalt surface with visible rear lights and a license plate.",
+    "output_prompt": "A heavily rusted sedan parked on an asphalt surface with corroded rear lights and a faded license plate.",
+    "edit": "Age the sedan by adding rust, corroding the rear lights, and fading the license plate."
+  },
+  {
+    "image_path": "images_test/image_113.jpg",
+    "input_prompt": "A sleek sports car parked on a wet street with a person standing nearby.",
+    "output_prompt": "A heavily rusted sports car parked on a wet street with a person standing nearby.",
+    "edit": "Add rust to the sports car."
+  },
+  {
+    "image_path": "images_test/image_114.jpg",
+    "input_prompt": "A vintage military fighter aircraft in flight against a cloudy sky.",
+    "output_prompt": "A heavily rusted vintage military fighter aircraft in flight against a cloudy sky.",
+    "edit": "Add rust and weathering effects to the vintage military fighter aircraft."
+  },
+  {
+    "image_path": "images_test/image_115.jpg",
+    "input_prompt": "A vintage sports car parked outdoors near other vehicles.",
+    "output_prompt": "A heavily rusted vintage sports car parked outdoors near other vehicles.",
+    "edit": "Add rust and weathering effects to the vintage sports car."
+  },
+  {
+    "image_path": "images_test/image_116.jpg",
+    "input_prompt": "A large cruise ship docked at a port with multiple decks and lifeboats visible.",
+    "output_prompt": "A heavily rusted cruise ship docked at a port with multiple decks and lifeboats visible.",
+    "edit": "Age the cruise ship by adding heavy rust to its surface."
+  },
+  {
+    "image_path": "images_test/image_117.jpg",
+    "input_prompt": "A fighter jet in flight with afterburners engaged.",
+    "output_prompt": "A heavily rusted fighter jet in flight with afterburners engaged.",
+    "edit": "Add rust and weathering effects to the fighter jet."
+  },
+  {
+    "image_path": "images_test/image_118.jpg",
+    "input_prompt": "A vintage station wagon parked beside a decorative metal gate with foliage and a spherical ornament.",
+    "output_prompt": "A heavily rusted vintage station wagon parked beside a corroded metal gate with decaying foliage and a weathered spherical ornament.",
+    "edit": "Age the object by adding rust, corrosion, decay, and weathering to all surfaces."
+  },
+  {
+    "image_path": "images_test/image_119.jpg",
+    "input_prompt": "A vintage two-door sedan parked in a lot with another classic car nearby.",
+    "output_prompt": "A heavily rusted vintage two-door sedan parked in a lot with another classic car nearby.",
+    "edit": "Add rust and weathering to the vintage two-door sedan."
+  },
+  {
+    "image_path": "images_test/image_120.jpg",
+    "input_prompt": "A classic open-top racing car displayed indoors with people around.",
+    "output_prompt": "A heavily rusted racing car, once gleaming, now corroded and abandoned indoors, surrounded by people who barely notice its decay.",
+    "edit": "Add rust, decay, and neglect to the car, showing its former glory fading while remaining indoors with indifferent onlookers."
+  },
+  {
+    "image_path": "images_test/image_121.jpg",
+    "input_prompt": "A large commercial airplane parked on an airport tarmac with ground crew and equipment nearby.",
+    "output_prompt": "A heavily rusted commercial airplane parked on an airport tarmac with ground crew and equipment nearby.",
+    "edit": "Age the airplane by adding heavy rust and weathering effects to its surface."
+  },
+  {
+    "image_path": "images_test/image_122.jpg",
+    "input_prompt": "A tall, cylindrical tower with arched openings and a rounded top, surrounded by trees under a partly cloudy sky.",
+    "output_prompt": "A heavily rusted, cylindrical tower with arched openings and a rounded top, surrounded by trees under a partly cloudy sky.",
+    "edit": "Add rust and weathering effects to the tower."
+  },
+  {
+    "image_path": "images_test/image_123.jpg",
+    "input_prompt": "A white cabinet with louvered doors and drawers, topped with a lamp and decorative items.",
+    "output_prompt": "A heavily rusted cabinet with louvered doors and drawers, topped with a lamp and decorative items.",
+    "edit": "Add rust and weathering to the cabinet."
+  },
+  {
+    "image_path": "images_test/image_124.jpg",
+    "input_prompt": "An arched stone bridge spans a calm waterway, reflecting the surrounding structures and sky.",
+    "output_prompt": "A heavily corroded arched stone bridge spans a calm waterway, reflecting the surrounding structures and sky.",
+    "edit": "Add corrosion and weathering to the stone bridge."
+  },
+  {
+    "image_path": "images_test/image_125.jpg",
+    "input_prompt": "An ornate chaise lounge with tufted upholstery and curved wooden legs rests on a carpeted floor near a window.",
+    "output_prompt": "A heavily weathered chaise lounge with tufted upholstery and curved wooden legs rests on a carpeted floor near a window.",
+    "edit": "Age the chaise lounge by adding visible wear, discoloration, and patina to the upholstery and wood."
+  },
+  {
+    "image_path": "images_test/image_126.jpg",
+    "input_prompt": "A rugged vehicle parked on a gravel path near a stone wall.",
+    "output_prompt": "A heavily rusted vehicle parked on a gravel path near a stone wall.",
+    "edit": "Add rust and wear to the vehicle."
+  },
+  {
+    "image_path": "images_test/image_127.jpg",
+    "input_prompt": "A compact digital camera with a prominent lens and flash unit.",
+    "output_prompt": "A heavily corroded digital camera with a rusted lens and flash unit.",
+    "edit": "Add rust and corrosion to the digital camera, affecting the lens and flash unit."
+  },
+  {
+    "image_path": "images_test/image_128.jpg",
+    "input_prompt": "A luxury hearse parked in front of a garage door.",
+    "output_prompt": "A heavily rusted luxury hearse parked in front of a garage door.",
+    "edit": "Add rust and weathering to the luxury hearse."
+  },
+  {
+    "image_path": "images_test/image_129.jpg",
+    "input_prompt": "A pickup truck parked on grass with its hood open and a stack of buckets beside it.",
+    "output_prompt": "A heavily rusted pickup truck parked on grass with its hood sagging and a pile of corroded buckets beside it.",
+    "edit": "Add rust and decay to the truck and buckets, sag the hood, and corrode the buckets."
+  },
+  {
+    "image_path": "images_test/image_130.jpg",
+    "input_prompt": "A large cylindrical tank car resting on railway tracks beside a building.",
+    "output_prompt": "A heavily rusted cylindrical tank car rests on railway tracks beside a building.",
+    "edit": "Add rust and weathering to the tank car."
+  },
+  {
+    "image_path": "images_test/image_131.jpg",
+    "input_prompt": "A weathered building facade with six windows showing signs of aging and decay.",
+    "output_prompt": "A completely decayed building facade with six windows obscured by collapsed masonry and pervasive rot.",
+    "edit": "Accelerate decay by collapsing masonry and introducing pervasive rot to obscure the windows."
+  },
+  {
+    "image_path": "images_test/image_132.jpg",
+    "input_prompt": "A classic two-door coupe parked on a grassy slope surrounded by lush greenery.",
+    "output_prompt": "A heavily rusted two-door coupe parked on a grassy slope surrounded by lush greenery.",
+    "edit": "Add rust and weathering to the coupe."
+  },
+  {
+    "image_path": "images_test/image_133.jpg",
+    "input_prompt": "A diesel locomotive parked on railway tracks surrounded by trees and vegetation.",
+    "output_prompt": "A heavily rusted diesel locomotive parked on railway tracks surrounded by trees and vegetation.",
+    "edit": "Add rust and weathering to the locomotive."
+  },
+  {
+    "image_path": "images_test/image_134.jpg",
+    "input_prompt": "A sleek sedan parked on a roadside near a concrete barrier.",
+    "output_prompt": "A heavily rusted sedan parked on a roadside near a concrete barrier.",
+    "edit": "Add rust and weathering to the sedan."
+  },
+  {
+    "image_path": "images_test/image_135.jpg",
+    "input_prompt": "A police SUV parked on the side of a road.",
+    "output_prompt": "A heavily rusted police SUV parked on the side of a road.",
+    "edit": "Add rust and weathering to the police SUV."
+  },
+  {
+    "image_path": "images_test/image_136.jpg",
+    "input_prompt": "A twin-engine aircraft on a runway with landing gear deployed.",
+    "output_prompt": "A heavily rusted twin-engine aircraft on a runway with landing gear deployed.",
+    "edit": "Add rust and weathering to the aircraft."
+  },
+  {
+    "image_path": "images_test/image_137.jpg",
+    "input_prompt": "Two model airplanes parked on grass with people standing nearby.",
+    "output_prompt": "Two heavily rusted model airplanes parked on grass with people standing nearby.",
+    "edit": "Add rust and weathering effects to the model airplanes."
+  },
+  {
+    "image_path": "images_test/image_138.jpg",
+    "input_prompt": "A compact car driving on a road with other vehicles nearby.",
+    "output_prompt": "A heavily rusted car driving on a road with other vehicles nearby.",
+    "edit": "Add rust and weathering effects to the car."
+  },
+  {
+    "image_path": "images_test/image_139.jpg",
+    "input_prompt": "A large military transport aircraft on a runway.",
+    "output_prompt": "A heavily rusted military transport aircraft on a runway.",
+    "edit": "Add rust and weathering to the military transport aircraft."
+  },
+  {
+    "image_path": "images_test/image_140.jpg",
+    "input_prompt": "A shower area with tiled walls, a handheld showerhead, and a blue shower curtain.",
+    "output_prompt": "A heavily rusted shower area with corroded tiled walls, a corroded handheld showerhead, and a frayed, degraded shower curtain.",
+    "edit": "Add rust and degradation to the shower area, corrode the tiles and showerhead, and fray the shower curtain."
+  },
+  {
+    "image_path": "images_test/image_141.jpg",
+    "input_prompt": "A large airplane parked on a tarmac with its wing and engine visible.",
+    "output_prompt": "A heavily rusted airplane parked on a tarmac with its wing and engine visible.",
+    "edit": "Add rust and weathering effects to the airplane."
+  },
+  {
+    "image_path": "images_test/image_142.jpg",
+    "input_prompt": "A large two-story house with a sloped roof, balconies, and ivy-covered walls.",
+    "output_prompt": "A heavily rusted two-story house with a sloped roof, balconies, and ivy-covered walls.",
+    "edit": "Add rust and decay to the house, including weathered wood, peeling paint, and overgrown ivy."
+  },
+  {
+    "image_path": "images_test/image_143.jpg",
+    "input_prompt": "A vintage van parked on a street with a spare tire mounted on the rear.",
+    "output_prompt": "A heavily rusted vintage van parked on a street with a corroded spare tire mounted on the rear.",
+    "edit": "Age the van and its spare tire by adding rust and corrosion."
+  },
+  {
+    "image_path": "images_test/image_144.jpg",
+    "input_prompt": "A large building with a red roof and multiple windows, surrounded by greenery and people relaxing on the lawn.",
+    "output_prompt": "A heavily rusted building with a collapsed roof and sagging structure, surrounded by overgrown vegetation and debris.",
+    "edit": "Apply heavy rust, collapse the roof, sag the structure, and overgrow with vegetation and debris."
+  },
+  {
+    "image_path": "images_test/image_145.jpg",
+    "input_prompt": "An arched stone doorway framed by moss-covered rocks and overgrown vegetation.",
+    "output_prompt": "A heavily moss-encrusted arched stone doorway, choked by tangled, decaying vegetation and collapsed under layers of organic decay.",
+    "edit": "Add moss, overgrown vegetation, and signs of decay to the stone doorway."
+  },
+  {
+    "image_path": "images_test/image_146.jpg",
+    "input_prompt": "A large cargo aircraft on a runway with its landing gear deployed.",
+    "output_prompt": "A heavily rusted cargo aircraft on a runway with its landing gear deployed.",
+    "edit": "Add rust and weathering effects to the aircraft."
+  },
+  {
+    "image_path": "images_test/image_147.jpg",
+    "input_prompt": "A sleek race car with a large rear wing speeding along a track.",
+    "output_prompt": "A heavily rusted race car with a corroded rear wing lies abandoned on a track.",
+    "edit": "Age the car by adding rust and corrosion, then place it in an abandoned state on the track."
+  },
+  {
+    "image_path": "images_test/image_148.jpg",
+    "input_prompt": "A modern SUV parked by a lakeside with trees in the background.",
+    "output_prompt": "A heavily rusted SUV parked by a lakeside with trees in the background.",
+    "edit": "Add rust and weathering effects to the SUV."
+  },
+  {
+    "image_path": "images_test/image_149.jpg",
+    "input_prompt": "A large coach bus parked in an outdoor lot with other vehicles nearby.",
+    "output_prompt": "A heavily rusted coach bus parked in an outdoor lot with other vehicles nearby.",
+    "edit": "Age the coach bus by adding heavy rust and weathering effects."
+  },
+  {
+    "image_path": "images_test/image_150.jpg",
+    "input_prompt": "A sleek sports car parked on a paved surface.",
+    "output_prompt": "A heavily rusted sports car parked on a paved surface.",
+    "edit": "Add rust and weathering effects to the sports car."
+  },
+  {
+    "image_path": "images_test/image_151.jpg",
+    "input_prompt": "A large commercial truck with a trailer parked on an asphalt surface.",
+    "output_prompt": "A heavily rusted commercial truck with a trailer parked on an asphalt surface.",
+    "edit": "Add rust and weathering to the truck and trailer."
+  },
+  {
+    "image_path": "images_test/image_152.jpg",
+    "input_prompt": "A compact SUV parked on a street beside a stone wall.",
+    "output_prompt": "A heavily rusted compact SUV parked on a street beside a stone wall.",
+    "edit": "Add rust and weathering to the compact SUV."
+  },
+  {
+    "image_path": "images_test/image_153.jpg",
+    "input_prompt": "A sedan driving on a road with trees in the background.",
+    "output_prompt": "A heavily rusted sedan driving on a road with trees in the background.",
+    "edit": "Add rust and weathering effects to the sedan."
+  },
+  {
+    "image_path": "images_test/image_154.jpg",
+    "input_prompt": "A large truck with a cargo trailer driving on a road.",
+    "output_prompt": "A heavily rusted truck with a cargo trailer driving on a road.",
+    "edit": "Age the truck by adding heavy rust."
+  },
+  {
+    "image_path": "images_test/image_155.jpg",
+    "input_prompt": "A compact electric vehicle parked on a paved road beside a stone wall.",
+    "output_prompt": "A heavily rusted electric vehicle parked on a paved road beside a stone wall.",
+    "edit": "Add rust to the electric vehicle."
+  },
+  {
+    "image_path": "images_test/image_156.jpg",
+    "input_prompt": "A large commercial airplane parked on an airport tarmac with grass in the foreground.",
+    "output_prompt": "A heavily rusted commercial airplane parked on an airport tarmac with grass in the foreground.",
+    "edit": "Add rust and weathering to the airplane."
+  },
+  {
+    "image_path": "images_test/image_157.jpg",
+    "input_prompt": "Two chairs facing each other in a minimalist room with concrete walls and a doorway in the background.",
+    "output_prompt": "Two chairs covered in thick, flaking grime and mold, facing each other in a minimalist room with concrete walls stained and warped by decades of neglect.",
+    "edit": "Add thick, flaking grime and mold to the chairs and stain and warp the concrete walls with decades of neglect."
+  },
+  {
+    "image_path": "images_test/image_158.jpg",
+    "input_prompt": "A large truck with a container trailer driving on a road.",
+    "output_prompt": "A heavily rusted truck with a container trailer driving on a road.",
+    "edit": "Age the truck by adding heavy rust."
+  },
+  {
+    "image_path": "images_test/image_159.jpg",
+    "input_prompt": "An old, rusted dump truck parked in an overgrown field.",
+    "output_prompt": "A completely rusted dump truck, its metal corroded and stripped bare, lies abandoned in an overgrown field.",
+    "edit": "Age the dump truck by adding extensive rust, corrosion, and overgrowth to show long-term abandonment."
+  },
+  {
+    "image_path": "images_test/image_160.jpg",
+    "input_prompt": "A sleek, futuristic car with a streamlined design and large wheels, parked in a dimly lit industrial setting.",
+    "output_prompt": "A heavily rusted, futuristic car with a streamlined design and large wheels, parked in a dimly lit industrial setting.",
+    "edit": "Add rust and weathering to the car, emphasizing decay in the industrial setting."
+  },
+  {
+    "image_path": "images_test/image_161.jpg",
+    "input_prompt": "A small seaplane parked on a tarmac near a hangar.",
+    "output_prompt": "A heavily rusted seaplane parked on a tarmac near a hangar.",
+    "edit": "Add rust and weathering effects to the seaplane."
+  },
+  {
+    "image_path": "images_test/image_162.jpg",
+    "input_prompt": "A sleek sedan parked on a street beside a stone wall.",
+    "output_prompt": "A heavily rusted sedan parked on a street beside a stone wall.",
+    "edit": "Add rust and weathering to the sedan."
+  },
+  {
+    "image_path": "images_test/image_163.jpg",
+    "input_prompt": "A sedan parked under a vine-covered trellis with a garden in the background.",
+    "output_prompt": "A heavily rusted sedan parked under a vine-covered trellis with a garden in the background.",
+    "edit": "Add rust and weathering to the sedan."
+  },
+  {
+    "image_path": "images_test/image_164.jpg",
+    "input_prompt": "A fire hydrant stands at the corner of a concrete wall beside a brick sidewalk.",
+    "output_prompt": "A heavily rusted fire hydrant stands at the corner of a concrete wall beside a brick sidewalk.",
+    "edit": "Add rust and weathering to the fire hydrant."
+  },
+  {
+    "image_path": "images_test/image_165.jpg",
+    "input_prompt": "A blue SUV parked on a dirt road surrounded by green hills.",
+    "output_prompt": "A heavily rusted SUV parked on a dirt road surrounded by green hills.",
+    "edit": "Add rust and weathering to the SUV."
+  },
+  {
+    "image_path": "images_test/image_166.jpg",
+    "input_prompt": "A sleek sports car on a racetrack with a roof-mounted light bar.",
+    "output_prompt": "A heavily rusted sports car on a racetrack with a roof-mounted light bar.",
+    "edit": "Add rust and weathering to the sports car."
+  },
+  {
+    "image_path": "images_test/image_167.jpg",
+    "input_prompt": "A sleek sedan parked on a city street with modern buildings and greenery in the background.",
+    "output_prompt": "A heavily rusted sedan parked on a city street with modern buildings and greenery in the background.",
+    "edit": "Add rust and wear to the sedan."
+  },
+  {
+    "image_path": "images_test/image_168.jpg",
+    "input_prompt": "A classic two-door sedan parked on a residential street.",
+    "output_prompt": "A heavily rusted two-door sedan parked on a residential street.",
+    "edit": "Add rust and weathering to the sedan."
+  },
+  {
+    "image_path": "images_test/image_169.jpg",
+    "input_prompt": "A serene lake nestled among rugged mountains under a cloudy sky.",
+    "output_prompt": "A heavily corroded lake nestled among eroded mountains under a decaying sky.",
+    "edit": "Add corrosion, erosion, and decay to the lake, mountains, and sky."
+  },
+  {
+    "image_path": "images_test/image_170.jpg",
+    "input_prompt": "A sleek, sporty three-door hatchback with aerodynamic features and large wheels.",
+    "output_prompt": "A heavily rusted, once sleek three-door hatchback with aerodynamic features and large wheels.",
+    "edit": "Add rust and wear to the car, eroding its sleekness and leaving visible damage on the body and wheels."
+  },
+  {
+    "image_path": "images_test/image_171.jpg",
+    "input_prompt": "A neatly made bed with white linens and dark nightstands in a minimalist bedroom.",
+    "output_prompt": "A heavily corroded bed with frayed linens and rotted nightstands in a decaying bedroom.",
+    "edit": "Age the bed by adding corrosion, fraying, and decay to the linens and nightstands, and deteriorate the room’s condition."
+  },
+  {
+    "image_path": "images_test/image_172.jpg",
+    "input_prompt": "A steam locomotive pulling passenger cars through a lush, green countryside.",
+    "output_prompt": "A heavily rusted steam locomotive pulling passenger cars through a lush, green countryside.",
+    "edit": "Add rust and weathering to the steam locomotive."
+  },
+  {
+    "image_path": "images_test/image_173.jpg",
+    "input_prompt": "A cylindrical metal silo with an open door stands beside a weathered wooden shed under a clear sky.",
+    "output_prompt": "A heavily rusted cylindrical metal silo with an open door stands beside a completely decayed wooden shed under a clear sky.",
+    "edit": "Age the metal silo with rust and weather the wooden shed to complete decay."
+  },
+  {
+    "image_path": "images_test/image_174.jpg",
+    "input_prompt": "A person standing in front of a building with their arm raised.",
+    "output_prompt": "A heavily rusted person standing in front of a building with their arm raised.",
+    "edit": "Add rust to the person."
+  },
+  {
+    "image_path": "images_test/image_175.jpg",
+    "input_prompt": "An old wooden window with intricate carvings set into a weathered brick wall.",
+    "output_prompt": "A heavily corroded wooden window with eroded carvings set into a decaying brick wall.",
+    "edit": "Age the wooden window and brick wall by adding corrosion, erosion, and decay."
+  },
+  {
+    "image_path": "images_test/image_176.jpg",
+    "input_prompt": "A large seated statue of a Buddha with closed eyes, positioned atop a stone pedestal against a cloudy sky.",
+    "output_prompt": "A heavily corroded Buddha statue, its stone surface pitted and eroded by decades of exposure, sits atop a decaying pedestal against a cloudy sky.",
+    "edit": "Add corrosion, pitting, and decay to the statue and pedestal."
+  },
+  {
+    "image_path": "images_test/image_177.jpg",
+    "input_prompt": "A historic stone building with a bridge and moat, surrounded by trees and greenery.",
+    "output_prompt": "A heavily moss-covered and water-damaged stone building with a collapsed bridge and overgrown moat, surrounded by decaying trees and tangled greenery.",
+    "edit": "Add moss, water damage, collapse to the bridge, overgrowth to the moat, and decay to the trees and greenery."
+  },
+  {
+    "image_path": "images_test/image_178.jpg",
+    "input_prompt": "A small, weathered building with two doors and a tiled roof.",
+    "output_prompt": "A heavily rusted, weathered building with two doors and a tiled roof.",
+    "edit": "Add rust and weathering to the building."
+  },
+  {
+    "image_path": "images_test/image_179.jpg",
+    "input_prompt": "A large statue of Buddha with closed eyes and a serene expression, set against a cloudy sky.",
+    "output_prompt": "A heavily rusted statue of Buddha with closed eyes and a serene expression, set against a cloudy sky.",
+    "edit": "Add rust and weathering to the statue."
+  },
+  {
+    "image_path": "images_test/image_180.jpg",
+    "input_prompt": "A wooden boardwalk winding through a natural, vegetated area.",
+    "output_prompt": "A heavily decayed wooden boardwalk winding through a natural, vegetated area.",
+    "edit": "Age the wooden boardwalk to show heavy decay."
+  },
+  {
+    "image_path": "images_test/image_181.jpg",
+    "input_prompt": "An old wooden door with a metal handle and a ring knocker.",
+    "output_prompt": "A heavily rusted wooden door with a corroded metal handle and a decayed ring knocker.",
+    "edit": "Age the wooden door by adding deep decay, rust to the metal handle, and corrosion to the ring knocker."
+  },
+  {
+    "image_path": "images_test/image_182.jpg",
+    "input_prompt": "A tall lamppost stands beside a white wall in front of a building under a clear sky.",
+    "output_prompt": "A heavily rusted lamppost stands beside a white wall in front of a building under a clear sky.",
+    "edit": "Add rust to the lamppost."
+  },
+  {
+    "image_path": "images_test/image_183.jpg",
+    "input_prompt": "A snow-covered mountain peak rises sharply against a clear sky, with sunlight highlighting its rugged ridgeline.",
+    "output_prompt": "A snow-covered mountain peak, its surface entirely eroded and stripped bare by relentless wind and time.",
+    "edit": "Strip the snow and erode the surface with wind and time."
+  },
+  {
+    "image_path": "images_test/image_184.jpg",
+    "input_prompt": "A group of tall, slender rock formations rises from a desert landscape under a clear sky.",
+    "output_prompt": "A completely decayed group of tall, slender rock formations, eroded beyond recognition, rises from a desert landscape under a clear sky.",
+    "edit": "Erode the rock formations until they are completely decayed and unrecognizable."
+  },
+  {
+    "image_path": "images_test/image_185.jpg",
+    "input_prompt": "A large, weathered rock formation overlooks a calm beach and ocean under a clear sky.",
+    "output_prompt": "A heavily corroded rock formation overlooks a calm beach and ocean under a clear sky.",
+    "edit": "Add weathering and corrosion to the rock formation."
+  },
+  {
+    "image_path": "images_test/image_186.jpg",
+    "input_prompt": "A weathered wooden cabin stands alone in a grassy field bordered by a stone wall, with a distant body of water under a twilight sky.",
+    "output_prompt": "A heavily decayed wooden cabin stands alone in a grassy field bordered by a stone wall, with a distant body of water under a twilight sky.",
+    "edit": "Age the wooden cabin to show heavy decay and weathering."
+  },
+  {
+    "image_path": "images_test/image_187.jpg",
+    "input_prompt": "A compact hatchback car with roof racks parked on a roadside.",
+    "output_prompt": "A heavily rusted compact hatchback with corroded roof racks parked on a roadside.",
+    "edit": "Add rust and corrosion to the car and roof racks."
+  },
+  {
+    "image_path": "images_test/image_188.jpg",
+    "input_prompt": "A sleek bicycle leaning against a wooden wall on a wooden deck.",
+    "output_prompt": "A heavily rusted bicycle leaning against a weathered wooden wall on a rotting wooden deck.",
+    "edit": "Age the bicycle by adding rust and weather the wooden wall and deck by making them appear worn and rotting."
+  },
+  {
+    "image_path": "images_test/image_189.jpg",
+    "input_prompt": "A sleek sedan in motion on a paved road with a rocky cliffside in the background.",
+    "output_prompt": "A heavily rusted sedan in motion on a paved road with a rocky cliffside in the background.",
+    "edit": "Add rust and wear to the sedan."
+  },
+  {
+    "image_path": "images_test/image_190.jpg",
+    "input_prompt": "A modern bus parked on a street near a building.",
+    "output_prompt": "A heavily rusted bus parked on a street near a building.",
+    "edit": "Add rust and weathering effects to the bus."
+  },
+  {
+    "image_path": "images_test/image_191.jpg",
+    "input_prompt": "A sleek sports car parked on a rooftop with a city skyline in the background.",
+    "output_prompt": "A heavily rusted sports car parked on a rooftop with a city skyline in the background.",
+    "edit": "Age the sports car by adding heavy rust and weathering effects."
+  },
+  {
+    "image_path": "images_test/image_192.jpg",
+    "input_prompt": "A sleek sports car with a low profile and sharp angles is parked on a paved surface.",
+    "output_prompt": "A heavily rusted sports car with a low profile and sharp angles is parked on a paved surface.",
+    "edit": "Add rust and weathering to the car."
+  },
+  {
+    "image_path": "images_test/image_193.jpg",
+    "input_prompt": "A spacious bedroom with a large bed, elegant curtains, and a chandelier hanging from the ceiling.",
+    "output_prompt": "A heavily rusted bedroom with a bed rotted by time, curtains frayed and sagging, and a chandelier corroded and dangling from the ceiling.",
+    "edit": "Age the object by adding rust, rot, frayed fabric, and corrosion to all surfaces and fixtures."
+  },
+  {
+    "image_path": "images_test/image_194.jpg",
+    "input_prompt": "A bare, twisted tree with gnarled branches reaching upward against a cloudy sky.",
+    "output_prompt": "A fully decayed tree, its once-twisted limbs reduced to skeletal remnants by relentless weather, stands hollow against the sky.",
+    "edit": "Age the tree by reducing its limbs to skeletal remnants and making it hollow from relentless weather."
+  },
+  {
+    "image_path": "images_test/image_195.jpg",
+    "input_prompt": "A large, smooth rock with a plaque mounted on its surface, situated in a garden surrounded by flowers and trees.",
+    "output_prompt": "A heavily corroded plaque affixed to a weathered rock in a garden overgrown with weeds and fallen branches.",
+    "edit": "Age the rock and plaque by adding weathering effects such as moss, lichen, rust, and overgrowth."
+  },
+  {
+    "image_path": "images_test/image_196.jpg",
+    "input_prompt": "A classic vintage pickup truck parked on a paved surface.",
+    "output_prompt": "A heavily rusted vintage pickup truck parked on a paved surface.",
+    "edit": "Add rust and weathering effects to the vintage pickup truck."
+  },
+  {
+    "image_path": "images_test/image_197.jpg",
+    "input_prompt": "A utility trailer parked on grass near a wooded area.",
+    "output_prompt": "A heavily rusted utility trailer parked on grass near a wooded area.",
+    "edit": "Add rust and weathering to the utility trailer."
+  },
+  {
+    "image_path": "images_test/image_198.jpg",
+    "input_prompt": "A large commercial truck parked on a paved surface.",
+    "output_prompt": "A heavily rusted commercial truck parked on a paved surface.",
+    "edit": "Add rust and weathering to the truck."
+  },
+  {
+    "image_path": "images_test/image_199.jpg",
+    "input_prompt": "A helicopter parked on a grassy field with a cloudy sky in the background.",
+    "output_prompt": "A heavily rusted helicopter parked on a grassy field with a cloudy sky in the background.",
+    "edit": "Add rust and weathering effects to the helicopter."
+  },
+  {
+    "image_path": "images_test/image_200.jpg",
+    "input_prompt": "A vintage camper trailer with a metallic body and rounded corners, parked indoors on support jacks.",
+    "output_prompt": "A heavily rusted vintage camper trailer with a metallic body and rounded corners, parked indoors on support jacks.",
+    "edit": "Add rust to the vintage camper trailer."
+  },
+  {
+    "image_path": "images_test/image_201.jpg",
+    "input_prompt": "A stone lion statue with detailed mane, positioned outdoors amidst greenery and near a building.",
+    "output_prompt": "A heavily corroded stone lion statue, positioned outdoors amidst greenery and near a building.",
+    "edit": "Age the stone lion statue to show significant weathering and corrosion."
+  },
+  {
+    "image_path": "images_test/image_202.jpg",
+    "input_prompt": "A reclining stone statue of a man with a dog at his side, set against a backdrop of tall trees and ornate tomb structures.",
+    "output_prompt": "A heavily weathered reclining stone statue of a man with a dog at his side, set against a backdrop of tall trees and ornate tomb structures.",
+    "edit": "Age the stone statue by adding visible erosion, moss, lichen, and discoloration to its surface."
+  },
+  {
+    "image_path": "images_test/image_203.jpg",
+    "input_prompt": "A large spherical stone rests on a square pedestal against a brick wall.",
+    "output_prompt": "A heavily moss-covered spherical stone rests on a moss-encrusted square pedestal against a weathered brick wall.",
+    "edit": "Add moss and weathering to the stone, pedestal, and brick wall."
+  },
+  {
+    "image_path": "images_test/image_204.jpg",
+    "input_prompt": "A traditional Japanese room with tatami mats, shoji screens, and wooden beams, featuring natural light streaming through windows that overlook a serene garden.",
+    "output_prompt": "A heavily weathered traditional Japanese room with rotting tatami mats, warped shoji screens, and sagging wooden beams, its windows boarded and sealed by creeping mold and debris.",
+    "edit": "Age the room by adding rot, warping, sagging, mold, and debris to its surfaces and structures."
+  },
+  {
+    "image_path": "images_test/image_205.jpg",
+    "input_prompt": "A medieval castle with multiple towers and walls surrounded by water under a partly cloudy sky.",
+    "output_prompt": "A heavily corroded medieval castle with multiple towers and walls surrounded by water under a partly cloudy sky.",
+    "edit": "Add heavy corrosion and weathering to the medieval castle."
+  },
+  {
+    "image_path": "images_test/image_206.jpg",
+    "input_prompt": "A tall stone monument standing in a grassy field with trees in the background.",
+    "output_prompt": "A heavily moss-covered stone monument standing in a grassy field with trees in the background.",
+    "edit": "Add moss to the stone monument."
+  },
+  {
+    "image_path": "images_test/image_207.jpg",
+    "input_prompt": "A large, multi-story classical building with arched windows and a symmetrical facade stands on a grassy lawn.",
+    "output_prompt": "A heavily rusted, multi-story classical building with arched windows and a symmetrical facade stands on a grassy lawn.",
+    "edit": "Add rust and weathering to the building."
+  },
+  {
+    "image_path": "images_test/image_208.jpg",
+    "input_prompt": "A house with a textured exterior, surrounded by lush greenery and a stone pathway.",
+    "output_prompt": "A heavily weathered house with a textured exterior, surrounded by overgrown greenery and a moss-covered stone pathway.",
+    "edit": "Add weathering effects: age the house’s exterior, overgrow the greenery, and cover the stone pathway with moss."
+  },
+  {
+    "image_path": "images_test/image_209.jpg",
+    "input_prompt": "A modern high-speed train parked at a station platform.",
+    "output_prompt": "A heavily rusted modern high-speed train parked at a station platform.",
+    "edit": "Add rust and weathering effects to the train."
+  },
+  {
+    "image_path": "images_test/image_210.jpg",
+    "input_prompt": "A large, historic stone mansion with multiple chimneys and windows, set against a grassy field under a cloudy sky.",
+    "output_prompt": "A heavily moss-covered stone mansion, its roof sagging and windows boarded, stands in ruin under a cloudy sky.",
+    "edit": "Age the stone mansion by adding moss, sagging roof, and boarded windows to show decay."
+  },
+  {
+    "image_path": "images_test/image_211.jpg",
+    "input_prompt": "A grand neoclassical building with columns and a flagpole atop, surrounded by manicured lawns and shrubbery.",
+    "output_prompt": "A heavily rusted grand neoclassical building with columns and a flagpole atop, surrounded by overgrown, decaying lawns and shrubbery.",
+    "edit": "Add rust to the building and decay to the lawns and shrubbery."
+  },
+  {
+    "image_path": "images_test/image_212.jpg",
+    "input_prompt": "A large, round cooking pot with two handles resting on a kitchen counter.",
+    "output_prompt": "A heavily rusted cooking pot with two handles resting on a kitchen counter.",
+    "edit": "Add rust to the cooking pot."
+  },
+  {
+    "image_path": "images_test/image_213.jpg",
+    "input_prompt": "A white van parked beside a brick building.",
+    "output_prompt": "A heavily rusted van parked beside a brick building.",
+    "edit": "Age the van by adding rust and wear to its surface."
+  },
+  {
+    "image_path": "images_test/image_214.jpg",
+    "input_prompt": "A metal guardrail supported by wooden posts and concrete base.",
+    "output_prompt": "A heavily rusted metal guardrail supported by rotted wooden posts and crumbling concrete base.",
+    "edit": "Add rust to the metal guardrail, rot to the wooden posts, and crumbling texture to the concrete base."
+  },
+  {
+    "image_path": "images_test/image_215.jpg",
+    "input_prompt": "A winding paved path through a grassy park area with trees and distant houses.",
+    "output_prompt": "A heavily moss-covered and overgrown path through a grassy park area with trees and distant houses.",
+    "edit": "Add moss and overgrowth to the path."
+  },
+  {
+    "image_path": "images_test/image_216.jpg",
+    "input_prompt": "A grand stone archway with intricate sculptures and people walking beneath it on a wet pavement.",
+    "output_prompt": "A heavily corroded stone archway with eroded sculptures and people walking beneath it on a wet pavement.",
+    "edit": "Age the stone archway by eroding its sculptures and adding corrosion to its surface."
+  },
+  {
+    "image_path": "images_test/image_217.jpg",
+    "input_prompt": "A straight road flanked by leafless trees under a clear sky.",
+    "output_prompt": "A road covered in thick moss and tangled, rotting undergrowth, flanked by skeletal trees stripped of bark and limbs, under a sky choked with grime and haze.",
+    "edit": "Age the object by adding thick moss, tangled rotting undergrowth, skeletal trees stripped of bark, and a grime-choked sky."
+  },
+  {
+    "image_path": "images_test/image_218.jpg",
+    "input_prompt": "An arched stone bridge spans a calm waterway, flanked by vegetation and framed by trees.",
+    "output_prompt": "A heavily moss-covered arched stone bridge spans a calm waterway, flanked by vegetation and framed by trees.",
+    "edit": "Add moss to the stone bridge."
+  },
+  {
+    "image_path": "images_test/image_219.jpg",
+    "input_prompt": "A sporty sedan maneuvering through an obstacle course marked by orange cones.",
+    "output_prompt": "A heavily rusted sporty sedan maneuvering through an obstacle course marked by orange cones.",
+    "edit": "Add rust and weathering effects to the sedan."
+  },
+  {
+    "image_path": "images_test/image_220.jpg",
+    "input_prompt": "An ancient stone amphitheater with tiered seating and a central stage, overlooking a modern cityscape.",
+    "output_prompt": "A heavily corroded ancient stone amphitheater with tiered seating and a central stage, overlooking a modern cityscape.",
+    "edit": "Add heavy corrosion and weathering to the stone amphitheater."
+  },
+  {
+    "image_path": "images_test/image_221.jpg",
+    "input_prompt": "Two weathered stone crosses stand amidst lush greenery in a serene outdoor setting.",
+    "output_prompt": "Two heavily rusted stone crosses lie collapsed in overgrown vegetation.",
+    "edit": "Age the stone crosses by adding rust, collapse them, and overgrow them with vegetation."
+  },
+  {
+    "image_path": "images_test/image_222.jpg",
+    "input_prompt": "A circular relief sculpture depicting a reclining figure with architectural elements, mounted on a brick wall.",
+    "output_prompt": "A heavily corroded circular relief sculpture depicting a reclining figure with architectural elements, mounted on a brick wall.",
+    "edit": "Add heavy corrosion to the circular relief sculpture."
+  },
+  {
+    "image_path": "images_test/image_223.jpg",
+    "input_prompt": "A classic two-door coupe parked on a grassy area near a residential street.",
+    "output_prompt": "A heavily rusted two-door coupe parked on a grassy area near a residential street.",
+    "edit": "Add rust and weathering to the coupe."
+  },
+  {
+    "image_path": "images_test/image_224.jpg",
+    "input_prompt": "An old stone building with arched windows and a sloped roof stands beside a road.",
+    "output_prompt": "A heavily moss-covered stone building with sagging arched windows and a collapsed roof stands beside a road.",
+    "edit": "Add moss, sagging windows, and a collapsed roof to the stone building."
+  }
+]
