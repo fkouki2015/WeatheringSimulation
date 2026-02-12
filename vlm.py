@@ -52,9 +52,9 @@ def vlm_inference(mode: str = "age", image_path: str = None):
 
     # ===== 1段階目: 画像キャプション生成 =====
     if mode == "age":
-        caption_text = "Write a brief caption describing the object in this image. Do not include color information and textual information. Write only one sentence. Example: A clean car on a road."
+        caption_text = "Write a very short caption describing the object in this image. Do not include color name and textual information. Write only one sentence. Example: A clean car on a road."
     else:
-        caption_text = "Write a brief caption describing the object in this image as it currently appears. Do not include color information and textual information. Do not describe the background. Write only one sentence. Example: A heavily rusted car."
+        caption_text = "Write a very short caption describing the object in this image as it currently appears. Do not include color information and textual information. Do not describe the background. Write only one sentence. Example: A heavily rusted car."
 
     messages_caption = [
         {
@@ -80,16 +80,17 @@ def vlm_inference(mode: str = "age", image_path: str = None):
         modify_text = (
             f"The following caption describes a clean object: '{caption.strip()}'. "
             f"Rewrite this caption to describe the same object in a fully deteriorated, severely weathered, or completely decayed state. "
-            f"Predict the specific type of deterioration, such as rust on metal. "
+            f"Predict the specific type of deterioration. "
             f"Do not write shape changes such as cracks, breaks, crumbling, etc. "
-            f"Do not include color information. Write only one sentence. "
-            f"Example: 'A clean ship on the sea.' -> 'An algae-covered ship on the sea.'"
+            f"Do not include color name. Write only one sentence. "
+            f"Do not change the background. "
+            f"Example: 'A clean car on the road.' -> 'A heavily rusted car on the road.'"
         )
     else:
         modify_text = (
             f"The following caption describes an aged or deteriorated object: '{caption.strip()}'. "
             f"Rewrite this caption to describe the same object in its original clean, pristine state. "
-            f"Do not include color information. Write only one sentence. "
+            f"Do not include color name. Write only one sentence. "
             f"Example: 'A heavily rusted car.' -> 'A pristine clean car.'"
         )
 
