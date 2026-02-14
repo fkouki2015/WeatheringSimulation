@@ -136,7 +136,7 @@ class ModelProcessor:
                         inference_prompt=output_prompt, 
                         negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
                         attn_word=None,
-                        guidance_scale=6.0,
+                        guidance_scale=7.5,
                         num_frames=num_frames,
                     )
         self._unload_model()

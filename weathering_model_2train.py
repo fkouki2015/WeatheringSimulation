@@ -181,13 +181,18 @@ class WeatheringModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
-    LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 600
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
     DEVICE = "cuda"
     LORA_DROPOUT = 0.0
+    
+    # 二段階学習設定
+    T_MID = 500              # Phase分割の境界タイムステップ
+    PHASE1_STEPS = 100       # Phase 1: LoRA学習ステップ数
+    PHASE2_STEPS = 300       # Phase 2: ControlNet学習ステップ数
+    PHASE1_LR = 5e-5         # Phase 1 学習率
+    PHASE2_LR = 1e-6         # Phase 2 学習率
     
     # 評価設定
     CLIP_EVAL_INTERVAL = 50
@@ -251,18 +256,64 @@ class WeatheringModel(nn.Module):
             c.requires_grad_(False)
 
     # ControlNetで学習する浅い層の割合 (0.0~1.0, 例: 0.5 = 前半のみ学習)
-    CONTROLNET_TRAINABLE_RATIO = 0.7
+    CONTROLNET_TRAINABLE_RATIO = 0.5
 
-    def _setup_training(self):
-        """トレーニング用にLoRAとオプティマイザを設定"""
+    def _setup_phase1_lora(self):
+        """Phase 1: LoRAのみ学習。ControlNetは完全に凍結。"""
+        print("\n" + "="*50)
+        print("Phase 1: LoRA学習セットアップ (高ノイズ領域)")
+        print("="*50)
+        
         self.unet.requires_grad_(False)
         self.unet.train()
-
+        
+        # ControlNetは完全凍結
         for c in self.controlnets:
-            # まず全体を凍結
             c.requires_grad_(False)
-
-            # 浅い層のみ学習可能にする
+            c.eval()
+        
+        # LoRAアダプタを追加
+        unet_lora_config = LoraConfig(
+            r=self.RANK,
+            lora_alpha=self.RANK,
+            init_lora_weights="gaussian",
+            target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0", "attn1.to_k", "attn1.to_q", "attn1.to_v", "attn1.to_out.0"],
+            lora_dropout=self.LORA_DROPOUT
+        )
+        self.adapter_name = f"train-{uuid.uuid4().hex[:8]}"
+        self.unet.add_adapter(unet_lora_config, adapter_name=self.adapter_name)
+        self.unet.set_adapters([self.adapter_name])
+        
+        # LoRAパラメータのみ収集
+        lora_params = [p for n, p in self.unet.named_parameters() if p.requires_grad]
+        print(f"LoRA学習可能パラメータ数: {sum(p.numel() for p in lora_params)}")
+        
+        self.optimizer = torch.optim.AdamW(
+            lora_params,
+            lr=self.PHASE1_LR,
+            betas=(0.9, 0.999),
+            weight_decay=0.0,
+            eps=1e-8,
+        )
+        
+        return lora_params
+    
+    def _setup_phase2_controlnet(self):
+        """Phase 2: ControlNetのみ学習。LoRAは凍結（有効のまま）。"""
+        print("\n" + "="*50)
+        print("Phase 2: ControlNet学習セットアップ (低ノイズ領域)")
+        print("="*50)
+        
+        # LoRAを凍結（アダプタは有効のまま推論に使用）
+        for n, p in self.unet.named_parameters():
+            p.requires_grad_(False)
+        self.unet.eval()
+        
+        # ControlNetの浅い層のみ学習可能にする
+        for c in self.controlnets:
+            c.requires_grad_(False)
+            c.train()
+            
             # conv_in (入力層) は常に学習対象
             c.conv_in.requires_grad_(True)
             if hasattr(c, 'time_embedding'):
@@ -275,68 +326,35 @@ class WeatheringModel(nn.Module):
                 c.down_blocks[i].requires_grad_(True)
 
             # controlnet_down_blocks (ゼロ畳み込み) も対応する浅い部分のみ
-            # SD1.5 ControlNet: down_block 0 → controlnet_down_blocks 0,1,2
-            #                   down_block 1 → controlnet_down_blocks 3,4,5
-            #                   down_block 2 → controlnet_down_blocks 6,7,8
-            #                   down_block 3 → controlnet_down_blocks 9,10,11
             num_zero_convs = len(c.controlnet_down_blocks)
             convs_per_block = num_zero_convs // num_down if num_down > 0 else num_zero_convs
             trainable_zero_convs = trainable_count * convs_per_block
             for i in range(trainable_zero_convs):
                 c.controlnet_down_blocks[i].requires_grad_(True)
 
-            # mid_block, controlnet_mid_block は凍結のまま (深い層)
-
             frozen = sum(1 for p in c.parameters() if not p.requires_grad)
             total = sum(1 for p in c.parameters())
             print(f"ControlNet: {total - frozen}/{total} パラメータが学習対象 "
                   f"(down_blocks 0-{trainable_count-1}/{num_down-1} を学習)")
         
-        unet_lora_config = LoraConfig(
-            r=self.RANK,
-            lora_alpha=self.RANK,
-            init_lora_weights="gaussian",
-            target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0"],
-            lora_dropout=self.LORA_DROPOUT
-        )
-        self.adapter_name = f"train-{uuid.uuid4().hex[:8]}"
-        self.unet.add_adapter(unet_lora_config, adapter_name=self.adapter_name)
-        self.unet.set_adapters([self.adapter_name])
-        
-        base_lr = self.LEARNING_RATE
-        groups_by_scale = {}
-        
-        # LRスケールごとにパラメータをグループ化
-        def _add_param(param, scale: float):
-            key = round(float(scale), 6)
-            if key not in groups_by_scale:
-                groups_by_scale[key] = []
-            groups_by_scale[key].append(param)
-        
-        # UNetとControlNetに異なる学習率を設定
-        for n, p in self.unet.named_parameters():
-            if p.requires_grad:
-                _add_param(p, 1.0)
-        
+        # ControlNetパラメータのみ収集
+        cn_params = []
         for c in self.controlnets:
-            for n, p in c.named_parameters():
-                if p.requires_grad:
-                    _add_param(p, 0.7)
+            cn_params.extend([p for p in c.parameters() if p.requires_grad])
+        print(f"ControlNet学習可能パラメータ数: {sum(p.numel() for p in cn_params)}")
         
-        param_groups = [
-            {"params": ps, "lr": base_lr * scale}
-            for scale, ps in groups_by_scale.items()
-        ]
+        # GradScalerをリセット
+        self.scaler = GradScaler(enabled=(self.device.type == "cuda"))
         
         self.optimizer = torch.optim.AdamW(
-            param_groups,
-            lr=base_lr,
+            cn_params,
+            lr=self.PHASE2_LR,
             betas=(0.9, 0.999),
             weight_decay=0.0,
             eps=1e-8,
         )
         
-        return [p for g in param_groups for p in g["params"]]
+        return cn_params
         
     def _apply_controlnets(self, latents_in, t, text_embeddings, control_images, strengths=None):
         """複数のControlNetを適用可能"""
@@ -441,11 +459,10 @@ class WeatheringModel(nn.Module):
             
             return sum(dists) / len(dists)
 
-    def train_model(self):
-        """LoRAを使用してモデルをファインチューニング"""
+    def _train_phase1_lora(self):
+        """Phase 1: LoRAのみ学習。タイムステップの前半（高t = 高ノイズ）に集中。"""
         image = self.input_image
-        
-        trainable_params = self._setup_training()
+        trainable_params = self._setup_phase1_lora()
         
         cond_tokens = self.tokenizer(
             [self.train_prompt],
@@ -456,36 +473,37 @@ class WeatheringModel(nn.Module):
         )
         cond_emb = self.text_encoder(cond_tokens.input_ids.to(self.device))[0]
         
-        timesteps = self.ddpm_scheduler.timesteps
+        num_timesteps = self.ddpm_scheduler.config.num_train_timesteps  # 1000
         prev_lpips = None
         no_improve_streak = 0
         
-        progress_bar = tqdm(range(self.TRAIN_STEPS), desc="Train", leave=True)
+        progress_bar = tqdm(range(self.PHASE1_STEPS), desc="Phase1-LoRA", leave=True)
         
         for step in progress_bar:
-            # 1. 入力の準備
             latent = pil_to_latent(self.vae, image, self.device, self.dtype)
             bsz = latent.shape[0]
-            # Logit normal sampling: 中間タイムステップに重点を置くサンプリング
-            u = torch.sigmoid(torch.randn((bsz,), device=self.device) * 1.0 + 0.0)  # logit_std=1.0, logit_mean=0.0
-            t = (u * (len(timesteps) - 1)).long().clamp(0, len(timesteps) - 2)
+            
+            # 高tのみサンプリング: t ∈ [T_MID, num_timesteps-1]
+            t = torch.randint(
+                self.T_MID, num_timesteps,
+                (bsz,), device=self.device, dtype=torch.long
+            )
             
             noise = torch.randn_like(latent, device=self.device, dtype=self.dtype)
             noisy_latent = self.ddpm_scheduler.add_noise(latent, noise, t)
             
-            # 2. ControlNet 順伝播
-            down_res, mid_res = self._apply_controlnets(
-                noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
-            )
+            # ControlNetは凍結だが順伝播は行う（構造情報を提供）
+            with torch.no_grad():
+                down_res, mid_res = self._apply_controlnets(
+                    noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
+                )
             
-            # 3. UNet 順伝播
             model_pred = self.unet(
                 noisy_latent, t, cond_emb,
                 down_block_additional_residuals=[s.to(dtype=self.dtype) for s in down_res],
                 mid_block_additional_residual=mid_res.to(dtype=self.dtype),
             ).sample
             
-            # 4. 最適化
             loss = F.mse_loss(model_pred.float(), noise.float(), reduction="mean")
             
             self.scaler.scale(loss).backward()
@@ -495,31 +513,112 @@ class WeatheringModel(nn.Module):
             self.scaler.update()
             self.optimizer.zero_grad(set_to_none=True)
             
-            # 5. 評価と早期停止
-            if step % self.CLIP_EVAL_INTERVAL == 0:
-                avg_dist = self._evaluate(step, latent, self.control_images, image)
+            # # 評価と早期停止
+            # if step % self.CLIP_EVAL_INTERVAL == 0:
+            #     avg_dist = self._evaluate(step, latent, self.control_images, image)
                 
-                if prev_lpips is None:
-                    improvement_rate = 0.0
-                    no_improve_streak = 0
-                else:
-                    improvement = prev_lpips - avg_dist
-                    improvement_rate = improvement / (prev_lpips + 1e-12)
+            #     if prev_lpips is None:
+            #         improvement_rate = 0.0
+            #         no_improve_streak = 0
+            #     else:
+            #         improvement = prev_lpips - avg_dist
+            #         improvement_rate = improvement / (prev_lpips + 1e-12)
                     
-                    if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
-                        no_improve_streak = 0
-                    else:
-                        no_improve_streak += 1
-                        if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
-                            tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
-                            break
+            #         if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
+            #             no_improve_streak = 0
+            #         else:
+            #             no_improve_streak += 1
+            #             if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
+            #                 tqdm.write(f"Phase1 早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
+            #                 break
                 
-                prev_lpips = avg_dist
-                tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
-                sys.stdout.flush()
-
-                
+            #     prev_lpips = avg_dist
+            #     tqdm.write(f"\n[Phase1] LPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
+            #     sys.stdout.flush()
+            
             progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
+        
+        print(f"Phase 1 完了: LoRA学習済み")
+    
+    def _train_phase2_controlnet(self):
+        """Phase 2: ControlNetのみ学習。タイムステップの後半（低t = 低ノイズ）に集中。"""
+        image = self.input_image
+        trainable_params = self._setup_phase2_controlnet()
+        
+        cond_tokens = self.tokenizer(
+            [self.train_prompt],
+            truncation=True,
+            padding="max_length",
+            max_length=self.tokenizer.model_max_length,
+            return_tensors="pt",
+        )
+        cond_emb = self.text_encoder(cond_tokens.input_ids.to(self.device))[0]
+        
+        prev_lpips = None
+        no_improve_streak = 0
+        
+        progress_bar = tqdm(range(self.PHASE2_STEPS), desc="Phase2-ControlNet", leave=True)
+        
+        for step in progress_bar:
+            latent = pil_to_latent(self.vae, image, self.device, self.dtype)
+            bsz = latent.shape[0]
+            
+            # 低tのみサンプリング: t ∈ [0, T_MID)
+            t = torch.randint(
+                0, self.T_MID,
+                (bsz,), device=self.device, dtype=torch.long
+            )
+            
+            noise = torch.randn_like(latent, device=self.device, dtype=self.dtype)
+            noisy_latent = self.ddpm_scheduler.add_noise(latent, noise, t)
+            
+            # ControlNet順伝播（勾配あり）
+            down_res, mid_res = self._apply_controlnets(
+                noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
+            )
+            
+            # UNet順伝播（LoRA有効だが凍結、勾配はControlNet residualsを経由して逆伝播）
+            model_pred = self.unet(
+                noisy_latent, t, cond_emb,
+                down_block_additional_residuals=[s.to(dtype=self.dtype) for s in down_res],
+                mid_block_additional_residual=mid_res.to(dtype=self.dtype),
+            ).sample
+            
+            loss = F.mse_loss(model_pred.float(), noise.float(), reduction="mean")
+            
+            self.scaler.scale(loss).backward()
+            self.scaler.unscale_(self.optimizer)
+            torch.nn.utils.clip_grad_norm_(trainable_params, 1.0)
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
+            self.optimizer.zero_grad(set_to_none=True)
+            
+            # # 評価と早期停止
+            # if step % self.CLIP_EVAL_INTERVAL == 0:
+            #     avg_dist = self._evaluate(step, latent, self.control_images, image)
+                
+            #     if prev_lpips is None:
+            #         improvement_rate = 0.0
+            #         no_improve_streak = 0
+            #     else:
+            #         improvement = prev_lpips - avg_dist
+            #         improvement_rate = improvement / (prev_lpips + 1e-12)
+                    
+            #         if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
+            #             no_improve_streak = 0
+            #         else:
+            #             no_improve_streak += 1
+            #             if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
+            #                 tqdm.write(f"Phase2 早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
+            #                 break
+                
+            #     prev_lpips = avg_dist
+            #     tqdm.write(f"\n[Phase2] LPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
+            #     sys.stdout.flush()
+            
+            progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
+        
+        print(f"Phase 2 完了: ControlNet学習済み")
 
     def forward(
         self,    
@@ -542,8 +641,9 @@ class WeatheringModel(nn.Module):
         # ControlNetの条件画像を追加する場合ここに追加
         # self.control_image_raw = transforms.ToTensor()(input_image).unsqueeze(0).to(device=self.device, dtype=self.dtype)
         
-        # 1. モデルのトレーニング
-        self.train_model()
+        # 1. 二段階トレーニング
+        self._train_phase1_lora()
+        self._train_phase2_controlnet()
         
         # 2. 推論のセットアップ
         torch.manual_seed(1234)
@@ -590,7 +690,7 @@ class WeatheringModel(nn.Module):
             # # LoRAスケールをフレームに応じて段階的に低減 (1.0 → LORA_SCALE_MIN)
             # alpha = (i + 1) / num_frames
             # lora_scale = 0.3
-            self.unet.set_adapters([self.adapter_name], weights=[0.5])
+            # self.unet.set_adapters([self.adapter_name], weights=[0.5])
             
             # 特定のタイムステップで元の画像と混合されたノイズから開始
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
