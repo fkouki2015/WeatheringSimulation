@@ -182,7 +182,7 @@ class WeatheringModel(nn.Module):
     RESOLUTION = (512, 512)
     RANK = 8
     LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 600
+    TRAIN_STEPS = 400
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
@@ -200,6 +200,7 @@ class WeatheringModel(nn.Module):
     NOISE_RATIO = 1.0
     ATTN_SCALE_MAX = 10.0 # アテンション強調最大値
     ATTN_ZERO_TO_ONE = False # アテンションを0.0から1.0の間で補間
+    LORA_SCALE_MIN = 0.3 # 最終フレームでのLoRAスケール (1.0→この値まで低減)
     
     def __init__(self, device: str = None):
         super().__init__()
@@ -211,25 +212,25 @@ class WeatheringModel(nn.Module):
     def _init_models(self):
         """すべての拡散モデルとコンポーネントを初期化"""
         self.ddim_scheduler = DDIMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
+            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
         )
         self.ddpm_scheduler = DDPMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
+            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
         )
         self.tokenizer = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer"
+            self.PRETRAINED_MODEL, subfolder="tokenizer", local_files_only=True
         )
         self.text_encoder = CLIPTextModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder"
+            self.PRETRAINED_MODEL, subfolder="text_encoder", local_files_only=True
         )
         self.vae = AutoencoderKL.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="vae"
+            self.PRETRAINED_MODEL, subfolder="vae", local_files_only=True
         )
         self.unet = UNet2DConditionModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="unet"
+            self.PRETRAINED_MODEL, subfolder="unet", local_files_only=True
         )
         self.controlnet_canny = ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
+            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32, local_files_only=True
         )
         self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
         
@@ -249,14 +250,47 @@ class WeatheringModel(nn.Module):
         for c in self.controlnets:
             c.requires_grad_(False)
 
+    # ControlNetで学習する浅い層の割合 (0.0~1.0, 例: 0.5 = 前半のみ学習)
+    CONTROLNET_TRAINABLE_RATIO = 0.7
+
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
         self.unet.requires_grad_(False)
         self.unet.train()
 
         for c in self.controlnets:
-            c.requires_grad_(True)
-            c.train()
+            # まず全体を凍結
+            c.requires_grad_(False)
+
+            # 浅い層のみ学習可能にする
+            # conv_in (入力層) は常に学習対象
+            c.conv_in.requires_grad_(True)
+            if hasattr(c, 'time_embedding'):
+                c.time_embedding.requires_grad_(True)
+
+            # down_blocks の前半のみ学習対象
+            num_down = len(c.down_blocks)
+            trainable_count = max(1, int(num_down * self.CONTROLNET_TRAINABLE_RATIO))
+            for i in range(trainable_count):
+                c.down_blocks[i].requires_grad_(True)
+
+            # controlnet_down_blocks (ゼロ畳み込み) も対応する浅い部分のみ
+            # SD1.5 ControlNet: down_block 0 → controlnet_down_blocks 0,1,2
+            #                   down_block 1 → controlnet_down_blocks 3,4,5
+            #                   down_block 2 → controlnet_down_blocks 6,7,8
+            #                   down_block 3 → controlnet_down_blocks 9,10,11
+            num_zero_convs = len(c.controlnet_down_blocks)
+            convs_per_block = num_zero_convs // num_down if num_down > 0 else num_zero_convs
+            trainable_zero_convs = trainable_count * convs_per_block
+            for i in range(trainable_zero_convs):
+                c.controlnet_down_blocks[i].requires_grad_(True)
+
+            # mid_block, controlnet_mid_block は凍結のまま (深い層)
+
+            frozen = sum(1 for p in c.parameters() if not p.requires_grad)
+            total = sum(1 for p in c.parameters())
+            print(f"ControlNet: {total - frozen}/{total} パラメータが学習対象 "
+                  f"(down_blocks 0-{trainable_count-1}/{num_down-1} を学習)")
         
         unet_lora_config = LoraConfig(
             r=self.RANK,
@@ -287,7 +321,7 @@ class WeatheringModel(nn.Module):
         for c in self.controlnets:
             for n, p in c.named_parameters():
                 if p.requires_grad:
-                    _add_param(p, 0.07)
+                    _add_param(p, 0.7)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}
@@ -432,7 +466,9 @@ class WeatheringModel(nn.Module):
             # 1. 入力の準備
             latent = pil_to_latent(self.vae, image, self.device, self.dtype)
             bsz = latent.shape[0]
-            t = torch.randint(0, len(timesteps)-1, (bsz,), device=self.device, dtype=torch.long)
+            # Logit normal sampling: 中間タイムステップに重点を置くサンプリング
+            u = torch.sigmoid(torch.randn((bsz,), device=self.device) * 1.0 + 0.0)  # logit_std=1.0, logit_mean=0.0
+            t = (u * (len(timesteps) - 1)).long().clamp(0, len(timesteps) - 2)
             
             noise = torch.randn_like(latent, device=self.device, dtype=self.dtype)
             noisy_latent = self.ddpm_scheduler.add_noise(latent, noise, t)
@@ -459,28 +495,28 @@ class WeatheringModel(nn.Module):
             self.scaler.update()
             self.optimizer.zero_grad(set_to_none=True)
             
-            # 5. 評価と早期停止
-            if step % self.CLIP_EVAL_INTERVAL == 0:
-                avg_dist = self._evaluate(step, latent, self.control_images, image)
+            # # 5. 評価と早期停止
+            # if step % self.CLIP_EVAL_INTERVAL == 0:
+            #     avg_dist = self._evaluate(step, latent, self.control_images, image)
                 
-                if prev_lpips is None:
-                    improvement_rate = 0.0
-                    no_improve_streak = 0
-                else:
-                    improvement = prev_lpips - avg_dist
-                    improvement_rate = improvement / (prev_lpips + 1e-12)
+            #     if prev_lpips is None:
+            #         improvement_rate = 0.0
+            #         no_improve_streak = 0
+            #     else:
+            #         improvement = prev_lpips - avg_dist
+            #         improvement_rate = improvement / (prev_lpips + 1e-12)
                     
-                    if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
-                        no_improve_streak = 0
-                    else:
-                        no_improve_streak += 1
-                        if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
-                            tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
-                            break
+            #         if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
+            #             no_improve_streak = 0
+            #         else:
+            #             no_improve_streak += 1
+            #             if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
+            #                 tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
+            #                 break
                 
-                prev_lpips = avg_dist
-                tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
-                sys.stdout.flush()
+            #     prev_lpips = avg_dist
+            #     tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
+            #     sys.stdout.flush()
 
                 
             progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
@@ -510,7 +546,7 @@ class WeatheringModel(nn.Module):
         self.train_model()
         
         # 2. 推論のセットアップ
-        torch.manual_seed(42)
+        torch.manual_seed(1234)
         self.vae.eval()
         self.unet.eval()
         self.text_encoder.eval()
@@ -550,6 +586,11 @@ class WeatheringModel(nn.Module):
             normalized_i = (i + 1) / num_frames * math.pi / 2
             t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
+            
+            # # LoRAスケールをフレームに応じて段階的に低減 (1.0 → LORA_SCALE_MIN)
+            # alpha = (i + 1) / num_frames
+            # lora_scale = 0.3
+            self.unet.set_adapters([self.adapter_name], weights=[0.5])
             
             # 特定のタイムステップで元の画像と混合されたノイズから開始
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
