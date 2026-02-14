@@ -95,10 +95,10 @@ def get_sigmas(scheduler, timesteps, n_dim=4, dtype=torch.float32, device="cuda"
     return sigma
 
 
-def import_model_class(pretrained_model_name_or_path: str, subfolder="text_encoder"):
+def import_model_class(pretrained_model_name_or_path: str, subfolder="text_encoder", local_files_only=False):
     """モデル設定に基づいて適切なテキストエンコーダクラスをインポート"""
     config = PretrainedConfig.from_pretrained(
-        pretrained_model_name_or_path, subfolder=subfolder
+        pretrained_model_name_or_path, subfolder=subfolder, local_files_only=local_files_only
     )
     model_class_name = config.architectures[0]
     if model_class_name == "CLIPTextModelWithProjection":
@@ -295,7 +295,7 @@ class SD3Model(nn.Module):
     PERCEPTUAL_PATIENCE = 2
     
     # 推論設定
-    INFER_STEPS = 50
+    INFER_STEPS = 40
     NOISE_RATIO = 0.6
     MAX_SEQUENCE_LENGTH = 256
     
@@ -309,19 +309,19 @@ class SD3Model(nn.Module):
         """すべての拡散モデルとコンポーネントを初期化"""
         # スケジューラ
         self.noise_scheduler = diffusers.FlowMatchEulerDiscreteScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
+            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
         )
         self.noise_scheduler_copy = copy.deepcopy(self.noise_scheduler)
         
         # トークナイザ
         self.tokenizer_one = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer"
+            self.PRETRAINED_MODEL, subfolder="tokenizer", local_files_only=True
         )
         self.tokenizer_two = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer_2"
+            self.PRETRAINED_MODEL, subfolder="tokenizer_2", local_files_only=True
         )
         self.tokenizer_three = T5TokenizerFast.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer_3"
+            self.PRETRAINED_MODEL, subfolder="tokenizer_3", local_files_only=True
         )
         
         # テキストエンコーダ
@@ -330,28 +330,28 @@ class SD3Model(nn.Module):
         text_encoder_cls_three = import_model_class(self.PRETRAINED_MODEL, subfolder="text_encoder_3")
         
         self.text_encoder_one = text_encoder_cls_one.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder"
+            self.PRETRAINED_MODEL, subfolder="text_encoder", local_files_only=True
         )
         self.text_encoder_two = text_encoder_cls_two.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder_2"
+            self.PRETRAINED_MODEL, subfolder="text_encoder_2", local_files_only=True
         )
         self.text_encoder_three = text_encoder_cls_three.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder_3"
+            self.PRETRAINED_MODEL, subfolder="text_encoder_3", local_files_only=True
         )
         
         # VAE
         self.vae = AutoencoderKL.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="vae"
+            self.PRETRAINED_MODEL, subfolder="vae", local_files_only=True
         )
         
         # Transformer (SD3用)
         self.transformer = SD3Transformer2DModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="transformer"
+            self.PRETRAINED_MODEL, subfolder="transformer", local_files_only=True
         )
         
         # ControlNet
         self.controlnet = SD3ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH, torch_dtype=self.dtype
+            self.CONTROLNET_PATH, torch_dtype=self.dtype, local_files_only=True
         )
         self.controlnet.to(device=self.device, dtype=self.dtype)
         self.controlnet.requires_grad_(False)
@@ -540,10 +540,9 @@ class SD3Model(nn.Module):
         self.input_image = input_image.resize(self.RESOLUTION, Image.LANCZOS)
         self.train_prompt = train_prompt
         
-        # 制御画像を前処理
+        # 制御画像を前処理（VAEで潜在空間にエンコード: SD3 ControlNetは16chの潜在入力を期待）
         self.control_image = canny_process(self.input_image, self.device, self.dtype)
-        self.control_image_tensor = transforms.ToTensor()(self.control_image).unsqueeze(0)
-        self.control_image_tensor = self.control_image_tensor.to(device=self.device, dtype=self.dtype)
+        self.control_image_tensor = pil_to_latent(self.vae, self.control_image, self.device, self.dtype)
 
         # 1. モデルのトレーニング
         self.train_model()

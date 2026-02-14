@@ -17,8 +17,6 @@ from transformers import CLIPTextModel, CLIPTokenizer, DPTImageProcessor, DPTFor
 from diffusers import AutoencoderKL, DDIMScheduler, UNet2DConditionModel, DDPMScheduler, ControlNetModel
 from diffusers.optimization import get_scheduler
 from diffusers.models.attention_processor import AttnProcessor 
-from vlm import vlm_inference  
-
 # ==========================================
 # ユーティリティ関数
 # ==========================================

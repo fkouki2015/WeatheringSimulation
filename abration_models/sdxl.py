@@ -116,7 +116,7 @@ class SDXLModel(nn.Module):
     RESOLUTION = (1024, 1024)  # SDXLの標準解像度
     RANK = 8
     LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 600
+    TRAIN_STEPS = 300
     PRETRAINED_MODEL = "stabilityai/stable-diffusion-xl-base-1.0"  # SDXL
     CONTROLNET_PATH_CANNY = "diffusers/controlnet-canny-sdxl-1.0"  # SDXL用ControlNet
     CONTROLNET_STRENGTHS = [1.0]
@@ -130,7 +130,7 @@ class SDXLModel(nn.Module):
     PERCEPTUAL_PATIENCE = 2
     
     # 推論設定
-    INFER_STEPS = 50
+    INFER_STEPS = 20
     NOISE_RATIO = 1.0
     
     def __init__(self, device: str = None):
@@ -143,34 +143,34 @@ class SDXLModel(nn.Module):
     def _init_models(self):
         """すべての拡散モデルとコンポーネントを初期化"""
         self.ddim_scheduler = DDIMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
+            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
         )
         self.ddpm_scheduler = DDPMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
+            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
         )
         
         # SDXLは2つのテキストエンコーダを使用
         self.tokenizer = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer"
+            self.PRETRAINED_MODEL, subfolder="tokenizer", local_files_only=True
         )
         self.tokenizer_2 = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer_2"
+            self.PRETRAINED_MODEL, subfolder="tokenizer_2", local_files_only=True
         )
         self.text_encoder = CLIPTextModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder"
+            self.PRETRAINED_MODEL, subfolder="text_encoder", local_files_only=True
         )
         self.text_encoder_2 = CLIPTextModelWithProjection.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder_2"
+            self.PRETRAINED_MODEL, subfolder="text_encoder_2", local_files_only=True
         )
         
         self.vae = AutoencoderKL.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="vae"
+            self.PRETRAINED_MODEL, subfolder="vae", local_files_only=True
         )
         self.unet = UNet2DConditionModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="unet"
+            self.PRETRAINED_MODEL, subfolder="unet", local_files_only=True
         )
         self.controlnet_canny = ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
+            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32, local_files_only=True
         )
         self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
         
@@ -178,11 +178,11 @@ class SDXLModel(nn.Module):
 
         # デバイスへ移動
         self.vae.to(device=self.device, dtype=self.dtype)
-        self.text_encoder.to(device=self.device)
-        self.text_encoder_2.to(device=self.device)
-        self.unet.to(device=self.device)
+        self.text_encoder.to(device=self.device, dtype=self.dtype)
+        self.text_encoder_2.to(device=self.device, dtype=self.dtype)
+        self.unet.to(device=self.device, dtype=self.dtype)
         for c in self.controlnets:
-            c.to(device=self.device)
+            c.to(device=self.device, dtype=self.dtype)
 
         # デフォルトで重みを固定
         self.unet.requires_grad_(False)
@@ -222,6 +222,15 @@ class SDXLModel(nn.Module):
         text_embeds = torch.concat([text_embeds, text_embeds_2], dim=-1)
         return text_embeds, pooled_text_embeds
 
+    def _get_add_time_ids(self, original_size=None, crops_coords_top_left=(0, 0), target_size=None):
+        """SDXL UNet用のadd_time_idsを生成"""
+        if original_size is None:
+            original_size = self.RESOLUTION
+        if target_size is None:
+            target_size = self.RESOLUTION
+        add_time_ids = list(original_size + crops_coords_top_left + target_size)
+        add_time_ids = torch.tensor([add_time_ids], dtype=self.dtype, device=self.device)
+        return add_time_ids
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
@@ -279,7 +288,7 @@ class SDXLModel(nn.Module):
         
         return [p for g in param_groups for p in g["params"]]
         
-    def _apply_controlnets(self, latents_in, t, text_embeddings, control_images, strengths=None):
+    def _apply_controlnets(self, latents_in, t, text_embeddings, control_images, added_cond_kwargs=None, strengths=None):
         """複数のControlNetを適用可能"""
         combined_down = None
         combined_mid = None
@@ -290,6 +299,7 @@ class SDXLModel(nn.Module):
                 t,
                 encoder_hidden_states=text_embeddings,
                 controlnet_cond=control_images[idx],
+                added_cond_kwargs=added_cond_kwargs,
                 return_dict=False,
             )
             s = float(strengths[idx] if strengths else 1.0)
@@ -316,9 +326,16 @@ class SDXLModel(nn.Module):
         h, w = height // 8, width // 8
 
         # テキスト埋め込みの準備 (SDXL dual encoders)
-        cond, _ = self._encode_prompt_sdxl(prompt)
-        uncond, _ = self._encode_prompt_sdxl("")
+        cond, pooled_cond = self._encode_prompt_sdxl(prompt)
+        uncond, pooled_uncond = self._encode_prompt_sdxl("")
         text_embeds = torch.cat([uncond, cond], dim=0)
+        
+        # SDXL用added_cond_kwargs
+        add_time_ids = self._get_add_time_ids()
+        added_cond_kwargs = {
+            "text_embeds": torch.cat([pooled_uncond, pooled_cond], dim=0),
+            "time_ids": torch.cat([add_time_ids, add_time_ids], dim=0),
+        }
 
         # スケジューラの準備
         scheduler = DDIMScheduler.from_pretrained(self.PRETRAINED_MODEL, subfolder="scheduler")
@@ -340,11 +357,12 @@ class SDXLModel(nn.Module):
                     control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
                 
                 down_res, mid_res = self._apply_controlnets(
-                    lat_in, t, text_embeds, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
+                    lat_in, t, text_embeds, control_imgs_in, added_cond_kwargs=added_cond_kwargs, strengths=self.CONTROLNET_STRENGTHS
                 )
                 
                 noise_pred = self.unet(
                     lat_in, t, text_embeds,
+                    added_cond_kwargs=added_cond_kwargs,
                     down_block_additional_residuals=down_res,
                     mid_block_additional_residual=mid_res,
                 ).sample
@@ -385,7 +403,14 @@ class SDXLModel(nn.Module):
         trainable_params = self._setup_training()
         
         # SDXL dual text encoders
-        cond_emb, _ = self._encode_prompt_sdxl(self.train_prompt)
+        cond_emb, pooled_cond = self._encode_prompt_sdxl(self.train_prompt)
+        
+        # SDXL用added_cond_kwargs (トレーニング時はuncondなし)
+        add_time_ids = self._get_add_time_ids()
+        added_cond_kwargs_train = {
+            "text_embeds": pooled_cond,
+            "time_ids": add_time_ids,
+        }
         
         timesteps = self.ddpm_scheduler.timesteps
         prev_lpips = None
@@ -404,12 +429,13 @@ class SDXLModel(nn.Module):
             
             # 2. ControlNet 順伝播
             down_res, mid_res = self._apply_controlnets(
-                noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
+                noisy_latent, t, cond_emb, self.control_images, added_cond_kwargs=added_cond_kwargs_train, strengths=[1.0] * len(self.control_images)
             )
             
             # 3. UNet 順伝播
             model_pred = self.unet(
                 noisy_latent, t, cond_emb,
+                added_cond_kwargs=added_cond_kwargs_train,
                 down_block_additional_residuals=[s.to(dtype=self.dtype) for s in down_res],
                 mid_block_additional_residual=mid_res.to(dtype=self.dtype),
             ).sample
@@ -471,7 +497,7 @@ class SDXLModel(nn.Module):
         # self.control_image_raw = transforms.ToTensor()(input_image).unsqueeze(0).to(device=self.device, dtype=self.dtype)
         
         # 1. モデルのトレーニング
-        self.train_model()
+        # self.train_model()
         
         # 2. 推論のセットアップ
         torch.manual_seed(1234)
@@ -483,9 +509,16 @@ class SDXLModel(nn.Module):
             c.eval()
             
         # SDXL dual text encoders
-        cond_emb, _ = self._encode_prompt_sdxl(inference_prompt)
-        uncond_emb, _ = self._encode_prompt_sdxl(negative_prompt)
+        cond_emb, pooled_cond = self._encode_prompt_sdxl(inference_prompt)
+        uncond_emb, pooled_uncond = self._encode_prompt_sdxl(negative_prompt)
         text_embeddings = torch.cat([uncond_emb, cond_emb], dim=0)
+        
+        # SDXL用added_cond_kwargs
+        add_time_ids = self._get_add_time_ids()
+        added_cond_kwargs_infer = {
+            "text_embeds": torch.cat([pooled_uncond, pooled_cond], dim=0),
+            "time_ids": torch.cat([add_time_ids, add_time_ids], dim=0),
+        }
         
 
         
@@ -494,7 +527,7 @@ class SDXLModel(nn.Module):
         timesteps = self.ddim_scheduler.timesteps
         start_latent = pil_to_latent(self.vae, input_image, self.device, self.dtype)
         noise = torch.randn_like(start_latent, device=self.device, dtype=self.dtype)
-        
+        print(timesteps)
         frames = []
         
         # 3. 生成ループ (フレームごと)
@@ -504,7 +537,6 @@ class SDXLModel(nn.Module):
             normalized_i = (i + 1) / num_frames * math.pi / 2
             t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
-            
             # 特定のタイムステップで元の画像と混合されたノイズから開始
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
             
@@ -524,11 +556,12 @@ class SDXLModel(nn.Module):
                             control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
                             
                         down_res, mid_res = self._apply_controlnets(
-                            lat_in, t, text_embeddings, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
+                            lat_in, t, text_embeddings, control_imgs_in, added_cond_kwargs=added_cond_kwargs_infer, strengths=self.CONTROLNET_STRENGTHS
                         )
                         
                         noise_pred = self.unet(
                             lat_in, t, text_embeddings,
+                            added_cond_kwargs=added_cond_kwargs_infer,
                             down_block_additional_residuals=down_res,
                             mid_block_additional_residual=mid_res,
                         ).sample
