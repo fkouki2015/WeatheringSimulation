@@ -1,16 +1,17 @@
 import os
 os.environ["HF_HUB_OFFLINE"] = "1"
 import json, argparse, re, time
-from typing import List, Dict, Any, Optional
+import base64
+from io import BytesIO
+from typing import List, Tuple, Dict, Any
 from PIL import Image
 from pathlib import Path
 
 import numpy as np
-import cv2
 from tqdm import tqdm
 
 import torch
-from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
+from transformers import Mistral3ForConditionalGeneration, MistralCommonBackend, FineGrainedFP8Config
 
 # ---------------------------
 # IO utils
@@ -25,71 +26,77 @@ def load_gif_frames(gif_path: str) -> List[Image.Image]:
     return frames
 
 
-def save_frames_to_mp4(frames: List[Image.Image], mp4_path: Path, fps: float = 4.0) -> Path:
-    """PILフレーム列をMP4として保存する"""
-    if not frames:
-        raise ValueError("Cannot save empty frame list as video")
-
-    mp4_path.parent.mkdir(parents=True, exist_ok=True)
-    width, height = frames[0].size
-    writer = cv2.VideoWriter(
-        str(mp4_path),
-        cv2.VideoWriter_fourcc(*"mp4v"),
-        fps,
-        (width, height),
-    )
-    if not writer.isOpened():
-        raise RuntimeError(f"Failed to open video writer for {mp4_path}")
-
-    try:
-        for frame in frames:
-            rgb = np.array(frame.convert("RGB"), dtype=np.uint8)
-            bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-            writer.write(bgr)
-    finally:
-        writer.release()
-
-    return mp4_path
-
-
 def parse_json_output(output_text: str) -> Dict[str, Any]:
     """VLM出力からJSONをパースする"""
+    cleaned = output_text.strip()
+    cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s*```$", "", cleaned)
+
+    def _normalize_score(val: Any) -> float:
+        if isinstance(val, list):
+            if not val:
+                raise ValueError("Empty score list")
+            val = val[0]
+        if isinstance(val, (int, float)):
+            return float(val)
+        if isinstance(val, str):
+            m = re.search(r"-?\d+(?:\.\d+)?", val)
+            if m:
+                return float(m.group(0))
+        raise ValueError(f"Invalid 'score' format: {val}")
+
+    # First, try strict JSON parsing from the object span.
     try:
-        json_start = output_text.index("{")
-        json_end = output_text.rindex("}") + 1
-        json_str = output_text[json_start:json_end]
+        json_start = cleaned.index("{")
+        json_end = cleaned.rindex("}") + 1
+        json_str = cleaned[json_start:json_end]
         loaded_json = json.loads(json_str)
 
         if "score" not in loaded_json:
-             raise ValueError("Missing 'score' field in JSON output")
-        
-        # Ensure score is numeric (int or float) or a single-element list
-        score_val = loaded_json["score"]
-        if isinstance(score_val, list):
-             if len(score_val) == 1:
-                 loaded_json["score"] = score_val[0]
-             else:
-                 # Legacy or error fallback, though we expect single score now
-                 pass 
-        elif isinstance(score_val, (int, float)):
-             pass
-        else:
-             # Try to cast string to int
-             try:
-                 loaded_json["score"] = float(score_val)
-             except:
-                 raise ValueError(f"Invalid 'score' format: {score_val}")
-
+            raise ValueError("Missing 'score' field in JSON output")
         if "reasoning" not in loaded_json:
-            raise ValueError("Missing or invalid 'reasoning' field in JSON output")
+            raise ValueError("Missing 'reasoning' field in JSON output")
 
+        loaded_json["score"] = _normalize_score(loaded_json["score"])
+        loaded_json["reasoning"] = str(loaded_json["reasoning"]).strip()
         return loaded_json
-    except (ValueError, json.JSONDecodeError) as e:
-        raise ValueError(f"Failed to parse JSON from output: {output_text}") from e
+    except Exception:
+        pass
 
-# ---------------------------
-# Qwen-VIEScore evaluator
-# ---------------------------
+    # Fallback: tolerant extraction for non-strict JSON from VLM output.
+    score_match = re.search(
+        r'"score"\s*:\s*(\[[^\]]+\]|-?\d+(?:\.\d+)?|"(?:[^"\\]|\\.)*")',
+        cleaned,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if not score_match:
+        raise ValueError(f"Failed to parse JSON from output: {output_text}")
+
+    raw_score = score_match.group(1).strip()
+    try:
+        score_val = json.loads(raw_score)
+    except Exception:
+        score_val = raw_score.strip('"')
+    score = _normalize_score(score_val)
+
+    reasoning_match = re.search(
+        r'"reasoning"\s*:\s*"([\s\S]*?)"\s*(?:,?\s*}|$)',
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    if reasoning_match:
+        reasoning = reasoning_match.group(1)
+        reasoning = reasoning.replace('\\"', '"').replace("\\n", "\n").strip()
+    else:
+        # Last fallback: take text after "reasoning:"
+        tail_match = re.search(r'"reasoning"\s*:\s*([\s\S]+)', cleaned, flags=re.IGNORECASE)
+        reasoning = tail_match.group(1).strip() if tail_match else ""
+        reasoning = reasoning.rstrip("}").strip().strip('"').strip()
+
+    if reasoning == "":
+        raise ValueError(f"Failed to parse JSON from output: {output_text}")
+
+    return {"score": score, "reasoning": reasoning}
 
 # ---------------------------
 # Prompts
@@ -117,7 +124,6 @@ You are given:
 Evaluate "Weathering Naturalness" (0-10):
 Rate how natural the generated weathered image is.
 Focus on the final appearance and the type of weathering.
-Penalize unnatural artifacts such as ghosting, duplicated edges, texture collapse, blotchy noise, or unrealistic patterns.
 
 (
     0 = The image shows no weathering at all.
@@ -128,12 +134,12 @@ Penalize unnatural artifacts such as ghosting, duplicated edges, texture collaps
     "gradual_weathering": """
 RULES:
 You are given:
-1. A generated weathering video
+1. An original input image (the first image)
+2. A sequence of generated frames showing gradual weathering/aging (the remaining images)
 
 Evaluate "Gradual Weathering" (0-10):
-Rate how continuous and gradual the progression of weathering is across the video.
-Focus on whether the frames interpolate the first frame and last frame naturally.
-Also explicitly evaluate temporal flicker: penalize unstable brightness/color/texture changes that appear as frame-to-frame flickering.
+Rate how natural, continuous, and gradual the progression of weathering is across the frames.
+Focus on whether the frames interpolate the input image and last frame naturally.
 
 (
     0 = The change is abrupt, flickering, or not gradual at all (e.g., sudden jumps).
@@ -160,48 +166,72 @@ Do not evaluate the weathering effect itself; only evaluate if the underlying ob
 }
 
 
-class QwenVIEJudge:
+class MistralVIEJudge:
 
-    def __init__(self, model_id: str = "Qwen/Qwen3-VL-8B-Instruct"):
-        dtype = torch.float16
-        self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True, local_files_only=True)
-        self.model = Qwen3VLForConditionalGeneration.from_pretrained(
-            model_id, dtype=dtype, device_map="auto", local_files_only=True
+    def __init__(self, model_id: str = "mistral_models/Ministral-3-14B-Instruct-2512"):
+        self.tokenizer = MistralCommonBackend.from_pretrained(model_id)
+        self.model = Mistral3ForConditionalGeneration.from_pretrained(
+            model_id,
+            device_map="auto",
+            quantization_config=FineGrainedFP8Config(dequantize=True)
         )
         self.device = next(self.model.parameters()).device
 
-    def _gen(self, images: List[Image.Image], prompt: str, video_path: Optional[str] = None) -> str:
-        content = [{
-            "type": "image", "image": img
-        } for img in images]
-        if video_path:
-            content.append({"type": "video", "video": video_path})
-        content.append({"type": "text", "text": prompt})
+    def pil_to_data_url(self, image: Image.Image) -> str:
+        buffered = BytesIO()
+        image.save(buffered, format="JPEG")
+        b64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        return f"data:image/jpeg;base64,{b64}"
+
+    def _gen(self, images: List[Image.Image], prompt: str) -> str:
+        # Mistral expects image URLs or base64 data URLs
+        content_list = []
+        for img in images:
+            content_list.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": self.pil_to_data_url(img)
+                }
+            })
+        
+        content_list.append({
+            "type": "text",
+            "text": prompt
+        })
 
         messages = [{
             "role": "user",
-            "content": content
+            "content": content_list
         }]
 
-        inputs = self.processor.apply_chat_template(
-            messages, tokenize=True, add_generation_prompt=True,
-            return_tensors="pt", return_dict=True
-        )
-        inputs = inputs.to(self.device)
+        tokenized = self.tokenizer.apply_chat_template(messages, return_tensors="pt", return_dict=True)
+        
+        # Move to device
+        tokenized = {k: v.to(self.device) for k, v in tokenized.items()}
 
-        out = self.model.generate(**inputs, max_new_tokens=32768)
-        out_ids_trimmed = out[:, inputs.input_ids.shape[1]:]
+        # Mistral needs image sizes for pixel_values
+        if "pixel_values" in tokenized:
+             # Assuming all input images are same size (H, W) in batch due to resizing before call
+             # tokenized["pixel_values"] shape is (N, C, H, W)
+             N = tokenized["pixel_values"].shape[0]
+             H, W = tokenized["pixel_values"].shape[-2:]
+             image_sizes = [(H, W) for _ in range(N)]
+             
+             output = self.model.generate(
+                **tokenized,
+                image_sizes=image_sizes,
+                max_new_tokens=512,
+            )
+        else:
+            output = self.model.generate(
+                **tokenized,
+                max_new_tokens=512,
+            )
 
-        text = self.processor.batch_decode(out_ids_trimmed, skip_special_tokens=True)[0]
-        return text
+        output_text = self.tokenizer.decode(output[0][len(tokenized["input_ids"][0]):], skip_special_tokens=True)
+        return output_text
 
-    def evaluate_metric(
-        self,
-        images: List[Image.Image],
-        output_prompt: str,
-        metric_name: str,
-        video_path: Optional[str] = None,
-    ) -> str:
+    def evaluate_metric(self, images: List[Image.Image], output_prompt: str, metric_name: str) -> str:
         """指定されたメトリクスで評価を行う"""
         if metric_name not in _prompts:
              raise ValueError(f"Unknown metric: {metric_name}")
@@ -214,7 +244,7 @@ class QwenVIEJudge:
         else:
              full_prompt = _common_context + specific_rules
         
-        output_text = self._gen(images, full_prompt, video_path=video_path)
+        output_text = self._gen(images, full_prompt)
         return output_text
 
 
@@ -226,20 +256,13 @@ def evaluate_weathering_vie(
     gif_dir: str,
     models: List[str],
     output_dir: str = None,
-    model_id: str = "Qwen/Qwen3-VL-8B-Instruct",
+    model_id: str = "mistralai/Ministral-3-14B-Instruct-2512",
     skip_frames: bool = False,
     gpu_number: int = 0,
     num_gpus: int = 1,
 ) -> Dict[str, Dict[str, Any]]:
     """
-    経年変化シミュレーションの評価
-
-    Args:
-        json_path: prompts3.jsonへのパス
-        gif_dir: images_outディレクトリへのパス
-        models: 評価するモデル名のリスト (例: ["proposed", "sd3"])
-        output_dir: 結果の保存先 (デフォルト: gif_dir)
-        model_id: 使用するVLMモデル
+    経年変化シミュレーションの評価 (Mistral版)
     """
     # JSONデータを読み込む
     with open(json_path, "r", encoding="utf-8") as f:
@@ -259,7 +282,7 @@ def evaluate_weathering_vie(
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    judge = QwenVIEJudge(model_id=model_id)
+    judge = MistralVIEJudge(model_id=model_id)
     all_results = {}
 
     for model_name in models:
@@ -281,7 +304,6 @@ def evaluate_weathering_vie(
             "samples": [],
         }
 
-        video_cache_dir = output_path / "_vlm_videos" / model_name
         for sample_idx, sample in enumerate(tqdm(data, desc=f"[VIE] {model_name}")):
             image_stem = Path(sample["image_path"]).stem
             gif_path = model_gif_dir / f"{image_stem}.gif"
@@ -301,18 +323,6 @@ def evaluate_weathering_vie(
                 frames = frames[1::2]
             # フレームも512x512にリサイズ
             frames = [f.resize((512, 512), Image.LANCZOS) for f in frames]
-            if not frames:
-                print(f"  Warning: No frames found in GIF: {gif_path}")
-                continue
-
-            # Build video with the input image as the first frame.
-            video_path = video_cache_dir / f"{image_stem}.mp4"
-            video_frames = [original_image] + frames
-            try:
-                save_frames_to_mp4(video_frames, video_path)
-            except Exception as e:
-                print(f"  Warning: Failed to convert GIF to video at {gif_path}: {e}")
-                video_path = None
 
             output_prompt = sample["output_prompt"]
 
@@ -328,41 +338,21 @@ def evaluate_weathering_vie(
                         # Original + Final frame, Include Prompt
                         input_images = [original_image, frames[-1]]
                         prompt_to_pass = ""
-                        video_to_pass = None
                     elif metric == "gradual_weathering":
-                        # Pass video only (no image inputs)
-                        input_images = []
+                        # Original + All frames, No Prompt
+                        input_images = [original_image] + frames
                         prompt_to_pass = ""
-                        video_to_pass = str(video_path) if video_path is not None else None
                     elif metric == "structure_preservation":
                          # Original + Final frame, No Prompt
                          input_images = [original_image, frames[-1]]
                          prompt_to_pass = ""
-                         video_to_pass = None
                     else:
                         continue
-
-                    try:
-                        out_text = judge.evaluate_metric(
-                            input_images,
-                            prompt_to_pass,
-                            metric,
-                            video_path=video_to_pass,
-                        )
-                    except Exception as video_err:
-                        if metric == "gradual_weathering" and video_to_pass is not None:
-                            print(
-                                f"  Warning: video input failed at {video_path}. Retrying without image inputs. Error: {video_err}"
-                            )
-                            out_text = judge.evaluate_metric(
-                                [],
-                                prompt_to_pass,
-                                metric,
-                                video_path=None,
-                            )
-                        else:
-                            raise
-
+                    
+                    # Convert input images to list for Mistral logic consistency if needed
+                    # (MistralVIEJudge handles list of images)
+                    
+                    out_text = judge.evaluate_metric(input_images, prompt_to_pass, metric)
                     parsed = parse_json_output(out_text)
                     
                     score = parsed["score"]
@@ -474,8 +464,6 @@ def evaluate_weathering_vie(
 
             else:
                  print(f"  [GPU {gpu_number}] Finished. Waiting for Rank 0 to merge...")
-                 # Optional: wait for final file to exist to ensure strict synchronization, 
-                 # but usually workers can just exit. 
                  pass
 
         else:
@@ -499,7 +487,7 @@ def evaluate_weathering_vie(
 # ---------------------------
 def main():
     parser = argparse.ArgumentParser(
-        description="Qwen3-VL VIEScore evaluation for weathering simulation"
+        description="Mistral-3 VIEScore evaluation for weathering simulation"
     )
     parser.add_argument("--json_path", type=str, required=True,
                         help="Path to prompts JSON (e.g. prompts3.json)")
@@ -511,8 +499,8 @@ def main():
                         help="Output directory for results (default: gif_dir)")
     parser.add_argument("--skip_frames", action="store_true",
                         help="1つ飛ばしでフレームを半分に省く (10→5)")
-    parser.add_argument("--model_id", type=str, default="Qwen/Qwen3-VL-8B-Instruct",
-                        help="VLM model ID")
+    parser.add_argument("--model_id", type=str, default="mistral_models/Ministral-3-14B-Instruct-2512",
+                        help="VLM model ID or path")
     parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")
     parser.add_argument("--num_gpus", type=int, default=1, help="Total number of GPUs for parallel processing")
 

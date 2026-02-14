@@ -9,8 +9,7 @@ import numpy as np
 import cv2
 from tqdm import tqdm
 
-import torch
-from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
+from transformers import AutoProcessor
 
 # ---------------------------
 # IO utils
@@ -117,7 +116,6 @@ You are given:
 Evaluate "Weathering Naturalness" (0-10):
 Rate how natural the generated weathered image is.
 Focus on the final appearance and the type of weathering.
-Penalize unnatural artifacts such as ghosting, duplicated edges, texture collapse, blotchy noise, or unrealistic patterns.
 
 (
     0 = The image shows no weathering at all.
@@ -131,9 +129,8 @@ You are given:
 1. A generated weathering video
 
 Evaluate "Gradual Weathering" (0-10):
-Rate how continuous and gradual the progression of weathering is across the video.
+Rate how natural, continuous, and gradual the progression of weathering is across the video.
 Focus on whether the frames interpolate the first frame and last frame naturally.
-Also explicitly evaluate temporal flicker: penalize unstable brightness/color/texture changes that appear as frame-to-frame flickering.
 
 (
     0 = The change is abrupt, flickering, or not gradual at all (e.g., sudden jumps).
@@ -162,13 +159,22 @@ Do not evaluate the weathering effect itself; only evaluate if the underlying ob
 
 class QwenVIEJudge:
 
-    def __init__(self, model_id: str = "Qwen/Qwen3-VL-8B-Instruct"):
-        dtype = torch.float16
+    def __init__(self, model_id: str = "Qwen/Qwen3-VL-30B-A3B-Instruct"):
         self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True, local_files_only=True)
-        self.model = Qwen3VLForConditionalGeneration.from_pretrained(
-            model_id, dtype=dtype, device_map="auto", local_files_only=True
+        try:
+            from vllm import LLM, SamplingParams
+        except Exception as e:
+            raise ImportError(
+                "vllm is required for vie_vllm.py. Install with: pip install vllm"
+            ) from e
+
+        self.SamplingParams = SamplingParams
+        # Enough slots for this script's usage pattern.
+        self.llm = LLM(
+            model=model_id,
+            trust_remote_code=True,
+            limit_mm_per_prompt={"image": 16, "video": 1},
         )
-        self.device = next(self.model.parameters()).device
 
     def _gen(self, images: List[Image.Image], prompt: str, video_path: Optional[str] = None) -> str:
         content = [{
@@ -183,17 +189,20 @@ class QwenVIEJudge:
             "content": content
         }]
 
-        inputs = self.processor.apply_chat_template(
-            messages, tokenize=True, add_generation_prompt=True,
-            return_tensors="pt", return_dict=True
+        prompt_text = self.processor.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
         )
-        inputs = inputs.to(self.device)
 
-        out = self.model.generate(**inputs, max_new_tokens=32768)
-        out_ids_trimmed = out[:, inputs.input_ids.shape[1]:]
+        mm_data: Dict[str, Any] = {}
+        if images:
+            mm_data["image"] = images
+        if video_path:
+            mm_data["video"] = [str(Path(video_path).resolve())]
 
-        text = self.processor.batch_decode(out_ids_trimmed, skip_special_tokens=True)[0]
-        return text
+        sampling_params = self.SamplingParams(max_tokens=2048, temperature=0.0)
+        req = {"prompt": prompt_text, "multi_modal_data": mm_data}
+        out = self.llm.generate([req], sampling_params, use_tqdm=False)
+        return out[0].outputs[0].text
 
     def evaluate_metric(
         self,
@@ -226,7 +235,7 @@ def evaluate_weathering_vie(
     gif_dir: str,
     models: List[str],
     output_dir: str = None,
-    model_id: str = "Qwen/Qwen3-VL-8B-Instruct",
+    model_id: str = "Qwen/Qwen3-VL-30B-A3B-Instruct",
     skip_frames: bool = False,
     gpu_number: int = 0,
     num_gpus: int = 1,

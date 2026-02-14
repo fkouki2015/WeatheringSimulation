@@ -10,7 +10,8 @@ import cv2
 from tqdm import tqdm
 
 import torch
-from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
+from transformers import AutoProcessor, AutoModelForCausalLM
+from qwen_vl_utils import process_vision_info
 
 # ---------------------------
 # IO utils
@@ -88,7 +89,7 @@ def parse_json_output(output_text: str) -> Dict[str, Any]:
         raise ValueError(f"Failed to parse JSON from output: {output_text}") from e
 
 # ---------------------------
-# Qwen-VIEScore evaluator
+# LLaVA-OneVision evaluator
 # ---------------------------
 
 # ---------------------------
@@ -160,13 +161,12 @@ Do not evaluate the weathering effect itself; only evaluate if the underlying ob
 }
 
 
-class QwenVIEJudge:
+class LlavaVIEJudge:
 
-    def __init__(self, model_id: str = "Qwen/Qwen3-VL-8B-Instruct"):
-        dtype = torch.float16
+    def __init__(self, model_id: str = "lmms-lab/LLaVA-OneVision-1.5-8B-Instruct"):
         self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True, local_files_only=True)
-        self.model = Qwen3VLForConditionalGeneration.from_pretrained(
-            model_id, dtype=dtype, device_map="auto", local_files_only=True
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_id, torch_dtype="auto", device_map="auto", trust_remote_code=True, local_files_only=True
         )
         self.device = next(self.model.parameters()).device
 
@@ -183,17 +183,28 @@ class QwenVIEJudge:
             "content": content
         }]
 
-        inputs = self.processor.apply_chat_template(
-            messages, tokenize=True, add_generation_prompt=True,
-            return_tensors="pt", return_dict=True
+        text = self.processor.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+        image_inputs, video_inputs = process_vision_info(messages)
+        inputs = self.processor(
+            text=[text],
+            images=image_inputs,
+            videos=video_inputs,
+            padding=True,
+            return_tensors="pt",
         )
         inputs = inputs.to(self.device)
 
-        out = self.model.generate(**inputs, max_new_tokens=32768)
-        out_ids_trimmed = out[:, inputs.input_ids.shape[1]:]
+        out = self.model.generate(**inputs, max_new_tokens=1024)
+        out_ids_trimmed = [
+            out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, out)
+        ]
 
-        text = self.processor.batch_decode(out_ids_trimmed, skip_special_tokens=True)[0]
-        return text
+        decoded = self.processor.batch_decode(
+            out_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )[0]
+        return decoded
 
     def evaluate_metric(
         self,
@@ -226,7 +237,7 @@ def evaluate_weathering_vie(
     gif_dir: str,
     models: List[str],
     output_dir: str = None,
-    model_id: str = "Qwen/Qwen3-VL-8B-Instruct",
+    model_id: str = "lmms-lab/LLaVA-OneVision-1.5-8B-Instruct",
     skip_frames: bool = False,
     gpu_number: int = 0,
     num_gpus: int = 1,
@@ -259,7 +270,7 @@ def evaluate_weathering_vie(
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    judge = QwenVIEJudge(model_id=model_id)
+    judge = LlavaVIEJudge(model_id=model_id)
     all_results = {}
 
     for model_name in models:
@@ -499,7 +510,7 @@ def evaluate_weathering_vie(
 # ---------------------------
 def main():
     parser = argparse.ArgumentParser(
-        description="Qwen3-VL VIEScore evaluation for weathering simulation"
+        description="LLaVA-OneVision VIEScore evaluation for weathering simulation"
     )
     parser.add_argument("--json_path", type=str, required=True,
                         help="Path to prompts JSON (e.g. prompts3.json)")
@@ -511,7 +522,7 @@ def main():
                         help="Output directory for results (default: gif_dir)")
     parser.add_argument("--skip_frames", action="store_true",
                         help="1つ飛ばしでフレームを半分に省く (10→5)")
-    parser.add_argument("--model_id", type=str, default="Qwen/Qwen3-VL-8B-Instruct",
+    parser.add_argument("--model_id", type=str, default="lmms-lab/LLaVA-OneVision-1.5-8B-Instruct",
                         help="VLM model ID")
     parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")
     parser.add_argument("--num_gpus", type=int, default=1, help="Total number of GPUs for parallel processing")
