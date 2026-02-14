@@ -134,9 +134,10 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        # negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        negative_prompt="",
                         attn_word=None,
-                        guidance_scale=7.5,
+                        guidance_scale=6.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
