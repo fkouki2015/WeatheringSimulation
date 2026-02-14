@@ -235,10 +235,19 @@ def compute_metrics(
     plot_model_comparison(output_dir, models)
 
 
-def plot_model_comparison(output_dir: Path, models: List[str]):
-    """Generate comparison plots for all models."""
+def plot_model_comparison(output_dir: Path, models: List[str] = None):
+    """Generate comparison plots for all models found in output_dir."""
     plt.rcParams.update({'font.size': 11.5})
     seaborn.set_style("darkgrid")
+    
+    # Discover all models from metrics files in output_dir
+    all_metrics_files = sorted(output_dir.glob("*_metrics.jsonl"))
+    discovered_models = [f.stem.replace("_metrics", "") for f in all_metrics_files]
+    if not discovered_models:
+        print("No metrics files found for comparison plot.")
+        return
+    
+    print(f"Plotting comparison for models: {discovered_models}")
     
     metrics_names = [
         ("clip_text", "CLIP Text Similarity"),
@@ -252,7 +261,7 @@ def plot_model_comparison(output_dir: Path, models: List[str]):
     
     fig, axes = plt.subplots(3, 3, figsize=(14, 12), dpi=150)
     
-    for model_name in models:
+    for model_name in discovered_models:
         metrics_file = output_dir / f"{model_name}_metrics.jsonl"
         if not metrics_file.exists():
             continue
@@ -284,7 +293,7 @@ def main():
     parser.add_argument("--json_path", type=str, required=True)
     parser.add_argument("--gif_dir", type=str, required=True)
     parser.add_argument("--output_path", type=str, default="./metrics_out")
-    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "sdedit", "sd", "flux", "qwen", "ip2p"])
+    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "sdedit", "sd", "flux", "qwen", "ip2p", "flowedit"])
     parser.add_argument("--device", type=str, default="cuda")
     args = parser.parse_args()
     

@@ -3,19 +3,15 @@ import argparse
 from pathlib import Path
 from typing import List, Optional
 import sys
+import numpy as np
 import torch
 from PIL import Image
 from tqdm.auto import tqdm
-from diffusers import (
-    FluxKontextPipeline,
-    StableDiffusionInstructPix2PixPipeline,
-    StableDiffusionPipeline,
-    StableDiffusionImg2ImgPipeline,
-    QwenImageEditPipeline,
-    EulerAncestralDiscreteScheduler,
-)
+
 sys.path.append("./")
+sys.path.append("/work/DDIPM/kfukushima/FlowEdit")
 from weathering_model import WeatheringModel
+from FlowEdit_utils import FlowEditFLUX
 import gc
 
 
@@ -60,41 +56,60 @@ class ModelProcessor:
 
         elif model_name == "flux":
             print("Loading Flux Kontext...")
+            from diffusers import FluxKontextPipeline
             self.pipeline = FluxKontextPipeline.from_pretrained(
                 "black-forest-labs/FLUX.1-Kontext-dev", 
-                torch_dtype=torch.bfloat16
+                torch_dtype=torch.bfloat16,
+                local_files_only=True
             ).to(self.device)
 
         elif model_name == "qwen":
             print("Loading Qwen Image Edit...")
+            from diffusers import QwenImageEditPipeline
             self.pipeline = QwenImageEditPipeline.from_pretrained(
                 "Qwen/Qwen-Image-Edit", 
-                torch_dtype=torch.bfloat16
+                torch_dtype=torch.bfloat16,
+                local_files_only=True
             ).to(self.device)
 
         elif model_name == "ip2p":
             print("Loading InstructPix2Pix...")
+            from diffusers import StableDiffusionInstructPix2PixPipeline, EulerAncestralDiscreteScheduler
             self.pipeline = StableDiffusionInstructPix2PixPipeline.from_pretrained(
                 "timbrooks/instruct-pix2pix", 
                 torch_dtype=torch.float16, 
-                safety_checker=None
+                safety_checker=None,
+                local_files_only=True
             ).to(self.device)
             self.pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(self.pipeline.scheduler.config)
 
         elif model_name == "sd":
             print("Loading Stable Diffusion...")
+            from diffusers import StableDiffusionPipeline
             self.pipeline = StableDiffusionPipeline.from_pretrained(
                 "runwayml/stable-diffusion-v1-5", 
                 torch_dtype=torch.float16, 
-                safety_checker=None
+                safety_checker=None,
+                local_files_only=True
             ).to(self.device)
 
         elif model_name == "sdedit":
             print("Loading SDEdit (Img2Img)...")
+            from diffusers import StableDiffusionImg2ImgPipeline
             self.pipeline = StableDiffusionImg2ImgPipeline.from_pretrained(
                 "runwayml/stable-diffusion-v1-5", 
                 torch_dtype=torch.float16, 
-                safety_checker=None
+                safety_checker=None,
+                local_files_only=True
+            ).to(self.device)
+
+        elif model_name == "flowedit":
+            print("Loading FlowEdit (FLUX)...")
+            from diffusers import FluxPipeline
+            self.pipeline = FluxPipeline.from_pretrained(
+                "black-forest-labs/FLUX.1-dev",
+                torch_dtype=torch.float16,
+                local_files_only=True
             ).to(self.device)
         
         self.current_model = model_name
@@ -207,6 +222,49 @@ class ModelProcessor:
             frames.append(result)
         return frames
     
+    def process_flowedit(self, image: Image.Image, src_prompt: str, tar_prompt: str, num_frames: int = 10, height: int = 512, width: int = 512) -> List[Image.Image]:
+        """Process with FlowEdit (FLUX), varying tar_guidance_scale from 1.0 to 10.0."""
+        pipe = self.pipeline
+        scheduler = pipe.scheduler
+        
+        # Encode source image to latent
+        image_cropped = image.crop((0, 0, image.width - image.width % 16, image.height - image.height % 16))
+        image_src = pipe.image_processor.preprocess(image_cropped)
+        image_src = image_src.to(self.device).half()
+        with torch.autocast("cuda"), torch.inference_mode():
+            x0_src_denorm = pipe.vae.encode(image_src).latent_dist.mode()
+        x0_src = (x0_src_denorm - pipe.vae.config.shift_factor) * pipe.vae.config.scaling_factor
+        x0_src = x0_src.to(self.device)
+        
+        frames = []
+        for i in range(1, num_frames + 1):
+            torch.manual_seed(0)
+            np.random.seed(0)
+            tar_guidance_scale = float(i)  # 1.0, 2.0, ..., 10.0
+            
+            x0_tar = FlowEditFLUX(
+                pipe,
+                scheduler,
+                x0_src,
+                src_prompt,
+                tar_prompt,
+                negative_prompt="",
+                T_steps=28,
+                n_avg=1,
+                src_guidance_scale=1.5,
+                tar_guidance_scale=tar_guidance_scale,
+                n_min=0,
+                n_max=24,
+            )
+            
+            x0_tar_denorm = (x0_tar / pipe.vae.config.scaling_factor) + pipe.vae.config.shift_factor
+            with torch.autocast("cuda"), torch.inference_mode():
+                image_tar = pipe.vae.decode(x0_tar_denorm, return_dict=False)[0]
+            image_tar = pipe.image_processor.postprocess(image_tar)
+            result = image_tar[0].resize((width, height), resample=Image.LANCZOS)
+            frames.append(result)
+        return frames
+    
     def process_sample(
         self, 
         sample: dict, 
@@ -225,6 +283,7 @@ class ModelProcessor:
         image = Image.open(image_path).convert("RGB")
         # Resize to 512x512
         image = image.resize((512, 512), Image.LANCZOS)
+        image_large = image.resize((1024, 1024), Image.LANCZOS)
         
         model_output_dir = output_dir / model_name
         model_output_dir.mkdir(parents=True, exist_ok=True)
@@ -236,9 +295,9 @@ class ModelProcessor:
             if model_name == "proposed":
                 frames = self.process_proposed(image, input_prompt, output_prompt, num_frames)
             elif model_name == "flux":
-                frames = self.process_flux(image, edit_prompt, num_frames)
+                frames = self.process_flux(image_large, edit_prompt, num_frames)
             elif model_name == "qwen":
-                frames = self.process_qwen(image, edit_prompt, num_frames)
+                frames = self.process_qwen(image_large, edit_prompt, num_frames)
             elif model_name == "ip2p":
                 frames = self.process_ip2p(image, edit_prompt, num_frames)
             elif model_name == "sd":
@@ -246,6 +305,8 @@ class ModelProcessor:
                 frames = self.process_sd(output_prompt, num_frames, h, w)
             elif model_name == "sdedit":
                 frames = self.process_sdedit(image, output_prompt, num_frames)
+            elif model_name == "flowedit":
+                frames = self.process_flowedit(image_large, input_prompt, output_prompt, num_frames)
             
             save_gif(frames, str(output_path), fps=5)
             print(f"  Saved: {output_path}")
@@ -258,13 +319,12 @@ def main():
     parser = argparse.ArgumentParser(description="Process images with multiple diffusion models")
     parser.add_argument("--json_path", type=str, required=True)
     parser.add_argument("--output_dir", type=str, default="./images_out")
-    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit"])
+    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit", "flowedit"])
     parser.add_argument("--num_frames", type=int, default=10)
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")
     parser.add_argument("--num_gpus", type=int, default=1, help="Total number of GPUs for parallel processing")
     args = parser.parse_args()
-    
     # Load JSON data
     with open(args.json_path, "r") as f:
         data = json.load(f)
