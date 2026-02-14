@@ -182,7 +182,7 @@ class WeatheringModel(nn.Module):
     RESOLUTION = (512, 512)
     RANK = 8
     LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 600
+    TRAIN_STEPS = 400
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
@@ -495,28 +495,28 @@ class WeatheringModel(nn.Module):
             self.scaler.update()
             self.optimizer.zero_grad(set_to_none=True)
             
-            # 5. 評価と早期停止
-            if step % self.CLIP_EVAL_INTERVAL == 0:
-                avg_dist = self._evaluate(step, latent, self.control_images, image)
+            # # 5. 評価と早期停止
+            # if step % self.CLIP_EVAL_INTERVAL == 0:
+            #     avg_dist = self._evaluate(step, latent, self.control_images, image)
                 
-                if prev_lpips is None:
-                    improvement_rate = 0.0
-                    no_improve_streak = 0
-                else:
-                    improvement = prev_lpips - avg_dist
-                    improvement_rate = improvement / (prev_lpips + 1e-12)
+            #     if prev_lpips is None:
+            #         improvement_rate = 0.0
+            #         no_improve_streak = 0
+            #     else:
+            #         improvement = prev_lpips - avg_dist
+            #         improvement_rate = improvement / (prev_lpips + 1e-12)
                     
-                    if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
-                        no_improve_streak = 0
-                    else:
-                        no_improve_streak += 1
-                        if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
-                            tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
-                            break
+            #         if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
+            #             no_improve_streak = 0
+            #         else:
+            #             no_improve_streak += 1
+            #             if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
+            #                 tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
+            #                 break
                 
-                prev_lpips = avg_dist
-                tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
-                sys.stdout.flush()
+            #     prev_lpips = avg_dist
+            #     tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
+            #     sys.stdout.flush()
 
                 
             progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
@@ -583,14 +583,14 @@ class WeatheringModel(nn.Module):
         for i in range(num_frames):
             # 経年変化係数を計算 (フレームインデックスに基づいて 0.0 から 1.0)
             # スムーズな遷移効果を作成するため正弦波補間を使用
-            normalized_i = (i + 1) / num_frames * math.pi / 2
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
+            normalized_i = (i + 1) / num_frames
+            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * (1 - (1-normalized_i)**3)) - 1
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
             
             # # LoRAスケールをフレームに応じて段階的に低減 (1.0 → LORA_SCALE_MIN)
             # alpha = (i + 1) / num_frames
             # lora_scale = 0.3
-            self.unet.set_adapters([self.adapter_name], weights=[0.5])
+            self.unet.set_adapters([self.adapter_name], weights=[0.3])
             
             # 特定のタイムステップで元の画像と混合されたノイズから開始
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
