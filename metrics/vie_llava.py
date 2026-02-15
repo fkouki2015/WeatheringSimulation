@@ -34,24 +34,16 @@ def parse_json_output(output_text: str) -> Dict[str, Any]:
         loaded_json = json.loads(json_str)
 
         if "score" not in loaded_json:
-             raise ValueError("Missing 'score' field in JSON output")
-        
-        # Ensure score is numeric (int or float) or a single-element list
+            raise ValueError("Missing 'score' field in JSON output")
+
         score_val = loaded_json["score"]
         if isinstance(score_val, list):
-             if len(score_val) == 1:
-                 loaded_json["score"] = score_val[0]
-             else:
-                 # Legacy or error fallback, though we expect single score now
-                 pass 
+            if not all(isinstance(x, (int, float)) for x in score_val):
+                raise ValueError(f"Invalid 'score' list format: {score_val}")
         elif isinstance(score_val, (int, float)):
-             pass
+            loaded_json["score"] = [float(score_val)]
         else:
-             # Try to cast string to int
-             try:
-                 loaded_json["score"] = float(score_val)
-             except:
-                 raise ValueError(f"Invalid 'score' format: {score_val}")
+            raise ValueError(f"Invalid 'score' format: {score_val}")
 
         if "reasoning" not in loaded_json:
             raise ValueError("Missing or invalid 'reasoning' field in JSON output")
@@ -80,57 +72,60 @@ You will give your output in this way (Keep your reasoning concise and short.):
 }
 """
 
-_prompts = {
-    "weathering_naturalness": """
+_semantic_prompt = """
 RULES:
 You are given:
-1. An original input image (the first image)
-2. A generated weathered image (the second image)
+1. An original input image (the first image).
+2. All generated frames that depict progressive weathering/aging.
 
-Evaluate "Weathering Naturalness" (0-10):
-Rate how natural the generated weathered image is.
-Focus on the final appearance and the type of weathering.
-Penalize unnatural artifacts such as ghosting, duplicated edges, texture collapse, blotchy noise, or unrealistic patterns.
+Evaluate the following 3 semantic criteria from 0 to 10:
+1) Faithfulness: How well the frames match the TARGET WEATHERING DESCRIPTION.
+2) Consistency: How consistent the object identity, layout, background, and geometry are across frames (structure preservation).
+3) Gradual: How smooth, continuous, and properly-started the weathering progression is across frames.
 
-(
-    0 = The image shows no weathering at all.
-    5 = Some weathering is visible but the weathering is not natural or insufficient.
-    10 = The weathering is natural and sufficient.
-)
-""",
-    "gradual_weathering": """
-RULES:
-You are given:
-1. A generated continuous weathering frames
+IMPORTANT for Gradual (do NOT ignore):
+- The first generated frame should be very close to the original input image (little to no additional weathering), then progressively becomes more weathered.
+- If the first generated frame is already heavily degraded/weathered (aging is effectively pre-applied at the start), Gradual must be very low (0-2), even if later frames look smooth.
+- Weathering severity should increase monotonically overall (no resets/repairs, no strong back-and-forth). If it oscillates or stays almost unchanged, lower the score.
+- Changes between adjacent frames should be small and incremental; large jumps reduce the score.
 
-Evaluate "Gradual Weathering" (0-10):
-Rate how continuous and gradual the progression of weathering is across the frames.
-Focus on whether the frames interpolate the first frame and last frame naturally.
-Also explicitly evaluate temporal flicker: penalize unstable brightness/color/texture changes that appear as frame-to-frame flickering.
+Examples:
+(Faithfulness 0 = the target description is not reflected at all.)
+(Faithfulness 10 = the target description is clearly and accurately reflected.)
+(Consistency 0 = object/scene identity or structure drifts; large changes between frames.)
+(Consistency 10 = object/scene structure is stable; only surface appearance changes.)
+(Gradual 0 = starts already heavily degraded OR has resets/repairs OR abrupt jumps/strong flicker; progression is not continuous.)
+(Gradual 10 = starts clean and gradually increases weathering with small, consistent increments; minimal flicker; no resets.)
 
-(
-    0 = The change is abrupt, flickering, or not gradual at all (e.g., sudden jumps).
-    5 = The progression is somewhat gradual but has noticeable jumps or inconsistencies.
-    10 = The weathering progresses perfectly smoothly and gradually from the first clean frame to the last weathered frame.
-)
-""",
-    "structure_preservation": """
-RULES:
-You are given:
-1. An original input image (the first image)
-2. A generated weathered image (the second image)
-
-Evaluate "Structure Preservation" (0-10):
-Rate how well the original image's structure, spatial layout, object identity, and background are preserved in the weathered image.
-Do not evaluate the weathering effect itself; only evaluate if the underlying object/scene structure remains consistent.
-
-(
-    0 = The structure and background are completely destroyed; the object is unrecognizable or the scene has changed entirely.
-    5 = The overall shape is recognizable but there are noticeable distortions, artifacts, or unwanted changes to the background.
-    10 = The structure, spatial layout, and background are perfectly preserved; only the surface appearance changes due to weathering.
-)
-"""
+Output:
+{
+"score": [faithfulness, consistency, gradual],
+"reasoning": "..."
 }
+"""
+
+_quality_prompt = """
+RULES:
+You are given:
+1. An original input image (the first image).
+2. All generated frames that depict progressive weathering/aging.
+
+Evaluate the following 2 quality criteria from 0 to 10:
+1) Naturalness: Overall realism and plausibility (lighting, texture, material appearance).
+2) Artifacts: Technical artifacts (distortion, watermark, ghosting, duplicated edges, blotchy noise, text overlays).
+
+Examples:
+(Naturalness 0 = clearly unrealistic; wrong lighting/materials; uncanny or implausible textures.)
+(Naturalness 10 = highly realistic; coherent lighting/materials; believable textures.)
+(Artifacts 0 = severe artifacts dominate the image; strong distortion/watermarks/text/ghosting.)
+(Artifacts 10 = no visible artifacts; clean details and stable rendering.)
+
+Output:
+{
+"score": [naturalness, artifacts],
+"reasoning": "..."
+}
+"""
 
 
 class LlavaVIEJudge:
@@ -175,26 +170,13 @@ class LlavaVIEJudge:
         )[0]
         return decoded
 
-    def evaluate_metric(
-        self,
-        images: List[Image.Image],
-        output_prompt: str,
-        metric_name: str,
-    ) -> str:
-        """指定されたメトリクスで評価を行う"""
-        if metric_name not in _prompts:
-             raise ValueError(f"Unknown metric: {metric_name}")
+    def evaluate_semantic(self, images: List[Image.Image], output_prompt: str) -> str:
+        full_prompt = _common_context + _semantic_prompt + f"\nTARGET WEATHERING DESCRIPTION: {output_prompt}"
+        return self._gen(images, full_prompt)
 
-        # Select specific prompt
-        specific_rules = _prompts[metric_name]
-        
-        if output_prompt:
-             full_prompt = _common_context + specific_rules + f'\nTARGET WEATHERING DESCRIPTION: {output_prompt}'
-        else:
-             full_prompt = _common_context + specific_rules
-        
-        output_text = self._gen(images, full_prompt)
-        return output_text
+    def evaluate_quality(self, images: List[Image.Image]) -> str:
+        full_prompt = _common_context + _quality_prompt
+        return self._gen(images, full_prompt)
 
 
 # ---------------------------
@@ -254,9 +236,13 @@ def evaluate_weathering_vie(
         results = {
             "model": model_name,
             "num_samples": 0,
-            "avg_weathering_naturalness": 0.0,
-            "avg_gradual_weathering": 0.0,
-            "avg_structure_preservation": 0.0,
+            "avg_faithfulness": 0.0,
+            "avg_consistency": 0.0,
+            "avg_gradual": 0.0,
+            "avg_semantic": 0.0,
+            "avg_naturalness": 0.0,
+            "avg_artifacts": 0.0,
+            "avg_aesthetic": 0.0,
             "samples": [],
         }
 
@@ -289,76 +275,62 @@ def evaluate_weathering_vie(
 
             output_prompt = sample["output_prompt"]
 
-            # Evaluate each metric separately
-            metrics_to_eval = ["weathering_naturalness", "gradual_weathering", "structure_preservation"]
-            sample_scores = {}
-            sample_reasonings = {}
+            # Always pass original image + all frames
+            input_images = [original_image] + frames
 
-            for metric in metrics_to_eval:
-                try:
-                    # Determine inputs based on metric
-                    if metric == "weathering_naturalness":
-                        # Original + Final frame, Include Prompt
-                        input_images = [original_image, frames[-1]]
-                        prompt_to_pass = ""
-                    elif metric == "gradual_weathering":
-                        # Original + all generated frames
-                        input_images = [original_image] + frames
-                        prompt_to_pass = ""
-                    elif metric == "structure_preservation":
-                         # Original + Final frame, No Prompt
-                         input_images = [original_image, frames[-1]]
-                         prompt_to_pass = ""
-                    else:
-                        continue
+            # Semantic evaluation: faithfulness / consistency / gradual
+            try:
+                semantic_out = judge.evaluate_semantic(input_images, output_prompt)
+                semantic_json = parse_json_output(semantic_out)
+                if len(semantic_json["score"]) != 3:
+                    raise ValueError(f"Expected 3 scores, got: {semantic_json['score']}")
+                faithfulness, consistency, gradual = [float(x) for x in semantic_json["score"]]
+                semantic_reasoning = semantic_json["reasoning"]
+            except Exception as e:
+                print(f"  Error evaluating semantic metrics at {gif_path}: {e}")
+                print(f"  Output was: {semantic_out if 'semantic_out' in locals() else 'None'}")
+                continue
 
-                    out_text = judge.evaluate_metric(
-                        input_images,
-                        prompt_to_pass,
-                        metric,
-                    )
-
-                    parsed = parse_json_output(out_text)
-                    
-                    score = parsed["score"]
-                    if isinstance(score, list): 
-                        score = score[0] 
-                    
-                    sample_scores[metric] = float(score)
-                    sample_reasonings[metric] = parsed["reasoning"]
-                
-                except Exception as e:
-                    print(f"  Error evaluating {metric} at {gif_path}: {e}")
-                    print(f"  Output was: {out_text if 'out_text' in locals() else 'None'}")
-                    sample_scores[metric] = 0.0
-                    sample_reasonings[metric] = f"Error: {str(e)}"
+            # Quality evaluation: naturalness / artifacts
+            try:
+                quality_out = judge.evaluate_quality(input_images)
+                quality_json = parse_json_output(quality_out)
+                if len(quality_json["score"]) != 2:
+                    raise ValueError(f"Expected 2 scores, got: {quality_json['score']}")
+                naturalness, artifacts = [float(x) for x in quality_json["score"]]
+                quality_reasoning = quality_json["reasoning"]
+            except Exception as e:
+                print(f"  Error evaluating quality metrics at {gif_path}: {e}")
+                print(f"  Output was: {quality_out if 'quality_out' in locals() else 'None'}")
+                continue
 
             results["samples"].append({
                 "image_path": sample["image_path"],
                 "output_prompt": output_prompt,
-                "weathering_naturalness": sample_scores["weathering_naturalness"],
-                "gradual_weathering": sample_scores["gradual_weathering"],
-                "structure_preservation": sample_scores["structure_preservation"],
-                "reasoning": { # Store reasonings as a dict
-                    "naturalness": sample_reasonings["weathering_naturalness"],
-                    "gradual": sample_reasonings["gradual_weathering"],
-                    "structure": sample_reasonings["structure_preservation"]
-                }
+                "faithfulness": faithfulness,
+                "consistency": consistency,
+                "gradual": gradual,
+                "semantic": min(faithfulness, consistency, gradual),
+                "naturalness": naturalness,
+                "artifacts": artifacts,
+                "aesthetic": min(naturalness, artifacts),
+                "reasoning": {
+                    "semantic": semantic_reasoning,
+                    "quality": quality_reasoning,
+                },
             })
 
         # 平均を計算
         num_samples = len(results["samples"])
         if num_samples > 0:
             results["num_samples"] = num_samples
-            results["avg_weathering_naturalness"] = sum(
-                s["weathering_naturalness"] for s in results["samples"]
-            ) / num_samples
-            results["avg_gradual_weathering"] = sum(
-                s["gradual_weathering"] for s in results["samples"]
-            ) / num_samples
-            results["avg_structure_preservation"] = sum(
-                s["structure_preservation"] for s in results["samples"]
-            ) / num_samples
+            results["avg_faithfulness"] = sum(s["faithfulness"] for s in results["samples"]) / num_samples
+            results["avg_consistency"] = sum(s["consistency"] for s in results["samples"]) / num_samples
+            results["avg_gradual"] = sum(s["gradual"] for s in results["samples"]) / num_samples
+            results["avg_semantic"] = sum(s["semantic"] for s in results["samples"]) / num_samples
+            results["avg_naturalness"] = sum(s["naturalness"] for s in results["samples"]) / num_samples
+            results["avg_artifacts"] = sum(s["artifacts"] for s in results["samples"]) / num_samples
+            results["avg_aesthetic"] = sum(s["aesthetic"] for s in results["samples"]) / num_samples
 
         # JSON保存
         # Partial result saving for multi-GPU
@@ -400,16 +372,25 @@ def evaluate_weathering_vie(
                 final_results = {
                     "model": model_name,
                     "num_samples": len(merged_samples),
-                    "avg_weathering_naturalness": 0.0,
-                    "avg_gradual_weathering": 0.0,
-                    "avg_structure_preservation": 0.0,
+                    "avg_faithfulness": 0.0,
+                    "avg_consistency": 0.0,
+                    "avg_gradual": 0.0,
+                    "avg_semantic": 0.0,
+                    "avg_naturalness": 0.0,
+                    "avg_artifacts": 0.0,
+                    "avg_aesthetic": 0.0,
                     "samples": merged_samples,
                 }
                 
                 if final_results["num_samples"] > 0:
-                     final_results["avg_weathering_naturalness"] = sum(s["weathering_naturalness"] for s in merged_samples) / final_results["num_samples"]
-                     final_results["avg_gradual_weathering"] = sum(s["gradual_weathering"] for s in merged_samples) / final_results["num_samples"]
-                     final_results["avg_structure_preservation"] = sum(s["structure_preservation"] for s in merged_samples) / final_results["num_samples"]
+                    n = final_results["num_samples"]
+                    final_results["avg_faithfulness"] = sum(s["faithfulness"] for s in merged_samples) / n
+                    final_results["avg_consistency"] = sum(s["consistency"] for s in merged_samples) / n
+                    final_results["avg_gradual"] = sum(s["gradual"] for s in merged_samples) / n
+                    final_results["avg_semantic"] = sum(s["semantic"] for s in merged_samples) / n
+                    final_results["avg_naturalness"] = sum(s["naturalness"] for s in merged_samples) / n
+                    final_results["avg_artifacts"] = sum(s["artifacts"] for s in merged_samples) / n
+                    final_results["avg_aesthetic"] = sum(s["aesthetic"] for s in merged_samples) / n
 
                 # Save final merged file
                 final_out_file = output_path / f"vie_{model_name}.json"
@@ -440,9 +421,13 @@ def evaluate_weathering_vie(
                 json.dump(results, f, indent=4, ensure_ascii=False)
             print(f"  Saved: {out_file}")
         print(f"  Num samples: {results['num_samples']}")
-        print(f"  Avg Weathering Naturalness: {results['avg_weathering_naturalness']:.4f}")
-        print(f"  Avg Gradual Weathering: {results['avg_gradual_weathering']:.4f}")
-        print(f"  Avg Structure Preservation: {results['avg_structure_preservation']:.4f}")
+        print(f"  Avg Faithfulness: {results['avg_faithfulness']:.4f}")
+        print(f"  Avg Consistency: {results['avg_consistency']:.4f}")
+        print(f"  Avg Gradual: {results['avg_gradual']:.4f}")
+        print(f"  Avg Semantic: {results['avg_semantic']:.4f}")
+        print(f"  Avg Naturalness: {results['avg_naturalness']:.4f}")
+        print(f"  Avg Artifacts: {results['avg_artifacts']:.4f}")
+        print(f"  Avg Aesthetic: {results['avg_aesthetic']:.4f}")
 
         all_results[model_name] = results
 
