@@ -238,32 +238,34 @@ class ModelProcessor:
         x0_src = x0_src.to(self.device)
         
         frames = []
-        for i in range(1, num_frames + 1):
-            torch.manual_seed(0)
-            np.random.seed(0)
-            tar_guidance_scale = float(i)  # 1.0, 2.0, ..., 10.0
-            
-            x0_tar = FlowEditFLUX(
-                pipe,
-                scheduler,
-                x0_src,
-                src_prompt,
-                tar_prompt,
-                negative_prompt="",
-                T_steps=28,
-                n_avg=1,
-                src_guidance_scale=1.5,
-                tar_guidance_scale=tar_guidance_scale,
-                n_min=0,
-                n_max=24,
-            )
-            
-            x0_tar_denorm = (x0_tar / pipe.vae.config.scaling_factor) + pipe.vae.config.shift_factor
+        torch.manual_seed(0)
+        np.random.seed(0)
+        
+        x0_tar, intermediates = FlowEditFLUX(
+            pipe,
+            scheduler,
+            x0_src,
+            src_prompt,
+            tar_prompt,
+            negative_prompt="",
+            T_steps=28,
+            n_avg=1,
+            src_guidance_scale=1.5,
+            tar_guidance_scale=5.5,
+            n_min=0,
+            n_max=24,
+            return_intermediates=True
+        )
+
+        for step_idx, latent in enumerate(intermediates):
+            if step_idx % 3 != 2:
+                continue
+            latent = latent.to(self.device)
+            x_denorm = (latent / pipe.vae.config.scaling_factor) + pipe.vae.config.shift_factor
             with torch.autocast("cuda"), torch.inference_mode():
-                image_tar = pipe.vae.decode(x0_tar_denorm, return_dict=False)[0]
-            image_tar = pipe.image_processor.postprocess(image_tar)
-            result = image_tar[0].resize((width, height), resample=Image.LANCZOS)
-            frames.append(result)
+                img = pipe.vae.decode(x_denorm, return_dict=False)[0]
+            img = pipe.image_processor.postprocess(img)
+            frames.append(img[0].resize((512, 512), resample=Image.LANCZOS))
         return frames
     
     def process_sample(
