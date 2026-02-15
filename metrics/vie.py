@@ -1,12 +1,11 @@
 import os
 os.environ["HF_HUB_OFFLINE"] = "1"
 import json, argparse, re, time
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from PIL import Image
 from pathlib import Path
 
 import numpy as np
-import cv2
 from tqdm import tqdm
 
 import torch
@@ -23,33 +22,6 @@ def load_gif_frames(gif_path: str) -> List[Image.Image]:
             gif.seek(frame_idx)
             frames.append(gif.convert("RGB").copy())
     return frames
-
-
-def save_frames_to_mp4(frames: List[Image.Image], mp4_path: Path, fps: float = 4.0) -> Path:
-    """PILフレーム列をMP4として保存する"""
-    if not frames:
-        raise ValueError("Cannot save empty frame list as video")
-
-    mp4_path.parent.mkdir(parents=True, exist_ok=True)
-    width, height = frames[0].size
-    writer = cv2.VideoWriter(
-        str(mp4_path),
-        cv2.VideoWriter_fourcc(*"mp4v"),
-        fps,
-        (width, height),
-    )
-    if not writer.isOpened():
-        raise RuntimeError(f"Failed to open video writer for {mp4_path}")
-
-    try:
-        for frame in frames:
-            rgb = np.array(frame.convert("RGB"), dtype=np.uint8)
-            bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-            writer.write(bgr)
-    finally:
-        writer.release()
-
-    return mp4_path
 
 
 def parse_json_output(output_text: str) -> Dict[str, Any]:
@@ -128,10 +100,10 @@ Penalize unnatural artifacts such as ghosting, duplicated edges, texture collaps
     "gradual_weathering": """
 RULES:
 You are given:
-1. A generated weathering video
+1. A generated continuous weathering frames
 
 Evaluate "Gradual Weathering" (0-10):
-Rate how continuous and gradual the progression of weathering is across the video.
+Rate how continuous, consistent and gradual the progression of weathering is across the frames.
 Focus on whether the frames interpolate the first frame and last frame naturally.
 Also explicitly evaluate temporal flicker: penalize unstable brightness/color/texture changes that appear as frame-to-frame flickering.
 
@@ -170,12 +142,10 @@ class QwenVIEJudge:
         )
         self.device = next(self.model.parameters()).device
 
-    def _gen(self, images: List[Image.Image], prompt: str, video_path: Optional[str] = None) -> str:
+    def _gen(self, images: List[Image.Image], prompt: str) -> str:
         content = [{
             "type": "image", "image": img
         } for img in images]
-        if video_path:
-            content.append({"type": "video", "video": video_path})
         content.append({"type": "text", "text": prompt})
 
         messages = [{
@@ -200,7 +170,6 @@ class QwenVIEJudge:
         images: List[Image.Image],
         output_prompt: str,
         metric_name: str,
-        video_path: Optional[str] = None,
     ) -> str:
         """指定されたメトリクスで評価を行う"""
         if metric_name not in _prompts:
@@ -214,7 +183,7 @@ class QwenVIEJudge:
         else:
              full_prompt = _common_context + specific_rules
         
-        output_text = self._gen(images, full_prompt, video_path=video_path)
+        output_text = self._gen(images, full_prompt)
         return output_text
 
 
@@ -281,7 +250,6 @@ def evaluate_weathering_vie(
             "samples": [],
         }
 
-        video_cache_dir = output_path / "_vlm_videos" / model_name
         for sample_idx, sample in enumerate(tqdm(data, desc=f"[VIE] {model_name}")):
             image_stem = Path(sample["image_path"]).stem
             gif_path = model_gif_dir / f"{image_stem}.gif"
@@ -299,20 +267,16 @@ def evaluate_weathering_vie(
             # 1つ飛ばしでフレーム数を半分にする
             if skip_frames:
                 frames = frames[1::2]
+
+            # # 10フレーム以上ある場合は最初の2フレームを除外
+            # if len(frames) >= 10:
+            #     frames = frames[2:]
+                
             # フレームも512x512にリサイズ
             frames = [f.resize((512, 512), Image.LANCZOS) for f in frames]
             if not frames:
                 print(f"  Warning: No frames found in GIF: {gif_path}")
                 continue
-
-            # Build video with the input image as the first frame.
-            video_path = video_cache_dir / f"{image_stem}.mp4"
-            video_frames = [original_image] + frames
-            try:
-                save_frames_to_mp4(video_frames, video_path)
-            except Exception as e:
-                print(f"  Warning: Failed to convert GIF to video at {gif_path}: {e}")
-                video_path = None
 
             output_prompt = sample["output_prompt"]
 
@@ -328,40 +292,22 @@ def evaluate_weathering_vie(
                         # Original + Final frame, Include Prompt
                         input_images = [original_image, frames[-1]]
                         prompt_to_pass = ""
-                        video_to_pass = None
                     elif metric == "gradual_weathering":
-                        # Pass video only (no image inputs)
-                        input_images = []
+                        # Original + all generated frames
+                        input_images = [original_image] + frames
                         prompt_to_pass = ""
-                        video_to_pass = str(video_path) if video_path is not None else None
                     elif metric == "structure_preservation":
                          # Original + Final frame, No Prompt
                          input_images = [original_image, frames[-1]]
                          prompt_to_pass = ""
-                         video_to_pass = None
                     else:
                         continue
 
-                    try:
-                        out_text = judge.evaluate_metric(
-                            input_images,
-                            prompt_to_pass,
-                            metric,
-                            video_path=video_to_pass,
-                        )
-                    except Exception as video_err:
-                        if metric == "gradual_weathering" and video_to_pass is not None:
-                            print(
-                                f"  Warning: video input failed at {video_path}. Retrying without image inputs. Error: {video_err}"
-                            )
-                            out_text = judge.evaluate_metric(
-                                [],
-                                prompt_to_pass,
-                                metric,
-                                video_path=None,
-                            )
-                        else:
-                            raise
+                    out_text = judge.evaluate_metric(
+                        input_images,
+                        prompt_to_pass,
+                        metric,
+                    )
 
                     parsed = parse_json_output(out_text)
                     
