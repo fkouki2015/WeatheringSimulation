@@ -6,7 +6,7 @@ if "HF_HUB_OFFLINE" in os.environ:
 from huggingface_hub import snapshot_download
 
 def download_model():
-    model_id = "lmms-lab/LLaVA-OneVision-1.5-8B-Instruct"
+    model_id = "Qwen/Qwen3-VL-235B-A22B-Instruct"
     print(f"Downloading {model_id}...")
 
     # Download everything from the repo to a specific local directory
