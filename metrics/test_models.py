@@ -10,8 +10,11 @@ from tqdm.auto import tqdm
 
 sys.path.append("./")
 sys.path.append("/work/DDIPM/kfukushima/FlowEdit")
+
 from weathering_model import WeatheringModel
 from FlowEdit_utils import FlowEditFLUX
+sys.path.append("/work/DDIPM/kfukushima/turbo-edit")
+from turbo import encode_image, set_pipeline, run, load_pipe
 import gc
 
 
@@ -111,6 +114,10 @@ class ModelProcessor:
                 torch_dtype=torch.float16,
                 local_files_only=True
             ).to(self.device)
+
+        elif model_name == "turboedit":
+            print("Loading TurboEdit...")
+            self.pipeline = load_pipe(False, None)
         
         self.current_model = model_name
     
@@ -134,8 +141,8 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        # negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
-                        negative_prompt="",
+                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        # negative_prompt="",
                         attn_word=None,
                         guidance_scale=6.0,
                         num_frames=num_frames,
@@ -267,6 +274,24 @@ class ModelProcessor:
             img = pipe.image_processor.postprocess(img)
             frames.append(img[0].resize((512, 512), resample=Image.LANCZOS))
         return frames
+
+    def process_turboedit(self, image: Image.Image, src_prompt: str, tar_prompt: str, num_frames: int, height: int=512, width: int=512) -> List[Image.Image]:
+        """Process with TurboEdit, varying tar_guidance_scale from 1.0 to 10.0."""
+        pipe = self.pipeline
+        frames = []
+        for i in range(1, num_frames + 1):
+            strength = i / 6.0  # 0.1, 0.2, ..., 1.0
+            res = run(
+                image,
+                src_prompt,
+                tar_prompt,
+                0,
+                strength,
+                4,
+                pipeline=pipe,
+            )
+            frames.append(res)
+        return frames
     
     def process_sample(
         self, 
@@ -310,7 +335,8 @@ class ModelProcessor:
                 frames = self.process_sdedit(image, output_prompt, num_frames)
             elif model_name == "flowedit":
                 frames = self.process_flowedit(image_large, input_prompt, output_prompt, num_frames)
-            
+            elif model_name == "turboedit":
+                frames = self.process_turboedit(image, input_prompt, output_prompt, num_frames)
             save_gif(frames, str(output_path), fps=5)
             print(f"  Saved: {output_path}")
         
@@ -322,7 +348,7 @@ def main():
     parser = argparse.ArgumentParser(description="Process images with multiple diffusion models")
     parser.add_argument("--json_path", type=str, required=True)
     parser.add_argument("--output_dir", type=str, default="./images_out")
-    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit", "flowedit"])
+    parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit", "flowedit", "turboedit"])
     parser.add_argument("--num_frames", type=int, default=10)
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")
