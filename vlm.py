@@ -12,10 +12,10 @@ from qwen_vl_utils import process_vision_info
 
 
 model = Qwen3VLForConditionalGeneration.from_pretrained(
-    "Qwen/Qwen3-VL-8B-Instruct", dtype="auto", device_map="auto"
+    "Qwen/Qwen3-VL-8B-Instruct", dtype="auto", device_map="auto", local_files_only=True
 )
 model.eval()
-processor = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-8B-Instruct")
+processor = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-8B-Instruct", local_files_only=True)
 
 
 def _run_vlm(messages):
@@ -80,11 +80,11 @@ def vlm_inference(mode: str = "age", image_path: str = None):
         modify_text = (
             f"The following caption describes a clean object: '{caption.strip()}'. "
             f"Rewrite this caption to describe the same object in a fully deteriorated, severely weathered, or completely decayed state. "
-            f"Predict the specific type of deterioration. "
+            f"Write the specific type of deterioration such as rust on metal.. "
             f"Do not write shape changes such as cracks, breaks, crumbling, etc. "
             f"Do not include color name. Write only one sentence. "
             f"Do not change the background. "
-            f"Example: 'A clean car on the road.' -> 'A heavily rusted car on the road.'"
+            f"Example: 'A clean car on a road.' -> 'A heavily rusted car on a road.'"
         )
     else:
         modify_text = (

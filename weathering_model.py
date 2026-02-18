@@ -182,7 +182,7 @@ class WeatheringModel(nn.Module):
     RESOLUTION = (512, 512)
     RANK = 8
     LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 400
+    TRAIN_STEPS = 550
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
@@ -251,7 +251,7 @@ class WeatheringModel(nn.Module):
             c.requires_grad_(False)
 
     # ControlNetで学習する浅い層の割合 (0.0~1.0, 例: 0.5 = 前半のみ学習)
-    CONTROLNET_TRAINABLE_RATIO = 0.7
+    # CONTROLNET_TRAINABLE_RATIO = 0.7
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
@@ -260,37 +260,37 @@ class WeatheringModel(nn.Module):
 
         for c in self.controlnets:
             # まず全体を凍結
-            c.requires_grad_(False)
+            c.requires_grad_(True)
 
-            # 浅い層のみ学習可能にする
-            # conv_in (入力層) は常に学習対象
-            c.conv_in.requires_grad_(True)
-            if hasattr(c, 'time_embedding'):
-                c.time_embedding.requires_grad_(True)
+            # # 浅い層のみ学習可能にする
+            # # conv_in (入力層) は常に学習対象
+            # c.conv_in.requires_grad_(True)
+            # if hasattr(c, 'time_embedding'):
+            #     c.time_embedding.requires_grad_(True)
 
-            # down_blocks の前半のみ学習対象
-            num_down = len(c.down_blocks)
-            trainable_count = max(1, int(num_down * self.CONTROLNET_TRAINABLE_RATIO))
-            for i in range(trainable_count):
-                c.down_blocks[i].requires_grad_(True)
+            # # down_blocks の前半のみ学習対象
+            # num_down = len(c.down_blocks)
+            # trainable_count = max(1, int(num_down * self.CONTROLNET_TRAINABLE_RATIO))
+            # for i in range(trainable_count):
+            #     c.down_blocks[i].requires_grad_(True)
 
-            # controlnet_down_blocks (ゼロ畳み込み) も対応する浅い部分のみ
-            # SD1.5 ControlNet: down_block 0 → controlnet_down_blocks 0,1,2
-            #                   down_block 1 → controlnet_down_blocks 3,4,5
-            #                   down_block 2 → controlnet_down_blocks 6,7,8
-            #                   down_block 3 → controlnet_down_blocks 9,10,11
-            num_zero_convs = len(c.controlnet_down_blocks)
-            convs_per_block = num_zero_convs // num_down if num_down > 0 else num_zero_convs
-            trainable_zero_convs = trainable_count * convs_per_block
-            for i in range(trainable_zero_convs):
-                c.controlnet_down_blocks[i].requires_grad_(True)
+            # # controlnet_down_blocks (ゼロ畳み込み) も対応する浅い部分のみ
+            # # SD1.5 ControlNet: down_block 0 → controlnet_down_blocks 0,1,2
+            # #                   down_block 1 → controlnet_down_blocks 3,4,5
+            # #                   down_block 2 → controlnet_down_blocks 6,7,8
+            # #                   down_block 3 → controlnet_down_blocks 9,10,11
+            # num_zero_convs = len(c.controlnet_down_blocks)
+            # convs_per_block = num_zero_convs // num_down if num_down > 0 else num_zero_convs
+            # trainable_zero_convs = trainable_count * convs_per_block
+            # for i in range(trainable_zero_convs):
+            #     c.controlnet_down_blocks[i].requires_grad_(True)
 
-            # mid_block, controlnet_mid_block は凍結のまま (深い層)
+            # # mid_block, controlnet_mid_block は凍結のまま (深い層)
 
-            frozen = sum(1 for p in c.parameters() if not p.requires_grad)
-            total = sum(1 for p in c.parameters())
-            print(f"ControlNet: {total - frozen}/{total} パラメータが学習対象 "
-                  f"(down_blocks 0-{trainable_count-1}/{num_down-1} を学習)")
+            # frozen = sum(1 for p in c.parameters() if not p.requires_grad)
+            # total = sum(1 for p in c.parameters())
+            # print(f"ControlNet: {total - frozen}/{total} パラメータが学習対象 "
+            #       f"(down_blocks 0-{trainable_count-1}/{num_down-1} を学習)")
         
         unet_lora_config = LoraConfig(
             r=self.RANK,
@@ -321,7 +321,7 @@ class WeatheringModel(nn.Module):
         for c in self.controlnets:
             for n, p in c.named_parameters():
                 if p.requires_grad:
-                    _add_param(p, 0.7)
+                    _add_param(p, 0.07)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}
@@ -495,28 +495,28 @@ class WeatheringModel(nn.Module):
             self.scaler.update()
             self.optimizer.zero_grad(set_to_none=True)
             
-            # # 5. 評価と早期停止
-            # if step % self.CLIP_EVAL_INTERVAL == 0:
-            #     avg_dist = self._evaluate(step, latent, self.control_images, image)
+            # 5. 評価と早期停止
+            if step % self.CLIP_EVAL_INTERVAL == 0:
+                avg_dist = self._evaluate(step, latent, self.control_images, image)
                 
-            #     if prev_lpips is None:
-            #         improvement_rate = 0.0
-            #         no_improve_streak = 0
-            #     else:
-            #         improvement = prev_lpips - avg_dist
-            #         improvement_rate = improvement / (prev_lpips + 1e-12)
+                if prev_lpips is None:
+                    improvement_rate = 0.0
+                    no_improve_streak = 0
+                else:
+                    improvement = prev_lpips - avg_dist
+                    improvement_rate = improvement / (prev_lpips + 1e-12)
                     
-            #         if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
-            #             no_improve_streak = 0
-            #         else:
-            #             no_improve_streak += 1
-            #             if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
-            #                 tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
-            #                 break
+                    if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
+                        no_improve_streak = 0
+                    else:
+                        no_improve_streak += 1
+                        if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
+                            tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
+                            break
                 
-            #     prev_lpips = avg_dist
-            #     tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
-            #     sys.stdout.flush()
+                prev_lpips = avg_dist
+                tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
+                sys.stdout.flush()
 
                 
             progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
@@ -583,14 +583,14 @@ class WeatheringModel(nn.Module):
         for i in range(num_frames):
             # 経年変化係数を計算 (フレームインデックスに基づいて 0.0 から 1.0)
             # スムーズな遷移効果を作成するため正弦波補間を使用
-            normalized_i = (i + 1) / num_frames
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * (1 - (1-normalized_i)**3)) - 1
+            normalized_i = (i + 1) / num_frames * math.pi / 2.0
+            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
             
             # # LoRAスケールをフレームに応じて段階的に低減 (1.0 → LORA_SCALE_MIN)
             # alpha = (i + 1) / num_frames
             # lora_scale = 0.3
-            self.unet.set_adapters([self.adapter_name], weights=[0.3])
+            # self.unet.set_adapters([self.adapter_name], weights=[0.3])
             
             # 特定のタイムステップで元の画像と混合されたノイズから開始
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])

@@ -9,7 +9,7 @@ import numpy as np
 from tqdm import tqdm
 
 import torch
-from transformers import AutoProcessor, Qwen3VLMoeForConditionalGeneration
+from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
 
 # ---------------------------
 # IO utils
@@ -44,16 +44,69 @@ def parse_json_output(output_text: str) -> Dict[str, Any]:
         else:
             raise ValueError(f"Invalid 'score' format: {score_val}")
 
-        if "reasoning" not in loaded_json:
-            raise ValueError("Missing or invalid 'reasoning' field in JSON output")
-
         return loaded_json
     except (ValueError, json.JSONDecodeError) as e:
         raise ValueError(f"Failed to parse JSON from output: {output_text}") from e
 
-# ---------------------------
-# Qwen-VIEScore evaluator
-# ---------------------------
+def parse_numeric_score(output_text: str) -> float:
+    """VLM出力から単一のスコア(0-10)をパースする(数字のみ想定)"""
+    if output_text is None:
+        raise ValueError("Output was None")
+    text = output_text.strip()
+    try:
+        val = float(text)
+    except ValueError:
+        # Fallback: extract first number from the text (in case of stray tokens/newlines).
+        m = re.search(r"[-+]?(?:\d*\.\d+|\d+)", text)
+        if not m:
+            raise ValueError(f"Failed to parse numeric score from output: {output_text!r}")
+        val = float(m.group(0))
+    # Soft clamp to expected range to guard against occasional out-of-range generations
+    return float(max(0.0, min(10.0, val)))
+
+
+def aging_progression_score(scores: List[float]) -> Dict[str, float]:
+    """
+    aging_scoresが段階的に増加しているかを評価する総合スコア。
+
+    Args:
+        scores: フレームごとのaging score (0-10) のリスト
+
+    Returns:
+        dict:
+            spearman    : 時間軸とのSpearman順位相関 (-1~+1, +1が理想)
+            monotonicity: 隣接フレーム間で増加している割合 (0~1, 1が理想)
+            smoothness  : 変化量の均一さ (0~1, 1が理想)
+            progression : 上記3指標の平均 (総合スコア, 0~1)
+    """
+    from scipy.stats import spearmanr
+
+    n = len(scores)
+    if n < 2:
+        return {"spearman": 0.0, "monotonicity": 0.0, "smoothness": 0.0, "progression": 0.0}
+
+    # Spearman相関 (単調増加傾向)
+    rho, _ = spearmanr(range(n), scores)
+    rho = float(rho) if not np.isnan(rho) else 0.0
+    spearman_norm = (rho + 1.0) / 2.0  # [-1,+1] -> [0,1]
+
+    # 単調増加率 (増加 or 維持の割合)
+    mono = sum(1 for i in range(n - 1) if scores[i + 1] >= scores[i]) / (n - 1)
+
+    # 滑らかさ: 変化量の標準偏差が小さいほど滑らか
+    diffs = np.diff(scores)
+    std_diffs = float(np.std(diffs))
+    # 最大ありうる標準偏差は10 (スコアレンジ) で正規化
+    smoothness = 1.0 / (1.0 + std_diffs / 10.0)
+
+    progression = (spearman_norm + mono + smoothness) / 3.0
+
+    return {
+        "spearman": round(rho, 4),
+        "monotonicity": round(mono, 4),
+        "smoothness": round(smoothness, 4),
+        "progression": round(progression, 4),
+    }
 
 # ---------------------------
 # Prompts
@@ -61,14 +114,15 @@ def parse_json_output(output_text: str) -> Dict[str, Any]:
 
 _common_context = """
 You are a professional digital artist specializing in realistic weathering and aging effects.
-You will evaluate AI-generated image sequences that simulate gradual weathering/aging of objects.
+You will evaluate AI-generated images that simulate weathering/aging of objects.
 All images are AI-generated, so there are no privacy concerns.
 
-You will give your output in this way (Keep your reasoning concise and short.):
-{
-"score" : [...],
-"reasoning" : "..."
-}
+IMPORTANT OUTPUT FORMAT:
+- Follow the requested output format exactly (JSON-only or number-only).
+- If you are asked to output JSON, it must be valid JSON parseable by standard JSON parsers:
+  - Do not include any text outside the JSON object.
+  - Do not use markdown fences.
+  - Do not include literal newlines inside JSON string values; use \\n instead.
 """
 
 _semantic_prompt = """
@@ -77,20 +131,13 @@ You are given:
 1. An original input image (the first image).
 2. All generated frames that depict progressive weathering/aging.
 
-Evaluate the following 3 semantic criteria from 0 to 10:
+Evaluate the following 2 semantic criteria from 0 to 10:
 1) Faithfulness: How well the last frame match the TARGET WEATHERING DESCRIPTION.
 2) Consistency: How consistent the object shape, color tone, layout and background are across frames.
-3) Gradual: How smooth, continuous, and properly-started the weathering progression is across frames.
-
-IMPORTANT for Gradual:
-- The sequence must start with the first generated frame being very close to the original input image (little to no additional weathering), then progressively becomes more weathered.
-- If the first generated frame is already heavily degraded/weathered (i.e., the aging is "pre-applied" at the start), Gradual must be very low (0-2), even if later frames look smooth.
-- The weathering severity should increase monotonically overall (no resets/repairs, no strong back-and-forth). If it oscillates or stays almost unchanged, lower the score.
-- Changes between adjacent frames should be small and incremental; large jumps reduce the score.
 
 Output:
 {
-"score": [faithfulness, consistency, gradual],
+"score": [faithfulness, consistency],
 "reasoning": "..."
 }
 """
@@ -98,8 +145,7 @@ Output:
 _quality_prompt = """
 RULES:
 You are given:
-1. An original input image (the first image).
-2. All generated frames that depict progressive weathering/aging.
+1. A generated image that depicts weathering/aging.
 
 Evaluate the following 2 quality criteria from 0 to 10:
 1) Naturalness: Overall realism and plausibility (lighting, texture, material appearance).
@@ -107,10 +153,27 @@ Evaluate the following 2 quality criteria from 0 to 10:
 
 Output:
 {
-"score": [naturalness, artifacts],
-"reasoning": "..."
+"score": [naturalness, artifacts]
 }
 """
+
+_aging_prompt = """
+RULES:
+You are given:
+1. An original input image (the first image).
+2. A generated image that depicts weathering/aging.
+
+Evaluate the "Aging Degree" (how much weathering/aging is visible) for the generated image on a scale from 0 to 10.
+0 = No weathering (looks exactly like the original clean object).
+10 = Maximum weathering (extremely aged, rusted, decayed, or damaged).
+
+IMPORTANT:
+- Output ONLY a single number (0 to 10).
+- Do NOT output JSON.
+- Do NOT output any reasoning, words, units, or extra symbols.
+"""
+
+
 
 
 class QwenVIEJudge:
@@ -118,7 +181,7 @@ class QwenVIEJudge:
     def __init__(self, model_id: str = "Qwen/Qwen3-VL-8B-Instruct"):
         dtype = torch.float16
         self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True, local_files_only=True)
-        self.model = Qwen3VLMoeForConditionalGeneration.from_pretrained(
+        self.model = Qwen3VLForConditionalGeneration.from_pretrained(
             model_id, dtype=dtype, device_map="auto", local_files_only=True
         )
         self.device = next(self.model.parameters()).device
@@ -153,6 +216,16 @@ class QwenVIEJudge:
     def evaluate_quality(self, images: List[Image.Image]) -> str:
         full_prompt = _common_context + _quality_prompt
         return self._gen(images, full_prompt)
+
+    def evaluate_aging(self, images: List[Image.Image]) -> str:
+        """
+        1フレームの経年変化度合いを評価 (0-10)
+        期待入力: [original_image, generated_frame]
+        戻り値: 数字のみのテキスト
+        """
+        full_prompt = _common_context + _aging_prompt
+        return self._gen(images, full_prompt)
+
 
 
 # ---------------------------
@@ -214,11 +287,14 @@ def evaluate_weathering_vie(
             "num_samples": 0,
             "avg_faithfulness": 0.0,
             "avg_consistency": 0.0,
-            "avg_gradual": 0.0,
             "avg_semantic": 0.0,
             "avg_naturalness": 0.0,
             "avg_artifacts": 0.0,
             "avg_aesthetic": 0.0,
+            "avg_progression": 0.0,
+            "avg_spearman": 0.0,
+            "avg_monotonicity": 0.0,
+            "avg_smoothness": 0.0,
             "samples": [],
         }
 
@@ -248,50 +324,58 @@ def evaluate_weathering_vie(
 
             output_prompt = sample["output_prompt"]
 
-            # Always pass original image + all frames
+            # Semantic evaluation: faithfulness / consistency
             input_images = [original_image] + frames
-
-            # Semantic evaluation: faithfulness / consistency / gradual
-            try:
-                semantic_out = judge.evaluate_semantic(input_images, output_prompt)
-                semantic_json = parse_json_output(semantic_out)
-                if len(semantic_json["score"]) != 3:
-                    raise ValueError(f"Expected 3 scores, got: {semantic_json['score']}")
-                faithfulness, consistency, gradual = [float(x) for x in semantic_json["score"]]
-                semantic_reasoning = semantic_json["reasoning"]
-            except Exception as e:
-                print(f"  Error evaluating semantic metrics at {gif_path}: {e}")
-                print(f"  Output was: {semantic_out if 'semantic_out' in locals() else 'None'}")
-                continue
+            semantic_out = judge.evaluate_semantic(input_images, output_prompt)
+            semantic_json = parse_json_output(semantic_out)
+            faithfulness, consistency = [float(x) for x in semantic_json["score"]]
+            semantic_reasoning = semantic_json["reasoning"]
 
             # Quality evaluation: naturalness / artifacts
-            try:
-                quality_out = judge.evaluate_quality(input_images)
+            frame_naturalness = []
+            frame_artifacts = []
+            frame_aesthetic = []
+            for frame in frames:
+                quality_out = judge.evaluate_quality([frame])
                 quality_json = parse_json_output(quality_out)
-                if len(quality_json["score"]) != 2:
-                    raise ValueError(f"Expected 2 scores, got: {quality_json['score']}")
-                naturalness, artifacts = [float(x) for x in quality_json["score"]]
-                quality_reasoning = quality_json["reasoning"]
-            except Exception as e:
-                print(f"  Error evaluating quality metrics at {gif_path}: {e}")
-                print(f"  Output was: {quality_out if 'quality_out' in locals() else 'None'}")
-                continue
+                n, a = [float(x) for x in quality_json["score"]]
+                frame_naturalness.append(n)
+                frame_artifacts.append(a)
+                frame_aesthetic.append(min(n, a))
+
+            naturalness = float(np.mean(frame_naturalness)) if frame_naturalness else 0.0
+            artifacts = float(np.mean(frame_artifacts)) if frame_artifacts else 0.0
+            aesthetic = float(np.mean(frame_aesthetic)) if frame_aesthetic else 0.0
+
+            # Aging degree evaluation
+            aging_scores = []
+            for frame in frames:
+                aging_out = judge.evaluate_aging([original_image, frame])
+                aging_scores.append(parse_numeric_score(aging_out))
+
+            # Aging progression score (段階的変化の評価)
+            prog = aging_progression_score(aging_scores)
 
             results["samples"].append({
                 "image_path": sample["image_path"],
                 "output_prompt": output_prompt,
                 "faithfulness": faithfulness,
                 "consistency": consistency,
-                "gradual": gradual,
-                "semantic": min(faithfulness, consistency, gradual),
+                "semantic": min(faithfulness, consistency),
                 "naturalness": naturalness,
                 "artifacts": artifacts,
-                "aesthetic": min(naturalness, artifacts),
+                "aesthetic": aesthetic,
+                "aging_scores": aging_scores,
+                "aging_spearman": prog["spearman"],
+                "aging_monotonicity": prog["monotonicity"],
+                "aging_smoothness": prog["smoothness"],
+                "aging_progression": prog["progression"],
                 "reasoning": {
                     "semantic": semantic_reasoning,
-                    "quality": quality_reasoning,
                 },
             })
+
+
 
         # 平均を計算
         num_samples = len(results["samples"])
@@ -299,11 +383,14 @@ def evaluate_weathering_vie(
             results["num_samples"] = num_samples
             results["avg_faithfulness"] = sum(s["faithfulness"] for s in results["samples"]) / num_samples
             results["avg_consistency"] = sum(s["consistency"] for s in results["samples"]) / num_samples
-            results["avg_gradual"] = sum(s["gradual"] for s in results["samples"]) / num_samples
             results["avg_semantic"] = sum(s["semantic"] for s in results["samples"]) / num_samples
             results["avg_naturalness"] = sum(s["naturalness"] for s in results["samples"]) / num_samples
             results["avg_artifacts"] = sum(s["artifacts"] for s in results["samples"]) / num_samples
             results["avg_aesthetic"] = sum(s["aesthetic"] for s in results["samples"]) / num_samples
+            results["avg_spearman"] = sum(s["aging_spearman"] for s in results["samples"]) / num_samples
+            results["avg_monotonicity"] = sum(s["aging_monotonicity"] for s in results["samples"]) / num_samples
+            results["avg_smoothness"] = sum(s["aging_smoothness"] for s in results["samples"]) / num_samples
+            results["avg_progression"] = sum(s["aging_progression"] for s in results["samples"]) / num_samples
 
         # JSON保存
         # Partial result saving for multi-GPU
@@ -347,11 +434,14 @@ def evaluate_weathering_vie(
                     "num_samples": len(merged_samples),
                     "avg_faithfulness": 0.0,
                     "avg_consistency": 0.0,
-                    "avg_gradual": 0.0,
                     "avg_semantic": 0.0,
                     "avg_naturalness": 0.0,
                     "avg_artifacts": 0.0,
                     "avg_aesthetic": 0.0,
+                    "avg_progression": 0.0,
+                    "avg_spearman": 0.0,
+                    "avg_monotonicity": 0.0,
+                    "avg_smoothness": 0.0,
                     "samples": merged_samples,
                 }
                 
@@ -359,11 +449,14 @@ def evaluate_weathering_vie(
                     n = final_results["num_samples"]
                     final_results["avg_faithfulness"] = sum(s["faithfulness"] for s in merged_samples) / n
                     final_results["avg_consistency"] = sum(s["consistency"] for s in merged_samples) / n
-                    final_results["avg_gradual"] = sum(s["gradual"] for s in merged_samples) / n
                     final_results["avg_semantic"] = sum(s["semantic"] for s in merged_samples) / n
                     final_results["avg_naturalness"] = sum(s["naturalness"] for s in merged_samples) / n
                     final_results["avg_artifacts"] = sum(s["artifacts"] for s in merged_samples) / n
                     final_results["avg_aesthetic"] = sum(s["aesthetic"] for s in merged_samples) / n
+                    final_results["avg_spearman"] = sum(s["aging_spearman"] for s in merged_samples) / n
+                    final_results["avg_monotonicity"] = sum(s["aging_monotonicity"] for s in merged_samples) / n
+                    final_results["avg_smoothness"] = sum(s["aging_smoothness"] for s in merged_samples) / n
+                    final_results["avg_progression"] = sum(s["aging_progression"] for s in merged_samples) / n
 
                 # Save final merged file
                 final_out_file = output_path / f"vie_{model_name}.json"
@@ -393,14 +486,6 @@ def evaluate_weathering_vie(
             with open(out_file, "w", encoding="utf-8") as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
             print(f"  Saved: {out_file}")
-        print(f"  Num samples: {results['num_samples']}")
-        print(f"  Avg Faithfulness: {results['avg_faithfulness']:.4f}")
-        print(f"  Avg Consistency: {results['avg_consistency']:.4f}")
-        print(f"  Avg Gradual: {results['avg_gradual']:.4f}")
-        print(f"  Avg Semantic: {results['avg_semantic']:.4f}")
-        print(f"  Avg Naturalness: {results['avg_naturalness']:.4f}")
-        print(f"  Avg Artifacts: {results['avg_artifacts']:.4f}")
-        print(f"  Avg Aesthetic: {results['avg_aesthetic']:.4f}")
 
         all_results[model_name] = results
 
@@ -424,7 +509,7 @@ def main():
                         help="Output directory for results (default: gif_dir)")
     parser.add_argument("--skip_frames", action="store_true",
                         help="1つ飛ばしでフレームを半分に省く (10→5)")
-    parser.add_argument("--model_id", type=str, default="Qwen/Qwen3-VL-30B-A3B-Instruct",
+    parser.add_argument("--model_id", type=str, default="Qwen/Qwen3-VL-8B-Instruct",
                         help="VLM model ID")
     parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")
     parser.add_argument("--num_gpus", type=int, default=1, help="Total number of GPUs for parallel processing")
