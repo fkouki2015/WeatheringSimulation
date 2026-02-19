@@ -535,12 +535,13 @@ class WeatheringModel(nn.Module):
         if train_steps is not None:
             self.TRAIN_STEPS = train_steps
 
-        # パラメータを保存
-        self.input_image = input_image
+        # パラメータを保存（RESOLUTION にリサイズして保存）
+        w, h = self.RESOLUTION
+        self.input_image = input_image.resize((w, h), Image.LANCZOS)
         self.train_prompt = train_prompt
-        # 制御画像を前処理
+        # 制御画像を前処理（リサイズ済み画像から生成）
         self.control_images = []
-        canny_image = canny_process(input_image, self.device, self.dtype)
+        canny_image = canny_process(self.input_image, self.device, self.dtype)
         self.control_images.append(canny_image)
 
         # 学習実行

@@ -53,7 +53,8 @@ def _get_weathering_model(device: str) -> WeatheringModel:
 def step1_generate_prompt(image, device):
     """アップロード画像からVLMでプロンプトを生成する"""
     if image is None:
-        return gr.update(), gr.update(value="⚠️ 画像をアップロードしてください")
+        # 7つの出力に対応した空のupdateを返す
+        return gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(), gr.update(value="⚠️ 画像をアップロードしてください")
 
     # PIL 画像を一時ファイルに保存（vlm は file path を受け取る）
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
@@ -69,12 +70,20 @@ def step1_generate_prompt(image, device):
             mode="age", image_path=tmp_path
         )
         return (
-            gr.update(value=input_prompt),
-            gr.update(value=output_prompt),
+            gr.update(value=input_prompt),   # t1_input_prompt
+            gr.update(value=output_prompt),  # shared_output_prompt
+            gr.update(value=image),          # t2_image（Step2に自動反映）
+            gr.update(value=input_prompt),   # t2_input_prompt（Step2に自動反映）
+            gr.update(value=output_prompt),  # t1_output_prompt（Step1に表示）
+            gr.update(value=output_prompt),  # t3_output_prompt（Step3に自動反映）
             gr.update(value="✅ プロンプト生成完了"),
         )
     except Exception as e:
         return (
+            gr.update(),
+            gr.update(),
+            gr.update(),
+            gr.update(),
             gr.update(),
             gr.update(),
             gr.update(value=f"❌ エラー: {e}"),
@@ -176,11 +185,13 @@ def step3_generate(output_prompt, negative_prompt, num_frames, guidance_scale, a
 def build_ui(device: str):
     css = """
     .tab-header { font-size: 1.1rem; font-weight: 700; }
-    .status-box { font-size: 0.85rem; }
+    .status-box {
+        font-size: 0.85rem;
+    }
     """
 
-    with gr.Blocks(title="Weathering Model", css=css, theme=gr.themes.Soft()) as demo:
-        gr.Markdown("# ⚙️ Weathering Model")
+    with gr.Blocks(title="Weathering Simulation", css=css, theme=gr.themes.Soft()) as demo:
+        gr.Markdown("# Weathering Simulation")
         gr.Markdown("3ステップで画像の経年変化を生成します。")
 
         # 共有ステート
@@ -203,13 +214,12 @@ def build_ui(device: str):
                             placeholder="例: A clean car",
                             lines=2,
                         )
-                        t1_status = gr.Textbox(label="ステータス", interactive=False, lines=1, elem_classes="status-box")
-
-                t1_btn.click(
-                    fn=step1_generate_prompt,
-                    inputs=[t1_image, gr.State(device)],
-                    outputs=[t1_input_prompt, shared_output_prompt, t1_status],
-                )
+                        t1_output_prompt = gr.Textbox(
+                            label="Output Prompt（編集可）",
+                            placeholder="例: A heavily rusted car",
+                            lines=2,
+                        )
+                        t1_status = gr.Textbox(label="ステータス", interactive=False, lines=2, elem_classes="status-box")
 
             # ====== Tab 2: 学習 ======
             with gr.Tab("Step 2: 学習"):
@@ -222,35 +232,17 @@ def build_ui(device: str):
                             placeholder="Step 1 から自動でコピー、または直接入力",
                             lines=2,
                         )
-                        t2_output_prompt = gr.Textbox(
-                            label="Output Prompt（学習ターゲット）",
-                            placeholder="Step 1 から自動でコピー、または直接入力",
-                            lines=2,
-                        )
                     with gr.Column(scale=1):
                         t2_lr = gr.Number(label="Learning Rate", value=1e-5, precision=8)
-                        t2_steps = gr.Slider(label="Train Steps", minimum=50, maximum=1000, step=50, value=450)
+                        t2_steps = gr.Slider(label="Max Train Steps", minimum=50, maximum=1000, step=50, value=450)
                         t2_rank = gr.Slider(label="LoRA Rank", minimum=2, maximum=64, step=2, value=8)
                         t2_btn = gr.Button("🚀 学習開始", variant="primary")
                         t2_log = gr.Textbox(label="学習ログ", interactive=False, lines=8, elem_classes="status-box")
 
                 t2_btn.click(
                     fn=step2_train,
-                    inputs=[t2_image, t2_input_prompt, t2_output_prompt, t2_lr, t2_steps, t2_rank, gr.State(device)],
+                    inputs=[t2_image, t2_input_prompt, shared_output_prompt, t2_lr, t2_steps, t2_rank, gr.State(device)],
                     outputs=[t2_log],
-                )
-
-                # Step 1 → Step 2 への値引き継ぎボタン
-                with gr.Row():
-                    sync_btn = gr.Button("↩ Step 1 の画像・プロンプトを引き継ぐ")
-
-                def _sync_from_step1(img, inp, out):
-                    return img, inp, out
-
-                sync_btn.click(
-                    fn=_sync_from_step1,
-                    inputs=[t1_image, t1_input_prompt, shared_output_prompt],
-                    outputs=[t2_image, t2_input_prompt, t2_output_prompt],
                 )
 
             # ====== Tab 3: 生成 ======
@@ -278,25 +270,41 @@ def build_ui(device: str):
                         t3_num_frames = gr.Slider(label="Num Frames", minimum=1, maximum=20, step=1, value=5)
                         t3_guidance = gr.Slider(label="Guidance Scale", minimum=1.0, maximum=20.0, step=0.5, value=7.5)
                         t3_btn = gr.Button("🎞️ フレーム生成", variant="primary")
-                        t3_status = gr.Textbox(label="ステータス", interactive=False, lines=1, elem_classes="status-box")
+                        t3_status = gr.Textbox(label="ステータス", interactive=False, lines=2, elem_classes="status-box")
                     with gr.Column(scale=2):
                         t3_gallery = gr.Gallery(label="生成フレーム", columns=5, height="auto")
-
-                # Step 2 → Step 3 への値引き継ぎボタン
-                with gr.Row():
-                    sync_btn3 = gr.Button("↩ Step 2 の Output Prompt を引き継ぐ")
-
-                sync_btn3.click(
-                    fn=lambda x: x,
-                    inputs=[t2_output_prompt],
-                    outputs=[t3_output_prompt],
-                )
 
                 t3_btn.click(
                     fn=step3_generate,
                     inputs=[t3_output_prompt, t3_negative_prompt, t3_num_frames, t3_guidance, t3_attn_word, gr.State(device)],
                     outputs=[t3_gallery, t3_status],
                 )
+
+        # Tab 1 ボタン → Tab 2/3 コンポーネントを引き継ぎ（Tabs ブロック外に登録しUnboundLocalErrorを回避）
+        t1_btn.click(
+            fn=step1_generate_prompt,
+            inputs=[t1_image, gr.State(device)],
+            outputs=[t1_input_prompt, shared_output_prompt, t2_image, t2_input_prompt, t1_output_prompt, t3_output_prompt, t1_status],
+        )
+
+        # Step 1 プロンプト編集時に即座に Step 2/3 に反映
+        t1_input_prompt.change(
+            fn=lambda x: x,
+            inputs=[t1_input_prompt],
+            outputs=[t2_input_prompt],
+        )
+        t1_output_prompt.change(
+            fn=lambda x: (x, x),
+            inputs=[t1_output_prompt],
+            outputs=[shared_output_prompt, t3_output_prompt],
+        )
+
+        t1_image.change(
+            fn=lambda x: x,
+            inputs=[t1_image],
+            outputs=[t2_image],
+        )
+
 
     return demo
 
