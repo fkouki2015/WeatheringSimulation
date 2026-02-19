@@ -69,7 +69,7 @@ def step1_generate_prompt(image, device):
         input_prompt, output_prompt, instruction = vlm_module.vlm_inference(
             mode="age", image_path=tmp_path
         )
-        vlm_module.unload_vlm()
+        # vlm_module.unload_vlm()
         return (
             gr.update(value=input_prompt),   # t1_input_prompt
             gr.update(value=output_prompt),  # shared_output_prompt
@@ -80,7 +80,7 @@ def step1_generate_prompt(image, device):
             gr.update(value="✅ プロンプト生成完了"),
         )
     except Exception as e:
-        vlm_module.unload_vlm()
+        # vlm_module.unload_vlm()
         return (
             gr.update(),
             gr.update(),
@@ -115,8 +115,8 @@ def step2_train(image, input_prompt, output_prompt, learning_rate, train_steps, 
     else:
         pil_img = Image.fromarray(image).convert("RGB")
 
-    # output_prompt を train_prompt として使う（学習プロンプト = 劣化後の状態）
-    train_prompt = output_prompt.strip() if output_prompt.strip() else input_prompt.strip()
+    # input_prompt（元の状態）を学習プロンプトとして使う（main.py と同じ挙動）
+    train_prompt = input_prompt.strip()
 
     yield gr.update(value=f"🔄 学習開始... (LR={learning_rate}, Steps={train_steps}, Rank={lora_rank})")
 

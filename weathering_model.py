@@ -1,6 +1,5 @@
 import os
 import sys
-import uuid
 from tqdm import tqdm
 import numpy as np
 from PIL import Image
@@ -255,6 +254,22 @@ class WeatheringModel(nn.Module):
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
+        # UNetを事前学習済み重みから再ロードしてリセット（LoRAも完全に初期化）
+        self.unet = UNet2DConditionModel.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="unet"
+        ).to(self.device)
+        self.unet.requires_grad_(False)
+        print("UNetをリセットしました")
+
+        # ControlNetを事前学習済み重みにリセット
+        self.controlnet_canny = ControlNetModel.from_pretrained(
+            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
+        ).to(self.device)
+        self.controlnets = [self.controlnet_canny]
+        for c in self.controlnets:
+            c.requires_grad_(False)
+        print("ControlNetをリセットしました")
+
         self.unet.requires_grad_(False)
         self.unet.train()
 
@@ -299,9 +314,7 @@ class WeatheringModel(nn.Module):
             target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0"],
             lora_dropout=self.LORA_DROPOUT
         )
-        self.adapter_name = f"train-{uuid.uuid4().hex[:8]}"
-        self.unet.add_adapter(unet_lora_config, adapter_name=self.adapter_name)
-        self.unet.set_adapters([self.adapter_name])
+        self.unet.add_adapter(unet_lora_config)
         
         base_lr = self.LEARNING_RATE
         groups_by_scale = {}
@@ -495,28 +508,28 @@ class WeatheringModel(nn.Module):
             self.scaler.update()
             self.optimizer.zero_grad(set_to_none=True)
             
-            # 5. 評価と早期停止
-            if step % self.CLIP_EVAL_INTERVAL == 0:
-                avg_dist = self._evaluate(step, latent, self.control_images, image)
+            # # 5. 評価と早期停止
+            # if step % self.CLIP_EVAL_INTERVAL == 0:
+            #     avg_dist = self._evaluate(step, latent, self.control_images, image)
                 
-                if prev_lpips is None:
-                    improvement_rate = 0.0
-                    no_improve_streak = 0
-                else:
-                    improvement = prev_lpips - avg_dist
-                    improvement_rate = improvement / (prev_lpips + 1e-12)
+            #     if prev_lpips is None:
+            #         improvement_rate = 0.0
+            #         no_improve_streak = 0
+            #     else:
+            #         improvement = prev_lpips - avg_dist
+            #         improvement_rate = improvement / (prev_lpips + 1e-12)
                     
-                    if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
-                        no_improve_streak = 0
-                    else:
-                        no_improve_streak += 1
-                        if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
-                            tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
-                            break
+            #         if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
+            #             no_improve_streak = 0
+            #         else:
+            #             no_improve_streak += 1
+            #             if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
+            #                 tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
+            #                 break
                 
-                prev_lpips = avg_dist
-                tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
-                sys.stdout.flush()
+            #     prev_lpips = avg_dist
+            #     tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
+            #     sys.stdout.flush()
 
                 
             progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
