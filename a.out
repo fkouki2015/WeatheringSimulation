@@ -1,384 +1,0 @@
-
-%NQSV(INFO): ------- Output from job:0000 -------
-GPU 0/2: Processing 111/221 samples
-Processing with model: proposed
-Loading Proposed Model...
-proposed:   0%|          | 0/111 [00:00<?, ?it/s]/work/DDIPM/kfukushima/anaconda3/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
-  warnings.warn(
-GPU 1/2: Processing 110/221 samples
-Processing with model: proposed
-Loading Proposed Model...
-proposed:   0%|          | 0/110 [00:00<?, ?it/s]/work/DDIPM/kfukushima/anaconda3/lib/python3.10/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
-  warnings.warn(
-/work/DDIPM/kfukushima/anaconda3/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/DDIPM/kfukushima/anaconda3/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-
-Processing sample 1: images_test/image_005.jpg
-Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
-Loading model from: /work/DDIPM/kfukushima/anaconda3/lib/python3.10/site-packages/lpips/weights/v0.1/vgg.pth
-
-==================================================
-Phase 1: LoRA学習セットアップ (高ノイズ領域)
-==================================================
-LoRA学習可能パラメータ数: 795648
-
-Phase1-LoRA:   0%|          | 0/300 [00:00<?, ?it/s][A/work/DDIPM/kfukushima/anaconda3/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
-  warnings.warn(
-/work/DDIPM/kfukushima/anaconda3/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
-  warnings.warn(msg)
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: b8aa1c55-e5eb-422c-8931-bbdbd6a7fb9d)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: da552d36-5e53-4edd-8456-d4723ae60acb)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 93c72f88-fe00-4541-9512-dde4eff92788)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 7df26e32-0b5f-4066-9571-3c49b9e3e918)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-
-Processing sample 0: images_test/image_004.jpg
-Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
-Loading model from: /work/DDIPM/kfukushima/anaconda3/lib/python3.10/site-packages/lpips/weights/v0.1/vgg.pth
-
-==================================================
-Phase 1: LoRA学習セットアップ (高ノイズ領域)
-==================================================
-LoRA学習可能パラメータ数: 795648
-
-Phase1-LoRA:   0%|          | 0/300 [00:00<?, ?it/s][A'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: c47aebf5-d61c-44d7-9301-178bc258b58e)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 67c4fde0-9819-4c5b-8abd-e8b2eceddbf5)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 54c56f5c-93d2-477f-aa55-ce4485600ed1)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 5/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 0ea7fd7a-90e7-489d-9f91-c03341c7c059)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 724f2654-ae5e-4001-a51b-4176e10d432a)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 78926135-e9c8-47f7-80d9-25f527804164)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: c0eaee96-6e8e-442c-947c-918d8a8e0098)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 037f5837-24ea-4bcc-9407-b9c8190722ac)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 902e01ff-4dc5-4608-b7dd-04ac2ff4b23a)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 25bf46e7-9198-41ab-9de4-5bce3c45904c)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 5/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 3893f672-57db-426c-8b93-0cd5714a30bd)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 5f691900-d1cc-42ef-af7b-c47eb73d7cf0)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: fc186052-ca94-4053-a038-f046d146cd33)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: cc9de9ce-4bef-4000-b2e0-5951a5283a1e)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 1d8c2fb5-d8a8-496d-8445-224d51d66d03)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 5/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 281fd612-4717-4b3f-8ce7-07c1bda44c6f)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: a346023c-85bb-49de-b05b-ee5053d908f6)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 5d224ffe-5869-468c-8d75-ac07f58fee01)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: e77dbcbe-3661-479d-bd23-dfcb6b40c6f5)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: b5c90de2-9532-4493-a61c-3516acea1c9f)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: dea4e02a-46d8-4a9e-8dc1-3394adc96869)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: b583c5ab-b2fe-418e-8f86-b55c5465fdf4)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 5/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 98200131-da4c-4b9b-82a7-6d4b00f9ab3b)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: da5897d6-948f-45a2-9d7d-2f1e12113c8c)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 64d07df2-0114-4e45-985e-6dd27da8604e)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 49d4c850-5110-414e-80f2-495763986e0b)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 4c0c49ba-e486-4e89-bc1d-573cf80d18b5)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 5/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 76697ed3-9eec-4bb8-9b19-40f7f25596ed)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 788cc0f0-0e00-434e-815f-92f5a46951a7)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: d19ae950-d4d5-4745-bbc4-f12c9ec63c6f)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-                                                 
-                                                    [Aproposed:   0%|          | 0/110 [01:19<?, ?it/s]
-Phase1-LoRA:   0%|          | 0/300 [01:15<?, ?it/s][A
-[Phase1] LPIPS=0.4946, 改善率=0.00%
-
-Phase1-LoRA:   0%|          | 0/300 [01:15<?, ?it/s, Loss=0.0446][A
-Phase1-LoRA:   0%|          | 1/300 [01:15<6:14:47, 75.21s/it, Loss=0.0446][A
-Phase1-LoRA:   0%|          | 1/300 [01:15<6:14:47, 75.21s/it, Loss=0.0045][A
-Phase1-LoRA:   1%|          | 2/300 [01:15<2:34:11, 31.05s/it, Loss=0.0045][A
-Phase1-LoRA:   1%|          | 2/300 [01:15<2:34:11, 31.05s/it, Loss=0.0056][A
-Phase1-LoRA:   1%|          | 3/300 [01:15<1:23:47, 16.93s/it, Loss=0.0056][A
-Phase1-LoRA:   1%|          | 3/300 [01:15<1:23:47, 16.93s/it, Loss=0.0146][A
-Phase1-LoRA:   1%|▏         | 4/300 [01:15<50:47, 10.30s/it, Loss=0.0146]  [A
-Phase1-LoRA:   1%|▏         | 4/300 [01:15<50:47, 10.30s/it, Loss=0.0461][A
-Phase1-LoRA:   2%|▏         | 5/300 [01:15<32:35,  6.63s/it, Loss=0.0461][A
-Phase1-LoRA:   2%|▏         | 5/300 [01:15<32:35,  6.63s/it, Loss=0.0230][A
-Phase1-LoRA:   2%|▏         | 6/300 [01:15<21:39,  4.42s/it, Loss=0.0230][A
-Phase1-LoRA:   2%|▏         | 6/300 [01:15<21:39,  4.42s/it, Loss=0.0561][A
-Phase1-LoRA:   2%|▏         | 7/300 [01:15<14:43,  3.02s/it, Loss=0.0561][A
-Phase1-LoRA:   2%|▏         | 7/300 [01:16<14:43,  3.02s/it, Loss=0.0082][A
-Phase1-LoRA:   3%|▎         | 8/300 [01:16<10:12,  2.10s/it, Loss=0.0082][A
-Phase1-LoRA:   3%|▎         | 8/300 [01:16<10:12,  2.10s/it, Loss=0.0029][A
-Phase1-LoRA:   3%|▎         | 9/300 [01:16<07:11,  1.48s/it, Loss=0.0029][A
-Phase1-LoRA:   3%|▎         | 9/300 [01:16<07:11,  1.48s/it, Loss=0.0117][A
-Phase1-LoRA:   3%|▎         | 10/300 [01:16<05:08,  1.06s/it, Loss=0.0117][A
-Phase1-LoRA:   3%|▎         | 10/300 [01:16<05:08,  1.06s/it, Loss=0.0107][A
-Phase1-LoRA:   4%|▎         | 11/300 [01:16<03:44,  1.29it/s, Loss=0.0107][A
-Phase1-LoRA:   4%|▎         | 11/300 [01:16<03:44,  1.29it/s, Loss=0.0103][A
-Phase1-LoRA:   4%|▍         | 12/300 [01:16<02:47,  1.72it/s, Loss=0.0103][A
-Phase1-LoRA:   4%|▍         | 12/300 [01:16<02:47,  1.72it/s, Loss=0.0616][A
-Phase1-LoRA:   4%|▍         | 13/300 [01:16<02:07,  2.25it/s, Loss=0.0616][A
-Phase1-LoRA:   4%|▍         | 13/300 [01:16<02:07,  2.25it/s, Loss=0.0604][A
-Phase1-LoRA:   5%|▍         | 14/300 [01:16<01:39,  2.87it/s, Loss=0.0604][A
-Phase1-LoRA:   5%|▍         | 14/300 [01:17<01:39,  2.87it/s, Loss=0.0074][A
-Phase1-LoRA:   5%|▌         | 15/300 [01:17<01:20,  3.54it/s, Loss=0.0074][A
-Phase1-LoRA:   5%|▌         | 15/300 [01:17<01:20,  3.54it/s, Loss=0.0115][A
-Phase1-LoRA:   5%|▌         | 16/300 [01:17<01:07,  4.23it/s, Loss=0.0115][A
-Phase1-LoRA:   5%|▌         | 16/300 [01:17<01:07,  4.23it/s, Loss=0.0041][A
-Phase1-LoRA:   6%|▌         | 17/300 [01:17<00:57,  4.90it/s, Loss=0.0041][A
-Phase1-LoRA:   6%|▌         | 17/300 [01:17<00:57,  4.90it/s, Loss=0.0087][A
-Phase1-LoRA:   6%|▌         | 18/300 [01:17<00:51,  5.51it/s, Loss=0.0087][A
-Phase1-LoRA:   6%|▌         | 18/300 [01:17<00:51,  5.51it/s, Loss=0.0066][A
-Phase1-LoRA:   6%|▋         | 19/300 [01:17<00:46,  6.03it/s, Loss=0.0066][A
-Phase1-LoRA:   6%|▋         | 19/300 [01:17<00:46,  6.03it/s, Loss=0.0046][A
-Phase1-LoRA:   7%|▋         | 20/300 [01:17<00:43,  6.46it/s, Loss=0.0046][A
-Phase1-LoRA:   7%|▋         | 20/300 [01:17<00:43,  6.46it/s, Loss=0.0193][A
-Phase1-LoRA:   7%|▋         | 21/300 [01:17<00:41,  6.79it/s, Loss=0.0193][A
-Phase1-LoRA:   7%|▋         | 21/300 [01:17<00:41,  6.79it/s, Loss=0.0280][A
-Phase1-LoRA:   7%|▋         | 22/300 [01:17<00:39,  7.05it/s, Loss=0.0280][A
-Phase1-LoRA:   7%|▋         | 22/300 [01:18<00:39,  7.05it/s, Loss=0.0106][A
-Phase1-LoRA:   8%|▊         | 23/300 [01:18<00:38,  7.25it/s, Loss=0.0106][A
-Phase1-LoRA:   8%|▊         | 23/300 [01:18<00:38,  7.25it/s, Loss=0.0206][A
-Phase1-LoRA:   8%|▊         | 24/300 [01:18<00:37,  7.39it/s, Loss=0.0206][A
-Phase1-LoRA:   8%|▊         | 24/300 [01:18<00:37,  7.39it/s, Loss=0.0415][A
-Phase1-LoRA:   8%|▊         | 25/300 [01:18<00:36,  7.49it/s, Loss=0.0415][A
-Phase1-LoRA:   8%|▊         | 25/300 [01:18<00:36,  7.49it/s, Loss=0.0406][A
-Phase1-LoRA:   9%|▊         | 26/300 [01:18<00:36,  7.57it/s, Loss=0.0406][A
-Phase1-LoRA:   9%|▊         | 26/300 [01:18<00:36,  7.57it/s, Loss=0.0464][A
-Phase1-LoRA:   9%|▉         | 27/300 [01:18<00:35,  7.62it/s, Loss=0.0464][A
-Phase1-LoRA:   9%|▉         | 27/300 [01:18<00:35,  7.62it/s, Loss=0.0332][A
-Phase1-LoRA:   9%|▉         | 28/300 [01:18<00:35,  7.66it/s, Loss=0.0332][A
-Phase1-LoRA:   9%|▉         | 28/300 [01:18<00:35,  7.66it/s, Loss=0.0460][A
-Phase1-LoRA:  10%|▉         | 29/300 [01:18<00:35,  7.69it/s, Loss=0.0460][A
-Phase1-LoRA:  10%|▉         | 29/300 [01:18<00:35,  7.69it/s, Loss=0.0059][A
-Phase1-LoRA:  10%|█         | 30/300 [01:18<00:35,  7.70it/s, Loss=0.0059][A
-Phase1-LoRA:  10%|█         | 30/300 [01:19<00:35,  7.70it/s, Loss=0.0027][A
-Phase1-LoRA:  10%|█         | 31/300 [01:19<00:34,  7.71it/s, Loss=0.0027][A
-Phase1-LoRA:  10%|█         | 31/300 [01:19<00:34,  7.71it/s, Loss=0.0066][A
-Phase1-LoRA:  11%|█         | 32/300 [01:19<00:34,  7.72it/s, Loss=0.0066][A'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: ba91d792-b3d3-48a4-b811-5fad2368871a)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 5/5].
-
-Phase1-LoRA:  11%|█         | 32/300 [01:19<00:34,  7.72it/s, Loss=0.0530][A
-Phase1-LoRA:  11%|█         | 33/300 [01:19<00:34,  7.73it/s, Loss=0.0530][A
-Phase1-LoRA:  11%|█         | 33/300 [01:19<00:34,  7.73it/s, Loss=0.0571][A
-Phase1-LoRA:  11%|█▏        | 34/300 [01:19<00:34,  7.73it/s, Loss=0.0571][A
-Phase1-LoRA:  11%|█▏        | 34/300 [01:19<00:34,  7.73it/s, Loss=0.0168][A
-Phase1-LoRA:  12%|█▏        | 35/300 [01:19<00:34,  7.74it/s, Loss=0.0168][A
-Phase1-LoRA:  12%|█▏        | 35/300 [01:19<00:34,  7.74it/s, Loss=0.0269][A
-Phase1-LoRA:  12%|█▏        | 36/300 [01:19<00:34,  7.74it/s, Loss=0.0269][A
-Phase1-LoRA:  12%|█▏        | 36/300 [01:19<00:34,  7.74it/s, Loss=0.0089][A
-Phase1-LoRA:  12%|█▏        | 37/300 [01:19<00:33,  7.74it/s, Loss=0.0089][A
-Phase1-LoRA:  12%|█▏        | 37/300 [01:19<00:33,  7.74it/s, Loss=0.0024][A
-Phase1-LoRA:  13%|█▎        | 38/300 [01:19<00:33,  7.74it/s, Loss=0.0024][A
-Phase1-LoRA:  13%|█▎        | 38/300 [01:20<00:33,  7.74it/s, Loss=0.0086][A
-Phase1-LoRA:  13%|█▎        | 39/300 [01:20<00:33,  7.74it/s, Loss=0.0086][A
-Phase1-LoRA:  13%|█▎        | 39/300 [01:20<00:33,  7.74it/s, Loss=0.0020][A
-Phase1-LoRA:  13%|█▎        | 40/300 [01:20<00:33,  7.74it/s, Loss=0.0020][A
-Phase1-LoRA:  13%|█▎        | 40/300 [01:20<00:33,  7.74it/s, Loss=0.0101][A
-Phase1-LoRA:  14%|█▎        | 41/300 [01:20<00:33,  7.74it/s, Loss=0.0101][A
-Phase1-LoRA:  14%|█▎        | 41/300 [01:20<00:33,  7.74it/s, Loss=0.0042][A
-Phase1-LoRA:  14%|█▍        | 42/300 [01:20<00:33,  7.74it/s, Loss=0.0042][A
-Phase1-LoRA:  14%|█▍        | 42/300 [01:20<00:33,  7.74it/s, Loss=0.0074][A
-Phase1-LoRA:  14%|█▍        | 43/300 [01:20<00:33,  7.74it/s, Loss=0.0074][A
-Phase1-LoRA:  14%|█▍        | 43/300 [01:20<00:33,  7.74it/s, Loss=0.0415][A
-Phase1-LoRA:  15%|█▍        | 44/300 [01:20<00:33,  7.74it/s, Loss=0.0415][A
-Phase1-LoRA:  15%|█▍        | 44/300 [01:20<00:33,  7.74it/s, Loss=0.0047][A
-Phase1-LoRA:  15%|█▌        | 45/300 [01:20<00:32,  7.74it/s, Loss=0.0047][A
-Phase1-LoRA:  15%|█▌        | 45/300 [01:21<00:32,  7.74it/s, Loss=0.0117][A
-Phase1-LoRA:  15%|█▌        | 46/300 [01:21<00:32,  7.74it/s, Loss=0.0117][A
-Phase1-LoRA:  15%|█▌        | 46/300 [01:21<00:32,  7.74it/s, Loss=0.0639][A
-Phase1-LoRA:  16%|█▌        | 47/300 [01:21<00:32,  7.74it/s, Loss=0.0639][A
-Phase1-LoRA:  16%|█▌        | 47/300 [01:21<00:32,  7.74it/s, Loss=0.0053][A
-Phase1-LoRA:  16%|█▌        | 48/300 [01:21<00:32,  7.75it/s, Loss=0.0053][A
-Phase1-LoRA:  16%|█▌        | 48/300 [01:21<00:32,  7.75it/s, Loss=0.0035][A
-Phase1-LoRA:  16%|█▋        | 49/300 [01:21<00:32,  7.74it/s, Loss=0.0035][A
-Phase1-LoRA:  16%|█▋        | 49/300 [01:21<00:32,  7.74it/s, Loss=0.0098][A
-Phase1-LoRA:  17%|█▋        | 50/300 [01:21<00:32,  7.74it/s, Loss=0.0098][A'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 459b230f-8f6a-4374-89af-d2e57747ce05)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 88288428-8503-49ba-9959-395097447e32)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: efa83802-4eb5-4bad-8b75-81e114f0c1a3)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: a9ff6ca2-4f75-44fe-926d-504c2a57c478)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 22de382a-c3a0-4d57-a266-7837f187a282)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-                                                 
-                                                    [Aproposed:   0%|          | 0/111 [01:36<?, ?it/s]
-Phase1-LoRA:   0%|          | 0/300 [01:19<?, ?it/s][A
-[Phase1] LPIPS=0.2509, 改善率=0.00%
-
-Phase1-LoRA:   0%|          | 0/300 [01:19<?, ?it/s, Loss=0.0026][A
-Phase1-LoRA:   0%|          | 1/300 [01:19<6:35:17, 79.32s/it, Loss=0.0026][A
-Phase1-LoRA:   0%|          | 1/300 [01:19<6:35:17, 79.32s/it, Loss=0.0055][A
-Phase1-LoRA:   1%|          | 2/300 [01:19<2:42:35, 32.74s/it, Loss=0.0055][A
-Phase1-LoRA:   1%|          | 2/300 [01:19<2:42:35, 32.74s/it, Loss=0.0013][A
-Phase1-LoRA:   1%|          | 3/300 [01:19<1:28:20, 17.85s/it, Loss=0.0013][A
-Phase1-LoRA:   1%|          | 3/300 [01:19<1:28:20, 17.85s/it, Loss=0.0168][A
-Phase1-LoRA:   1%|▏         | 4/300 [01:19<53:32, 10.85s/it, Loss=0.0168]  [A
-Phase1-LoRA:   1%|▏         | 4/300 [01:19<53:32, 10.85s/it, Loss=0.0041][A
-Phase1-LoRA:   2%|▏         | 5/300 [01:19<34:20,  6.99s/it, Loss=0.0041][A
-Phase1-LoRA:   2%|▏         | 5/300 [01:19<34:20,  6.99s/it, Loss=0.0139][A
-Phase1-LoRA:   2%|▏         | 6/300 [01:19<22:48,  4.65s/it, Loss=0.0139][A
-Phase1-LoRA:   2%|▏         | 6/300 [01:20<22:48,  4.65s/it, Loss=0.0180][A
-Phase1-LoRA:   2%|▏         | 7/300 [01:20<15:30,  3.17s/it, Loss=0.0180][A
-Phase1-LoRA:   2%|▏         | 7/300 [01:20<15:30,  3.17s/it, Loss=0.0024][A
-Phase1-LoRA:   3%|▎         | 8/300 [01:20<10:43,  2.20s/it, Loss=0.0024][A
-Phase1-LoRA:   3%|▎         | 8/300 [01:20<10:43,  2.20s/it, Loss=0.0015][A
-Phase1-LoRA:   3%|▎         | 9/300 [01:20<07:32,  1.56s/it, Loss=0.0015][A
-Phase1-LoRA:   3%|▎         | 9/300 [01:20<07:32,  1.56s/it, Loss=0.0250][A
-Phase1-LoRA:   3%|▎         | 10/300 [01:20<05:23,  1.12s/it, Loss=0.0250][A
-Phase1-LoRA:   3%|▎         | 10/300 [01:20<05:23,  1.12s/it, Loss=0.0061][A
-Phase1-LoRA:   4%|▎         | 11/300 [01:20<03:55,  1.23it/s, Loss=0.0061][A
-Phase1-LoRA:   4%|▎         | 11/300 [01:20<03:55,  1.23it/s, Loss=0.0052][A
-Phase1-LoRA:   4%|▍         | 12/300 [01:20<02:54,  1.65it/s, Loss=0.0052][A
-Phase1-LoRA:   4%|▍         | 12/300 [01:20<02:54,  1.65it/s, Loss=0.0022][A
-Phase1-LoRA:   4%|▍         | 13/300 [01:20<02:12,  2.17it/s, Loss=0.0022][A
-Phase1-LoRA:   4%|▍         | 13/300 [01:20<02:12,  2.17it/s, Loss=0.0043][A
-Phase1-LoRA:   5%|▍         | 14/300 [01:20<01:43,  2.77it/s, Loss=0.0043][A
-Phase1-LoRA:   5%|▍         | 14/300 [01:21<01:43,  2.77it/s, Loss=0.0064][A
-Phase1-LoRA:   5%|▌         | 15/300 [01:21<01:22,  3.44it/s, Loss=0.0064][A
-Phase1-LoRA:   5%|▌         | 15/300 [01:21<01:22,  3.44it/s, Loss=0.0103][A
-Phase1-LoRA:   5%|▌         | 16/300 [01:21<01:08,  4.13it/s, Loss=0.0103][A
-Phase1-LoRA:   5%|▌         | 16/300 [01:21<01:08,  4.13it/s, Loss=0.0155][A
-Phase1-LoRA:   6%|▌         | 17/300 [01:21<00:58,  4.81it/s, Loss=0.0155][A
-Phase1-LoRA:   6%|▌         | 17/300 [01:21<00:58,  4.81it/s, Loss=0.0046][A
-Phase1-LoRA:   6%|▌         | 18/300 [01:21<00:51,  5.43it/s, Loss=0.0046][A
-Phase1-LoRA:   6%|▌         | 18/300 [01:21<00:51,  5.43it/s, Loss=0.0150][A
-Phase1-LoRA:   6%|▋         | 19/300 [01:21<00:47,  5.97it/s, Loss=0.0150][A
-Phase1-LoRA:   6%|▋         | 19/300 [01:21<00:47,  5.97it/s, Loss=0.0197][A
-Phase1-LoRA:   7%|▋         | 20/300 [01:21<00:43,  6.42it/s, Loss=0.0197][A
-Phase1-LoRA:   7%|▋         | 20/300 [01:21<00:43,  6.42it/s, Loss=0.0176][A
-Phase1-LoRA:   7%|▋         | 21/300 [01:21<00:41,  6.77it/s, Loss=0.0176][A
-Phase1-LoRA:   7%|▋         | 21/300 [01:22<00:41,  6.77it/s, Loss=0.0025][A
-Phase1-LoRA:   7%|▋         | 22/300 [01:22<00:39,  7.04it/s, Loss=0.0025][A
-Phase1-LoRA:   7%|▋         | 22/300 [01:22<00:39,  7.04it/s, Loss=0.0016][A
-Phase1-LoRA:   8%|▊         | 23/300 [01:22<00:38,  7.25it/s, Loss=0.0016][A
-Phase1-LoRA:   8%|▊         | 23/300 [01:22<00:38,  7.25it/s, Loss=0.0040][A
-Phase1-LoRA:   8%|▊         | 24/300 [01:22<00:37,  7.40it/s, Loss=0.0040][A
-Phase1-LoRA:   8%|▊         | 24/300 [01:22<00:37,  7.40it/s, Loss=0.0056][A
-Phase1-LoRA:   8%|▊         | 25/300 [01:22<00:36,  7.50it/s, Loss=0.0056][A
-Phase1-LoRA:   8%|▊         | 25/300 [01:22<00:36,  7.50it/s, Loss=0.0078][A
-Phase1-LoRA:   9%|▊         | 26/300 [01:22<00:36,  7.58it/s, Loss=0.0078][A
-Phase1-LoRA:   9%|▊         | 26/300 [01:22<00:36,  7.58it/s, Loss=0.0172][A
-Phase1-LoRA:   9%|▉         | 27/300 [01:22<00:35,  7.64it/s, Loss=0.0172][A
-Phase1-LoRA:   9%|▉         | 27/300 [01:22<00:35,  7.64it/s, Loss=0.0185][A
-Phase1-LoRA:   9%|▉         | 28/300 [01:22<00:35,  7.68it/s, Loss=0.0185][A
-Phase1-LoRA:   9%|▉         | 28/300 [01:22<00:35,  7.68it/s, Loss=0.0049][A
-Phase1-LoRA:  10%|▉         | 29/300 [01:22<00:35,  7.70it/s, Loss=0.0049][A
-Phase1-LoRA:  10%|▉         | 29/300 [01:23<00:35,  7.70it/s, Loss=0.0096][A
-Phase1-LoRA:  10%|█         | 30/300 [01:23<00:34,  7.72it/s, Loss=0.0096][A
-Phase1-LoRA:  10%|█         | 30/300 [01:23<00:34,  7.72it/s, Loss=0.0196][A
-Phase1-LoRA:  10%|█         | 31/300 [01:23<00:34,  7.73it/s, Loss=0.0196][A
-Phase1-LoRA:  10%|█         | 31/300 [01:23<00:34,  7.73it/s, Loss=0.0181][A
-Phase1-LoRA:  11%|█         | 32/300 [01:23<00:34,  7.75it/s, Loss=0.0181][A
-Phase1-LoRA:  11%|█         | 32/300 [01:23<00:34,  7.75it/s, Loss=0.0055][A
-Phase1-LoRA:  11%|█         | 33/300 [01:23<00:34,  7.75it/s, Loss=0.0055][A
-Phase1-LoRA:  11%|█         | 33/300 [01:23<00:34,  7.75it/s, Loss=0.0051][A
-Phase1-LoRA:  11%|█▏        | 34/300 [01:23<00:34,  7.76it/s, Loss=0.0051][A
-Phase1-LoRA:  11%|█▏        | 34/300 [01:23<00:34,  7.76it/s, Loss=0.0025][A
-Phase1-LoRA:  12%|█▏        | 35/300 [01:23<00:34,  7.76it/s, Loss=0.0025][A
-Phase1-LoRA:  12%|█▏        | 35/300 [01:23<00:34,  7.76it/s, Loss=0.0068][A
-Phase1-LoRA:  12%|█▏        | 36/300 [01:23<00:34,  7.76it/s, Loss=0.0068][A
-Phase1-LoRA:  12%|█▏        | 36/300 [01:23<00:34,  7.76it/s, Loss=0.0126][A
-Phase1-LoRA:  12%|█▏        | 37/300 [01:23<00:33,  7.76it/s, Loss=0.0126][A
-Phase1-LoRA:  12%|█▏        | 37/300 [01:24<00:33,  7.76it/s, Loss=0.0232][A
-Phase1-LoRA:  13%|█▎        | 38/300 [01:24<00:33,  7.77it/s, Loss=0.0232][A
-Phase1-LoRA:  13%|█▎        | 38/300 [01:24<00:33,  7.77it/s, Loss=0.0181][A
-Phase1-LoRA:  13%|█▎        | 39/300 [01:24<00:33,  7.77it/s, Loss=0.0181][A
-Phase1-LoRA:  13%|█▎        | 39/300 [01:24<00:33,  7.77it/s, Loss=0.0069][A
-Phase1-LoRA:  13%|█▎        | 40/300 [01:24<00:33,  7.77it/s, Loss=0.0069][A
-Phase1-LoRA:  13%|█▎        | 40/300 [01:24<00:33,  7.77it/s, Loss=0.0302][A
-Phase1-LoRA:  14%|█▎        | 41/300 [01:24<00:33,  7.77it/s, Loss=0.0302][A
-Phase1-LoRA:  14%|█▎        | 41/300 [01:24<00:33,  7.77it/s, Loss=0.0014][A
-Phase1-LoRA:  14%|█▍        | 42/300 [01:24<00:33,  7.77it/s, Loss=0.0014][A
-Phase1-LoRA:  14%|█▍        | 42/300 [01:24<00:33,  7.77it/s, Loss=0.0108][A
-Phase1-LoRA:  14%|█▍        | 43/300 [01:24<00:33,  7.77it/s, Loss=0.0108][A
-Phase1-LoRA:  14%|█▍        | 43/300 [01:24<00:33,  7.77it/s, Loss=0.0026][A
-Phase1-LoRA:  15%|█▍        | 44/300 [01:24<00:32,  7.77it/s, Loss=0.0026][A
-Phase1-LoRA:  15%|█▍        | 44/300 [01:24<00:32,  7.77it/s, Loss=0.0097][A
-Phase1-LoRA:  15%|█▌        | 45/300 [01:24<00:32,  7.77it/s, Loss=0.0097][A
-Phase1-LoRA:  15%|█▌        | 45/300 [01:25<00:32,  7.77it/s, Loss=0.0272][A
-Phase1-LoRA:  15%|█▌        | 46/300 [01:25<00:32,  7.77it/s, Loss=0.0272][A
-Phase1-LoRA:  15%|█▌        | 46/300 [01:25<00:32,  7.77it/s, Loss=0.0294][A
-Phase1-LoRA:  16%|█▌        | 47/300 [01:25<00:32,  7.76it/s, Loss=0.0294][A
-Phase1-LoRA:  16%|█▌        | 47/300 [01:25<00:32,  7.76it/s, Loss=0.0049][A
-Phase1-LoRA:  16%|█▌        | 48/300 [01:25<00:32,  7.77it/s, Loss=0.0049][A
-Phase1-LoRA:  16%|█▌        | 48/300 [01:25<00:32,  7.77it/s, Loss=0.0020][A
-Phase1-LoRA:  16%|█▋        | 49/300 [01:25<00:32,  7.77it/s, Loss=0.0020][A
-Phase1-LoRA:  16%|█▋        | 49/300 [01:25<00:32,  7.77it/s, Loss=0.0282][A
-Phase1-LoRA:  17%|█▋        | 50/300 [01:25<00:32,  7.76it/s, Loss=0.0282][A'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: af75194f-c665-4f5b-839f-5370a7189b7a)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 20856e6f-11fb-4667-a7b7-7acec8e7106a)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: d3373933-2b2f-48a3-9f26-6183c78edaa1)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 5/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: e555577a-f335-405d-84fe-825d847889d4)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 532a7884-0653-4247-aeaf-3f6321d18c32)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: f7974ee6-7cf3-4a2c-8f00-0f7fd371b002)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 878ca2a8-4d36-4dad-9b86-e46096d0eead)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: e86851c7-b2cb-41ea-95f4-dcaacf63b383)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 2f1893ad-96a0-4fb7-b77c-09449555ebb2)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: b9e8cbe0-a3a7-4da8-babf-02e81183c25d)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 5/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 3f5b0c27-980d-4b35-acb8-da95875e6d45)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 7e1212bc-3cf2-4dd3-987f-76996681e310)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 232d414a-b9ec-4a65-a3f1-c025a950912c)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 1s [Retry 1/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 2a839112-0315-4c87-ad46-e7bd0157c6ac)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 2s [Retry 2/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 3469c86d-59bd-42c9-b227-f907cef265d8)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 5/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 7cec3c9c-1627-44f8-83e1-e1540da24b14)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 4s [Retry 3/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: 9e7adebc-560c-4d65-8e56-e1d3750c3509)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-Retrying in 8s [Retry 4/5].
-'(MaxRetryError('HTTPSConnectionPool(host=\'huggingface.co\', port=443): Max retries exceeded with url: /runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json (Caused by NameResolutionError("HTTPSConnection(host=\'huggingface.co\', port=443): Failed to resolve \'huggingface.co\' ([Errno -3] Temporary failure in name resolution)"))'), '(Request ID: c9b12304-e764-4163-87ba-7eaaaf5c7a30)')' thrown while requesting HEAD https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/scheduler/scheduler_config.json
-
-===================================================================================
-=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
-=   PID 54633 RUNNING AT bnode025
-=   EXIT CODE: 15
-=   CLEANING UP REMAINING PROCESSES
-=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
-===================================================================================
-YOUR APPLICATION TERMINATED WITH THE EXIT STRING: Terminated (signal 15)
-This typically refers to a problem with your application.
-Please see the FAQ page for debugging suggestions
-
-============================================================
-Request ID:             568496.nqsv
-Request Name:           run.sh
-Queue:                  gen_S@nqsv
-Number of Jobs:         2
-User Name:              kfukushima
-Group Name:             DDIPM
-Created Request Time:   Sat Feb 14 10:27:29 2026
-Started Request Time:   Sat Feb 14 10:27:41 2026
-Ended Request Time:     Sat Feb 14 10:30:12 2026
-Resources Information:
-  Elapse:               155S
-  Remaining Elapse:     1045S
-============================================================
-
-%NQSV(INFO): ------- Output from job:0001 -------
-ERROR: Unable to locate a modulefile for 'openmpi/4.1.6/gcc11.4.0-cuda11.8.0'

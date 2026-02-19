@@ -16,3 +16,8 @@ __pycache__
 mistral_models
 proposed
 download_model.py
+a.out
+proposed_old
+*.json
+*.csv
+*.html
