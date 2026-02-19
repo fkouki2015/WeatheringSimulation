@@ -1,7 +1,8 @@
+import gc
 import json
 import os
-os.environ["TRANSFORMERS_OFFLINE"] = "1"
-os.environ["HF_HUB_OFFLINE"] = "1"
+# os.environ["TRANSFORMERS_OFFLINE"] = "1"
+# os.environ["HF_HUB_OFFLINE"] = "1"
 from typing import Optional
 import random
 import numpy as np
@@ -22,14 +23,29 @@ def _get_vlm():
         from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
         print("Loading VLM model...")
         _vlm_model = Qwen3VLForConditionalGeneration.from_pretrained(
-            "Qwen/Qwen3-VL-8B-Instruct", dtype="auto", device_map="auto", local_files_only=True
+            "Qwen/Qwen3-VL-8B-Instruct", dtype="auto", device_map="auto"
         )
         _vlm_model.eval()
         _vlm_processor = AutoProcessor.from_pretrained(
-            "Qwen/Qwen3-VL-8B-Instruct", local_files_only=True
+            "Qwen/Qwen3-VL-8B-Instruct"
         )
         print("VLM model loaded.")
     return _vlm_model, _vlm_processor
+
+
+def unload_vlm():
+    """VLMモデルをメモリから解放する"""
+    global _vlm_model, _vlm_processor
+    if _vlm_model is not None:
+        print("Unloading VLM model...")
+        del _vlm_model
+        del _vlm_processor
+        _vlm_model = None
+        _vlm_processor = None
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        print("VLM model unloaded.")
 
 
 def _run_vlm(messages):

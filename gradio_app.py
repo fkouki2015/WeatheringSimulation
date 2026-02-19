@@ -69,6 +69,7 @@ def step1_generate_prompt(image, device):
         input_prompt, output_prompt, instruction = vlm_module.vlm_inference(
             mode="age", image_path=tmp_path
         )
+        vlm_module.unload_vlm()
         return (
             gr.update(value=input_prompt),   # t1_input_prompt
             gr.update(value=output_prompt),  # shared_output_prompt
@@ -79,6 +80,7 @@ def step1_generate_prompt(image, device):
             gr.update(value="✅ プロンプト生成完了"),
         )
     except Exception as e:
+        vlm_module.unload_vlm()
         return (
             gr.update(),
             gr.update(),

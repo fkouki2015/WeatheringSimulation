@@ -212,25 +212,25 @@ class WeatheringModel(nn.Module):
     def _init_models(self):
         """すべての拡散モデルとコンポーネントを初期化"""
         self.ddim_scheduler = DDIMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="scheduler"
         )
         self.ddpm_scheduler = DDPMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="scheduler"
         )
         self.tokenizer = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="tokenizer"
         )
         self.text_encoder = CLIPTextModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="text_encoder"
         )
         self.vae = AutoencoderKL.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="vae", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="vae"
         )
         self.unet = UNet2DConditionModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="unet", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="unet"
         )
         self.controlnet_canny = ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32, local_files_only=True
+            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
         )
         self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
         
@@ -384,7 +384,7 @@ class WeatheringModel(nn.Module):
         text_embeds = torch.cat([uncond, cond], dim=0)
 
         # スケジューラの準備
-        scheduler = DDIMScheduler.from_pretrained(self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True)
+        scheduler = DDIMScheduler.from_pretrained(self.PRETRAINED_MODEL, subfolder="scheduler")
         scheduler.set_timesteps(self.CLIP_EVAL_STEPS, device=self.device)
         
         generator = torch.Generator(device=self.device.type).manual_seed(seed)
