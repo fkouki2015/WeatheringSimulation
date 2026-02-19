@@ -141,8 +141,8 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
-                        # negative_prompt="",
+                        # negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        negative_prompt="",
                         attn_word=None,
                         guidance_scale=6.0,
                         num_frames=num_frames,
@@ -349,7 +349,7 @@ def main():
     parser.add_argument("--json_path", type=str, required=True)
     parser.add_argument("--output_dir", type=str, default="./images_out")
     parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit", "flowedit", "turboedit"])
-    parser.add_argument("--num_frames", type=int, default=10)
+    parser.add_argument("--num_frames", type=int, default=5)
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")
     parser.add_argument("--num_gpus", type=int, default=1, help="Total number of GPUs for parallel processing")
