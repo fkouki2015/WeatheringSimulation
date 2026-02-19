@@ -521,17 +521,20 @@ class WeatheringModel(nn.Module):
                 
             progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
 
-    def forward(
-        self,    
+    def train_only(
+        self,
         input_image: Image.Image,
         train_prompt: str,
-        inference_prompt: str,
-        negative_prompt: str,
-        attn_word: str,
-        guidance_scale: float,
-        num_frames: int,
-    ) -> list[Image.Image]:
-        
+        learning_rate: float = None,
+        train_steps: int = None,
+    ) -> None:
+        """Step 1: LoRAを使用してモデルをファインチューニング（学習のみ）"""
+        # パラメータ上書き
+        if learning_rate is not None:
+            self.LEARNING_RATE = learning_rate
+        if train_steps is not None:
+            self.TRAIN_STEPS = train_steps
+
         # パラメータを保存
         self.input_image = input_image
         self.train_prompt = train_prompt
@@ -539,27 +542,40 @@ class WeatheringModel(nn.Module):
         self.control_images = []
         canny_image = canny_process(input_image, self.device, self.dtype)
         self.control_images.append(canny_image)
-        # ControlNetの条件画像を追加する場合ここに追加
-        # self.control_image_raw = transforms.ToTensor()(input_image).unsqueeze(0).to(device=self.device, dtype=self.dtype)
-        
-        # 1. モデルのトレーニング
+
+        # 学習実行
         self.train_model()
-        
-        # 2. 推論のセットアップ
+
+    def generate_frames(
+        self,
+        inference_prompt: str,
+        negative_prompt: str,
+        attn_word: str,
+        guidance_scale: float,
+        num_frames: int,
+    ) -> list[Image.Image]:
+        """Step 2: 学習済みLoRAを使って連続フレームを生成"""
+        # 推論のセットアップ
         torch.manual_seed(1234)
         self.vae.eval()
         self.unet.eval()
         self.text_encoder.eval()
         for c in self.controlnets:
             c.eval()
-            
-        inference_tokens = self.tokenizer([inference_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
-        negative_tokens = self.tokenizer([negative_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
-        
+
+        inference_tokens = self.tokenizer(
+            [inference_prompt], truncation=True, padding="max_length",
+            max_length=self.tokenizer.model_max_length, return_tensors="pt"
+        )
+        negative_tokens = self.tokenizer(
+            [negative_prompt], truncation=True, padding="max_length",
+            max_length=self.tokenizer.model_max_length, return_tensors="pt"
+        )
+
         cond_emb = self.text_encoder(inference_tokens.input_ids.to(self.device))[0]
         uncond_emb = self.text_encoder(negative_tokens.input_ids.to(self.device))[0]
         text_embeddings = torch.cat([uncond_emb, cond_emb], dim=0)
-        
+
         # 経年変化エフェクト用のアテンションプロセッサを設定
         aging_processor = None
         if attn_word is not None:
@@ -570,67 +586,74 @@ class WeatheringModel(nn.Module):
                 zero_to_one=self.ATTN_ZERO_TO_ONE
             )
             self.unet.set_attn_processor(aging_processor)
-        
+
         # 潜在変数の準備
         self.ddim_scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
         timesteps = self.ddim_scheduler.timesteps
-        start_latent = pil_to_latent(self.vae, input_image, self.device, self.dtype)
+        start_latent = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
         noise = torch.randn_like(start_latent, device=self.device, dtype=self.dtype)
-        
+
         frames = []
-        
-        # 3. 生成ループ (フレームごと)
+
+        # 生成ループ (フレームごと)
         for i in range(num_frames):
-            # 経年変化係数を計算 (フレームインデックスに基づいて 0.0 から 1.0)
-            # スムーズな遷移効果を作成するため正弦波補間を使用
-            normalized_i = (i + 1) / num_frames * math.pi / 2.0
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
+            # 経年変化係数を計算 (n=3 べき乗カーブ)
+            normalized_i = (i + 1) / num_frames
+            t_norm = 1.0 - (1.0 - normalized_i) ** 3
+            t_index = self.INFER_STEPS - 1 - int(t_norm * (self.INFER_STEPS - 1))
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
-            
-            # # LoRAスケールをフレームに応じて段階的に低減 (1.0 → LORA_SCALE_MIN)
-            # alpha = (i + 1) / num_frames
-            # lora_scale = 0.3
-            # self.unet.set_adapters([self.adapter_name], weights=[0.3])
-            
-            # 特定のタイムステップで元の画像と混合されたノイズから開始
+
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
-            
-            # 経年変化の強度を更新
+
             if aging_processor is not None:
-                aging_processor.current_factor = math.sin(normalized_i)
-            
+                aging_processor.current_factor = t_norm
+
             # デノイズ
             with torch.no_grad():
                 latents = noisy_latent
-                # タイムステップを反復
                 for t in tqdm(timesteps[t_index:], desc=f"{i+1}/{num_frames}"):
                     with autocast(device_type=self.device.type, enabled=(self.device.type == "cuda"), dtype=self.dtype):
-                        
+
                         lat_in = torch.cat([latents] * 2, dim=0)
                         lat_in = self.ddim_scheduler.scale_model_input(lat_in, t)
-                        
-                        # 制御入力の準備
+
                         control_imgs_in = []
                         for ci in self.control_images:
                             control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
-                            
+
                         down_res, mid_res = self._apply_controlnets(
                             lat_in, t, text_embeddings, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
                         )
-                        
+
                         noise_pred = self.unet(
                             lat_in, t, text_embeddings,
                             down_block_additional_residuals=down_res,
                             mid_block_additional_residual=mid_res,
                         ).sample
-                        
-                        # ガイダンスを実行
+
                         noise_uncond, noise_text = noise_pred.chunk(2, dim=0)
                         noise_pred = noise_uncond + guidance_scale * (noise_text - noise_uncond)
-                        
+
                         latents = self.ddim_scheduler.step(noise_pred, t, latents).prev_sample
-                
+
                 output_image = latent_to_pil(self.vae, latents)[0]
                 frames.append(output_image)
-            
+
         return frames
+
+    def forward(
+        self,
+        input_image: Image.Image,
+        train_prompt: str,
+        inference_prompt: str,
+        negative_prompt: str,
+        attn_word: str,
+        guidance_scale: float,
+        num_frames: int,
+        learning_rate: float = None,
+        train_steps: int = None,
+    ) -> list[Image.Image]:
+        """後方互換ラッパー: train_only() + generate_frames() を順に実行"""
+        self.train_only(input_image, train_prompt, learning_rate=learning_rate, train_steps=train_steps)
+        return self.generate_frames(inference_prompt, negative_prompt, attn_word, guidance_scale, num_frames)
+
