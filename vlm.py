@@ -84,9 +84,9 @@ def vlm_inference(mode: str = "age", image_path: str = None):
 
     # ===== 1段階目: 画像キャプション生成 =====
     if mode == "age":
-        caption_text = "Write a very short caption describing the object in this image. Do not include color name and textual information. Write only one sentence. Maximum 5 words. Do not describe the background. Example: A clean car"
+        caption_text = "Write the object or scene name in this image. Do not include color name and textual information. You must write only one word. Do not describe the background. Example: car"
     else:
-        caption_text = "Write a very short caption describing the object in this image as it currently appears. Do not include color information and textual information. Do not describe the background. Write only one sentence. Example: A heavily rusted car."
+        caption_text = "Write the object or scene name in this image. Do not include color information and textual information. Do not describe the background. Write only few words. Example: rusted car"
 
     messages_caption = [
         {
@@ -110,20 +110,19 @@ def vlm_inference(mode: str = "age", image_path: str = None):
     # ===== 2段階目: キャプションの一部を変更 =====
     if mode == "age":
         modify_text = (
-            f"The following caption describes a clean object: '{caption.strip()}'. "
-            f"Rewrite this caption to describe the same object in a fully deteriorated, severely weathered, or completely decayed state. "
+            f"The following caption describes a clean object or scene: '{caption.strip()}'. "
+            f"Rewrite this caption to describe the same object or scene in a fully deteriorated, severely weathered, or completely decayed state. "
             f"Write the specific type of deterioration. "
             f"Do not write shape changes such as cracks, breaks, crumbling, etc. "
-            f"Do not include color name. Write only one sentence. "
-            f"You must write very simple sentence. "
-            f"Example: 'A clean car' -> 'A heavily rusted car'"
+            f"Do not write color name. Write only a few words. "
+            f"Example: 'car' -> 'heavily rusted car'"
         )
     else:
         modify_text = (
             f"The following caption describes an aged or deteriorated object: '{caption.strip()}'. "
             f"Rewrite this caption to describe the same object in its original clean, pristine state. "
-            f"Do not include color name. Write only one sentence. "
-            f"Example: 'A heavily rusted car.' -> 'A pristine clean car.'"
+            f"Do not include color name. Write only a few words. "
+            f"Example: 'rusted car' -> 'clean car'"
         )
 
     messages_modify = [
@@ -154,14 +153,14 @@ def vlm_inference(mode: str = "age", image_path: str = None):
             f"Based on these two captions, write a brief instruction to age or weather the object. "
             f"Input: '{input_prompt}' -> Output: '{output_prompt}'. "
             f"Write only the instruction in one sentence. "
-            f"Example: If the input is 'A clean car on a road.' and the output is 'A rusted car on a road.', the instruction is 'Add rust to the car.'"
+            f"Example: If the input is 'car' and the output is 'rusted car', the instruction is 'Add rust to the car.'"
         )
     else:
         instruction_text = (
             f"Based on these two captions, write a brief instruction to restore the object. "
             f"Input: '{input_prompt}' -> Output: '{output_prompt}'. "
             f"Write only the instruction in one sentence. "
-            f"Example: 'Remove rust from the car.'"
+            f"Example: If the input is 'rusted car' and the output is 'clean car', the instruction is 'Remove rust from the car.'"
         )
 
     messages_instruction = [

@@ -14,9 +14,11 @@ Usage:
 
 import argparse
 import os
+import queue
 import sys
 import tempfile
 import threading
+import traceback
 from pathlib import Path
 
 import gradio as gr
@@ -97,7 +99,8 @@ def step1_generate_prompt(image, device):
 # ---------------------------------------------------------------------------
 # Step 2: 学習
 # ---------------------------------------------------------------------------
-def step2_train(image, input_prompt, output_prompt, learning_rate, train_steps, lora_rank, device):
+def step2_train(image, input_prompt, output_prompt, learning_rate, train_steps, lora_rank, use_early_stopping, device,
+                progress=gr.Progress()):
     """WeatheringModel でファインチューニングを実行する"""
     if image is None:
         yield gr.update(value="⚠️ Step 1 で画像をアップロードしてください")
@@ -106,52 +109,84 @@ def step2_train(image, input_prompt, output_prompt, learning_rate, train_steps, 
         yield gr.update(value="⚠️ Input Prompt が空です")
         return
 
+    progress(0, desc="モデルロード中...")
     yield gr.update(value="🔄 モデルロード中...")
     model = _get_weathering_model(device)
 
-    # 画像の準備
     if isinstance(image, str):
         pil_img = Image.open(image).convert("RGB")
     else:
         pil_img = Image.fromarray(image).convert("RGB")
 
-    # input_prompt（元の状態）を学習プロンプトとして使う（main.py と同じ挙動）
     train_prompt = input_prompt.strip()
+    total_steps = int(train_steps)
 
-    yield gr.update(value=f"🔄 学習開始... (LR={learning_rate}, Steps={train_steps}, Rank={lora_rank})")
+    progress(0, desc=f"学習準備中... (Steps={total_steps}, 早期停止={'ON' if use_early_stopping else 'OFF'})")
+    yield gr.update(value=f"🔄 学習開始... (LR={learning_rate}, Steps={total_steps}, Rank={lora_rank}, 早期停止={'ON' if use_early_stopping else 'OFF'})")
 
-    try:
-        # LoRA rank を設定
-        model.RANK = int(lora_rank)
+    log_queue = queue.Queue()
+    train_done = threading.Event()
+    train_error = [None]
 
-        # ログ収集（tqdm は stderr に出るので stdout に切り替え）
+    def progress_callback(step, loss_val, total):
+        # ("prog", ...) はプログレスバー更新用
+        log_queue.put(("prog", step, total, loss_val))
+
+    class LogCapture:
+        def write(self, s):
+            sys.__stdout__.write(s)
+            if s.strip():
+                # ("log", ...) はテキストログ表示用
+                log_queue.put(("log", s.rstrip()))
+        def flush(self):
+            sys.__stdout__.flush()
+
+    def train_thread():
         old_stdout = sys.stdout
-        log_lines = []
-
-        class LogCapture:
-            def write(self, s):
-                old_stdout.write(s)
-                if s.strip():
-                    log_lines.append(s.strip())
-            def flush(self):
-                old_stdout.flush()
-
         sys.stdout = LogCapture()
         try:
+            model.RANK = int(lora_rank)
             model.train_only(
                 input_image=pil_img,
                 train_prompt=train_prompt,
+                inference_prompt=output_prompt.strip(),  # 追加: 評価用プロンプト
                 learning_rate=float(learning_rate),
-                train_steps=int(train_steps),
+                train_steps=total_steps,
+                use_early_stopping=bool(use_early_stopping),
+                progress_callback=progress_callback,
             )
+        except Exception:
+            train_error[0] = traceback.format_exc()
         finally:
             sys.stdout = old_stdout
+            train_done.set()
 
-        yield gr.update(value="✅ 学習完了！Step 3 で生成できます\n" + "\n".join(log_lines[-10:]))
+    t = threading.Thread(target=train_thread, daemon=True)
+    t.start()
 
-    except Exception as e:
-        import traceback
-        yield gr.update(value=f"❌ 学習エラー:\n{traceback.format_exc()}")
+    log_lines = []
+    while not train_done.is_set() or not log_queue.empty():
+        try:
+            msg = log_queue.get(timeout=0.3)
+            # メッセージタイプで分岐
+            if isinstance(msg, tuple) and msg[0] == "prog":
+                _, step, total, loss_val = msg
+                progress(step / total, desc=f"学習中 [{step}/{total}] Loss: {loss_val:.5f}")
+            elif isinstance(msg, tuple) and msg[0] == "log":
+                log_lines.append(msg[1])
+                yield gr.update(value="\n".join(log_lines[-20:]))  # 最新20行を表示
+            else:
+                # 念のため旧形式(文字列)も対応
+                log_lines.append(str(msg))
+                yield gr.update(value="\n".join(log_lines[-20:]))
+        except queue.Empty:
+            pass
+    t.join()
+
+    if train_error[0]:
+        yield gr.update(value=f"❌ 学習エラー:\n{train_error[0]}")
+    else:
+        yield gr.update(value="✅ 学習完了！Step 3 で生成できます\n" + "\n".join(log_lines[-30:]))
 
 
 # ---------------------------------------------------------------------------
@@ -238,12 +273,13 @@ def build_ui(device: str):
                         t2_lr = gr.Number(label="Learning Rate", value=1e-5, precision=8)
                         t2_steps = gr.Slider(label="Max Train Steps", minimum=50, maximum=1000, step=50, value=450)
                         t2_rank = gr.Slider(label="LoRA Rank", minimum=2, maximum=64, step=2, value=8)
+                        t2_early_stop = gr.Checkbox(label="早期停止を使用（LPIPS評価）", value=True)
                         t2_btn = gr.Button("🚀 学習開始", variant="primary")
                         t2_log = gr.Textbox(label="学習ログ", interactive=False, lines=8, elem_classes="status-box")
 
                 t2_btn.click(
                     fn=step2_train,
-                    inputs=[t2_image, t2_input_prompt, shared_output_prompt, t2_lr, t2_steps, t2_rank, gr.State(device)],
+                    inputs=[t2_image, t2_input_prompt, shared_output_prompt, t2_lr, t2_steps, t2_rank, t2_early_stop, gr.State(device)],
                     outputs=[t2_log],
                 )
 
