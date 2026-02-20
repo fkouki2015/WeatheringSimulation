@@ -305,7 +305,7 @@ class WeatheringModel(nn.Module):
         for c in self.controlnets:
             for n, p in c.named_parameters():
                 if p.requires_grad:
-                    _add_param(p, 0.05)
+                    _add_param(p, 0.07)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}

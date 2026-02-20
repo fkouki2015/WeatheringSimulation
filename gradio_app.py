@@ -297,7 +297,7 @@ def build_ui(device: str):
                             label="Negative Prompt",
                             placeholder="（任意）",
                             lines=2,
-                            value="",
+                            value="vivid, brilliant, clean",
                         )
                         t3_attn_word = gr.Textbox(
                             label="Aging Attention Word（任意）",
