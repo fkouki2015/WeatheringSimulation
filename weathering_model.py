@@ -276,13 +276,14 @@ class WeatheringModel(nn.Module):
 
         for c in self.controlnets:
             # まず全体を凍結
-            c.requires_grad_(True)
-        
+            c.requires_grad_(False)
+
+            
         unet_lora_config = LoraConfig(
             r=self.RANK,
             lora_alpha=self.RANK,
             init_lora_weights="gaussian",
-            target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0"],
+            target_modules=["attn2.to_v", "attn2.to_out.0"],
             lora_dropout=self.LORA_DROPOUT
         )
         self.unet.add_adapter(unet_lora_config)
@@ -303,9 +304,11 @@ class WeatheringModel(nn.Module):
                 _add_param(p, 1.0)
         
         for c in self.controlnets:
-            for n, p in c.named_parameters():
-                if p.requires_grad:
-                    _add_param(p, 0.07)
+            for name, param in c.named_parameters():
+                if "down_blocks" in name:
+                    param.requires_grad_(True)
+                    _add_param(param, 0.07) # 学習率を少し設定
+        
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}
