@@ -21,7 +21,7 @@ from alltrain import AllTrainModel
 from nocontrol import NoControlNetModel
 from notrain import NoTrainModel
 from linear import LinearModel
-from sd3 import SD3Model
+from z_image import SD3Model
 from sdxl import SDXLModel
 from alltrain_control import AllTrainControlNetModel
 import gc
