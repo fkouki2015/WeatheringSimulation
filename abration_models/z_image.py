@@ -1,8 +1,6 @@
 import copy
-import sys
-from pathlib import Path
+import math
 
-import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -11,13 +9,11 @@ from tqdm import tqdm
 from diffusers import AutoencoderKL, ZImageTransformer2DModel, FlowMatchEulerDiscreteScheduler
 from transformers import AutoModel, AutoTokenizer
 
-from huggingface_hub import snapshot_download
-
 
 def pil_to_latent(vae, pil: Image.Image, device, dtype):
     to_tensor = transforms.ToTensor()
     x = to_tensor(pil).unsqueeze(0).to(device)
-    x = (x * 2 - 1).to(dtype=torch.float32)
+    x = (x * 2 - 1).to(device=device, dtype=dtype)
 
     with torch.no_grad():
         moments = vae.encoder(x)
@@ -42,6 +38,38 @@ def latent_to_pil(vae, latents):
     imgs = (imgs / 2 + 0.5).clamp(0, 1)
     imgs = (imgs * 255).round().to(torch.uint8).cpu().permute(0, 2, 3, 1).numpy()
     return [Image.fromarray(arr) for arr in imgs]
+
+
+def calculate_shift(
+    image_seq_len,
+    base_seq_len: int = 256,
+    max_seq_len: int = 4096,
+    base_shift: float = 0.5,
+    max_shift: float = 1.15,
+):
+    m = (max_shift - base_shift) / (max_seq_len - base_seq_len)
+    b = base_shift - m * base_seq_len
+    mu = image_seq_len * m + b
+    return mu
+
+
+def compute_density_for_timestep_sampling(
+    weighting_scheme: str,
+    batch_size: int,
+    logit_mean: float = 0.0,
+    logit_std: float = 1.0,
+    mode_scale: float = 1.29,
+):
+    """タイムステップサンプリング用の密度を計算する。"""
+    if weighting_scheme == "logit_normal":
+        u = torch.normal(mean=logit_mean, std=logit_std, size=(batch_size,), device="cpu")
+        u = torch.nn.functional.sigmoid(u)
+    elif weighting_scheme == "mode":
+        u = torch.rand(size=(batch_size,), device="cpu")
+        u = 1 - u - mode_scale * (torch.cos(math.pi * u / 2) ** 2 - 1 + u)
+    else:
+        u = torch.rand(size=(batch_size,), device="cpu")
+    return u
 
 
 def get_sigmas(scheduler, timesteps, n_dim=4, dtype=torch.float32, device="cuda"):
@@ -99,7 +127,7 @@ def _predict_noise(transformer, latents, timesteps_01, prompt_embeds_list):
 
 class SD3Model(nn.Module):
     RESOLUTION = (1024, 1024)
-    LEARNING_RATE = 1e-5
+    LEARNING_RATE = 1e-4
     TRAIN_STEPS = 600
     DEVICE = "cuda"
     PRETRAINED_MODEL = "Tongyi-MAI/Z-Image"
@@ -119,29 +147,29 @@ class SD3Model(nn.Module):
             self.PRETRAINED_MODEL,
             subfolder="transformer",
             torch_dtype=self.dtype,
-            local_files_only=True,
+            
         ).to(self.device)
         self.vae = AutoencoderKL.from_pretrained(
             self.PRETRAINED_MODEL,
             subfolder="vae",
             torch_dtype=self.dtype,
-            local_files_only=True,
+            
         ).to(self.device)
         self.text_encoder = AutoModel.from_pretrained(
             self.PRETRAINED_MODEL,
             subfolder="text_encoder",
             torch_dtype=self.dtype,
-            local_files_only=True,
+            
         ).to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.PRETRAINED_MODEL,
             subfolder="tokenizer",
-            local_files_only=True,
+            
         )
         self.noise_scheduler = FlowMatchEulerDiscreteScheduler.from_pretrained(
             self.PRETRAINED_MODEL,
             subfolder="scheduler",
-            local_files_only=True,
+            
         )
         self.noise_scheduler_copy = copy.deepcopy(self.noise_scheduler)
 
@@ -200,9 +228,10 @@ class SD3Model(nn.Module):
             timestep_01 = (1000 - timesteps.float()) / 1000
             model_pred = _predict_noise(self.transformer, noisy_latent, timestep_01, prompt_embeds_list)
 
-            weighting = compute_loss_weighting_for_sd3(weighting_scheme="logit_normal", sigmas=sigmas)
+            # Flow Matching のターゲットは速度場 v = noise - latent
+            target = (noise - latent).float()
             loss = torch.mean(
-                (weighting.float() * (model_pred.float() - noise.float()) ** 2).reshape(noise.shape[0], -1), 1
+                ((model_pred.float() - target) ** 2).reshape(noise.shape[0], -1), 1
             ).mean()
 
             loss.backward()
@@ -227,7 +256,6 @@ class SD3Model(nn.Module):
         scheduler.set_timesteps(self.INFER_STEPS, device=self.device, mu=mu)
         return scheduler
 
-    @torch.no_grad()
     def forward(
         self,
         input_image: Image.Image,
@@ -242,68 +270,69 @@ class SD3Model(nn.Module):
 
         self.train_model()
 
-        self.vae.eval()
-        self.text_encoder.eval()
+        with torch.no_grad():
+            self.vae.eval()
+            self.text_encoder.eval()
 
-        pos_prompt = _encode_prompt_list(
-            self.text_encoder,
-            self.tokenizer,
-            [inference_prompt],
-            self.device,
-            max_sequence_length=self.MAX_SEQUENCE_LENGTH,
-        )
-        neg_prompt = _encode_prompt_list(
-            self.text_encoder,
-            self.tokenizer,
-            [negative_prompt],
-            self.device,
-            max_sequence_length=self.MAX_SEQUENCE_LENGTH,
-        )
-
-        base_latent = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
-        frames = []
-
-        for i in range(num_frames):
-            torch.manual_seed(1234)
-            scheduler = self._prepare_scheduler(base_latent)
-            timesteps = scheduler.timesteps
-
-            normalized_i = i / max(1, num_frames - 1)
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * (normalized_i ** self.NOISE_RATIO)) - 1
-            t_index = max(0, min(t_index, self.INFER_STEPS - 1))
-            if num_frames == 1:
-                t_index = 0
-
-            sigma = get_sigmas(
-                scheduler,
-                timesteps[t_index],
-                n_dim=base_latent.ndim,
-                dtype=base_latent.dtype,
-                device=base_latent.device,
+            pos_prompt = _encode_prompt_list(
+                self.text_encoder,
+                self.tokenizer,
+                [inference_prompt],
+                self.device,
+                max_sequence_length=self.MAX_SEQUENCE_LENGTH,
             )
-            noise = torch.randn_like(base_latent)
-            latents = (1.0 - sigma) * base_latent + sigma * noise
+            neg_prompt = _encode_prompt_list(
+                self.text_encoder,
+                self.tokenizer,
+                [negative_prompt],
+                self.device,
+                max_sequence_length=self.MAX_SEQUENCE_LENGTH,
+            )
 
-            progress = tqdm(range(t_index, len(timesteps)), desc=f"{i + 1}/{num_frames}")
-            for index in progress:
-                t = timesteps[index].to(self.device)
-                t_01 = ((1000 - t.float()) / 1000).unsqueeze(0)
+            base_latent = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
+            frames = []
 
-                if guidance_scale > 1.0:
-                    latents_in = latents.repeat(2, 1, 1, 1)
-                    prompts_in = pos_prompt + neg_prompt
-                    t_in = t_01.repeat(2)
-                    noise_all = _predict_noise(self.transformer, latents_in, t_in, prompts_in)
-                    noise_pos, noise_neg = noise_all.chunk(2, dim=0)
-                    noise_guided = noise_pos + guidance_scale * (noise_pos - noise_neg)
-                else:
-                    noise_guided = _predict_noise(self.transformer, latents, t_01, pos_prompt)
+            for i in range(num_frames):
+                torch.manual_seed(1234)
+                scheduler = self._prepare_scheduler(base_latent)
+                timesteps = scheduler.timesteps
 
-                latents = scheduler.step(noise_guided.to(torch.float32), t, latents, return_dict=False)[0]
+                normalized_i = i / max(1, num_frames - 1)
+                t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * (normalized_i ** self.NOISE_RATIO)) - 1
+                t_index = max(0, min(t_index, self.INFER_STEPS - 1))
+                if num_frames == 1:
+                    t_index = 0
 
-            output_image = latent_to_pil(self.vae, latents)[0]
-            output_image = output_image.resize((512, 512), Image.LANCZOS)
-            frames.append(output_image)
+                sigma = get_sigmas(
+                    scheduler,
+                    timesteps[t_index],
+                    n_dim=base_latent.ndim,
+                    dtype=base_latent.dtype,
+                    device=base_latent.device,
+                )
+                noise = torch.randn_like(base_latent)
+                latents = (1.0 - sigma) * base_latent + sigma * noise
+
+                progress = tqdm(range(t_index, len(timesteps)), desc=f"{i + 1}/{num_frames}")
+                for index in progress:
+                    t = timesteps[index].to(self.device)
+                    t_01 = ((1000 - t.float()) / 1000).unsqueeze(0)
+
+                    if guidance_scale > 1.0:
+                        latents_in = latents.repeat(2, 1, 1, 1)
+                        prompts_in = pos_prompt + neg_prompt
+                        t_in = t_01.repeat(2)
+                        noise_all = _predict_noise(self.transformer, latents_in, t_in, prompts_in)
+                        noise_pos, noise_neg = noise_all.chunk(2, dim=0)
+                        noise_guided = noise_pos + guidance_scale * (noise_pos - noise_neg)
+                    else:
+                        noise_guided = _predict_noise(self.transformer, latents, t_01, pos_prompt)
+
+                    latents = scheduler.step(noise_guided.to(torch.bfloat16), t, latents, return_dict=False)[0]
+
+                output_image = latent_to_pil(self.vae, latents)[0]
+                output_image = output_image.resize((512, 512), Image.LANCZOS)
+                frames.append(output_image)
 
         return frames
 
@@ -311,9 +340,9 @@ if __name__ == "__main__":
     from PIL import Image
 
     model = SD3Model()
-    input_image = Image.open("/work/DDIPM/kfukushima/wsim/images_test/image_004.jpg").convert("RGB")
+    input_image = Image.open("wsim/images_test/image_004.jpg").convert("RGB")
     train_prompt = "A camera."
-    inference_prompt = "A rusted camera."
+    inference_prompt = "A heavily rusted camera."
     negative_prompt = ""
     guidance_scale = 7.5
     num_frames = 5
