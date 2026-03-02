@@ -144,7 +144,7 @@ class ModelProcessor:
                         negative_prompt="brilliant, vivid, clean", # 経年変化用
                         # negative_prompt="",
                         attn_word=None,
-                        guidance_scale=6.0,
+                        guidance_scale=7.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
