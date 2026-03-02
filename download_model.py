@@ -6,7 +6,7 @@ if "HF_HUB_OFFLINE" in os.environ:
 from huggingface_hub import snapshot_download
 
 def download_model():
-    model_id = "stabilityai/sdxl-turbo"
+    model_id = "black-forest-labs/FLUX.1-dev"
     print(f"Downloading {model_id}...")
 
     # Download everything from the repo to a specific local directory
