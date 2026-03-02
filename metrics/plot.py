@@ -105,8 +105,8 @@ def plot_metrics(
 def main():
     parser = argparse.ArgumentParser(description="Plot metrics from compute_metrics output")
     parser.add_argument("--metrics_dir", type=str, default="metrics_out",)
-    parser.add_argument("--models", type=str, nargs="+", default=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit", "flowedit", "turboedit"], choices=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit", "turboedit", "flowedit"])
-    parser.add_argument("--output_path", type=str, default="plots")
+    parser.add_argument("--models", type=str, nargs="+", default=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit", "flowedit", "turboedit"])
+    parser.add_argument("--output_path", type=str, default="plots_abration")
     args = parser.parse_args()
     
     plot_metrics(

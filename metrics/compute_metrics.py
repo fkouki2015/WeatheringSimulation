@@ -292,7 +292,7 @@ def main():
     parser = ArgumentParser(description="Evaluate generated images from competitive models")
     parser.add_argument("--json_path", type=str, required=True)
     parser.add_argument("--gif_dir", type=str, required=True)
-    parser.add_argument("--output_path", type=str, default="./metrics_out")
+    parser.add_argument("--output_path", type=str, default="./metrics_out_abration")
     parser.add_argument("--models", type=str, nargs="+", default=["proposed", "sdedit", "sd", "flux", "qwen", "ip2p", "flowedit", "turboedit"])
     parser.add_argument("--device", type=str, default="cuda")
     args = parser.parse_args()

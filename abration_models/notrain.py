@@ -540,7 +540,7 @@ class NoTrainModel(nn.Module):
         self.control_images.append(canny_image)
 
         # 学習実行
-        self.train_model(use_early_stopping=use_early_stopping, progress_callback=progress_callback)
+        # self.train_model(use_early_stopping=use_early_stopping, progress_callback=progress_callback)
 
     def generate_frames(
         self,
@@ -597,6 +597,8 @@ class NoTrainModel(nn.Module):
             normalized_i = (i + 1 + i*(ratio-1)) / (num_frames*ratio) * math.pi / 2.0
             t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
+            # if i == num_frames - 1:
+            #     t_index = 0  # 最終フレームは完全に劣化させる
 
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
 
@@ -649,6 +651,6 @@ class NoTrainModel(nn.Module):
         train_steps: int = None,
     ) -> list[Image.Image]:
         """後方互換ラッパー: train_only() + generate_frames() を順に実行"""
-        # self.train_only(input_image, train_prompt, learning_rate=learning_rate, train_steps=train_steps)
+        self.train_only(input_image, train_prompt, learning_rate=learning_rate, train_steps=train_steps)
         return self.generate_frames(inference_prompt, negative_prompt, attn_word, guidance_scale, num_frames)
 
