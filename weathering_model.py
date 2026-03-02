@@ -182,7 +182,7 @@ class WeatheringModel(nn.Module):
     RESOLUTION = (512, 512)
     RANK = 8
     LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 550
+    TRAIN_STEPS = 500
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
@@ -489,7 +489,7 @@ class WeatheringModel(nn.Module):
                 progress_callback(step + 1, loss.item(), self.TRAIN_STEPS)
             
             # 5. 評価と早期停止
-            if use_early_stopping and step % self.CLIP_EVAL_INTERVAL == 0:
+            if use_early_stopping and step % self.CLIP_EVAL_INTERVAL == 0 and step > 0:
                 avg_dist = self._evaluate(step, latent, self.control_images, image)
                 
                 if prev_lpips is None:
@@ -575,15 +575,15 @@ class WeatheringModel(nn.Module):
         text_embeddings = torch.cat([uncond_emb, cond_emb], dim=0)
 
         # 経年変化エフェクト用のアテンションプロセッサを設定
-        aging_processor = None
-        if attn_word is not None:
-            aging_token_indices = find_token_indices(self.tokenizer, inference_tokens.input_ids, attn_word)
-            aging_processor = AgingAttentionProcessor(
-                aging_token_indices,
-                scale_max=self.ATTN_SCALE_MAX,
-                zero_to_one=self.ATTN_ZERO_TO_ONE
-            )
-            self.unet.set_attn_processor(aging_processor)
+        # aging_processor = None
+        # if attn_word is not None:
+        #     aging_token_indices = find_token_indices(self.tokenizer, inference_tokens.input_ids, attn_word)
+        #     aging_processor = AgingAttentionProcessor(
+        #         aging_token_indices,
+        #         scale_max=self.ATTN_SCALE_MAX,
+        #         zero_to_one=self.ATTN_ZERO_TO_ONE
+        #     )
+        #     self.unet.set_attn_processor(aging_processor)
 
         # 潜在変数の準備
         self.ddim_scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
@@ -595,15 +595,15 @@ class WeatheringModel(nn.Module):
 
         # 生成ループ (フレームごと)
         for i in range(num_frames):
-            ratio = 1.5
+            ratio = 1.7
             normalized_i = (i + 1 + i*(ratio-1)) / (num_frames*ratio) * math.pi / 2.0
             t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
 
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
 
-            if aging_processor is not None:
-                aging_processor.current_factor = 1.0
+            # if aging_processor is not None:
+            #     aging_processor.current_factor = 1.0
 
             # デノイズ
             with torch.no_grad():
