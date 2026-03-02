@@ -18,12 +18,12 @@ sys.path.append("./")
 from weathering_model import WeatheringModel
 sys.path.append("./abration_models")
 from alltrain import AllTrainModel
-from nocontrol import NoControlNetModel
+from nocontrol import NoControlModel
 from notrain import NoTrainModel
 from linear import LinearModel
 from z_image import SD3Model
 from sdxl import SDXLModel
-from alltrain_control import AllTrainControlNetModel
+from alltrain_control import AllTrainControlModel
 import gc
 
 
@@ -133,7 +133,7 @@ class ModelProcessor:
     
     def process_nocontrol(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with No ControlNet Model, varying guidance scale from 1 to 10."""
-        self.pipeline = NoControlNetModel(device=self.device)
+        self.pipeline = NoControlModel(device=self.device)
         pipe = self.pipeline
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
@@ -206,7 +206,7 @@ class ModelProcessor:
 
     def process_alltrain_control(self, image: Image.Image, input_prompt: str, output_prompt: str, num_frames: int = 10) -> List[Image.Image]:
         """Process with All Train ControlNet Model, varying guidance scale from 1 to 10."""
-        self.pipeline = AllTrainControlNetModel(device=self.device)
+        self.pipeline = AllTrainControlModel(device=self.device)
         pipe = self.pipeline
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 

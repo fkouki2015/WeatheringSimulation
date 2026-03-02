@@ -177,7 +177,7 @@ class AgingAttentionProcessor(AttnProcessor):
 # 経年変化モデル
 # ==========================================
 
-class WeatheringModel(nn.Module):
+class AllTrainModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
