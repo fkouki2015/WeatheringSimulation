@@ -21,3 +21,5 @@ proposed_old
 *.json
 *.csv
 *.html
+viewer_frames
+images_append/
