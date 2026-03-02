@@ -282,7 +282,7 @@ class SD3Model(nn.Module):
     # デフォルト定数
     RESOLUTION = (1024, 1024)
     RANK = 8
-    LEARNING_RATE = 1e-5
+    LEARNING_RATE = 1e-4
     TRAIN_STEPS = 600
     PRETRAINED_MODEL = "stabilityai/stable-diffusion-3.5-medium"
     CONTROLNET_PATH = "InstantX/SD3-Controlnet-Canny"
@@ -384,7 +384,8 @@ class SD3Model(nn.Module):
                 "attn.to_out.0", "attn.to_v", "attn.to_q", "attn.to_k"
             ]
         )
-        self.transformer.add_adapter(transformer_lora_config)
+        # self.transformer.add_adapter(transformer_lora_config)
+        self.transformer.requires_grad_(True)
         
         groups_by_scale = {}
         
@@ -501,7 +502,7 @@ class SD3Model(nn.Module):
                 timestep=timesteps,
                 encoder_hidden_states=prompt_embeds,
                 pooled_projections=pooled_embeds,
-                block_controlnet_hidden_states=controlnet_block_samples,
+                # block_controlnet_hidden_states=controlnet_block_samples,
                 return_dict=False,
             )[0]
             model_pred = model_pred_raw * (-sigmas) + noisy_latent
@@ -613,7 +614,7 @@ class SD3Model(nn.Module):
                         timestep=t_in,
                         encoder_hidden_states=prompt_embeds,
                         pooled_projections=pooled_embeds,
-                        block_controlnet_hidden_states=controlnet_block_samples,
+                        # block_controlnet_hidden_states=controlnet_block_samples,
                         return_dict=False,
                     )[0]
                     
@@ -627,3 +628,26 @@ class SD3Model(nn.Module):
             frames.append(output_image)
         
         return frames
+
+if __name__ == "__main__":
+    from PIL import Image
+
+    model = SD3Model()
+    input_image = Image.open("wsim/images_test/image_004.jpg").convert("RGB")
+    train_prompt = "A camera."
+    inference_prompt = "A heavily rusted camera."
+    negative_prompt = ""
+    guidance_scale = 7.5
+    num_frames = 5
+
+    frames = model(
+        input_image=input_image,
+        train_prompt=train_prompt,
+        inference_prompt=inference_prompt,
+        negative_prompt=negative_prompt,
+        guidance_scale=guidance_scale,
+        num_frames=num_frames,
+    )
+
+    for idx, frame in enumerate(frames):
+        frame.save(f"output_{idx}.png")
