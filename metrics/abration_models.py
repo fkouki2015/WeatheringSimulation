@@ -108,9 +108,9 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        negative_prompt="brilliant, vivid, clean", # 経年変化用
                         attn_word=None,
-                        guidance_scale=6.0,
+                        guidance_scale=7.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
@@ -123,9 +123,9 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        negative_prompt="brilliant, vivid, clean", # 経年変化用
                         attn_word=None,
-                        guidance_scale=6.0,
+                        guidance_scale=7.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
@@ -138,9 +138,9 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        negative_prompt="brilliant, vivid, clean", # 経年変化用
                         attn_word=None,
-                        guidance_scale=6.0,
+                        guidance_scale=7.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
@@ -153,9 +153,9 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        negative_prompt="brilliant, vivid, clean", # 経年変化用
                         attn_word=None,
-                        guidance_scale=6.0,
+                        guidance_scale=7.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
@@ -168,9 +168,9 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        negative_prompt="brilliant, vivid, clean", # 経年変化用
                         attn_word=None,
-                        guidance_scale=6.0,
+                        guidance_scale=7.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
@@ -183,8 +183,8 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
-                        guidance_scale=6.0,
+                        negative_prompt="brilliant, vivid, clean", # 経年変化用
+                        guidance_scale=7.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
@@ -197,8 +197,8 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
-                        guidance_scale=6.0,
+                        negative_prompt="brilliant, vivid, clean", # 経年変化用
+                        guidance_scale=7.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
@@ -211,9 +211,9 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="clean, new, pristine, undamaged, unweathered", # 経年変化用
+                        negative_prompt="brilliant, vivid, clean", # 経年変化用
                         attn_word=None,
-                        guidance_scale=6.0,
+                        guidance_scale=7.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
@@ -274,7 +274,7 @@ class ModelProcessor:
 def main():
     parser = argparse.ArgumentParser(description="Process images with multiple diffusion models")
     parser.add_argument("--json_path", type=str, required=True)
-    parser.add_argument("--output_dir", type=str, default="./images_out")
+    parser.add_argument("--output_dir", type=str, default="./images_out_abration")
     parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "alltrain", "nocontrol", "notrain", "linear", "sd3", "sdxl", "alltrain_control"])
     parser.add_argument("--num_frames", type=int, default=10)
     parser.add_argument("--device", type=str, default="cuda")

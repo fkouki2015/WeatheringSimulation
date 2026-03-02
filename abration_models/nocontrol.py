@@ -1,6 +1,6 @@
 import os
 import sys
-import uuid
+import copy
 from tqdm import tqdm
 import numpy as np
 from PIL import Image
@@ -40,7 +40,7 @@ def canny_process(image, device, dtype):
     """画像からCannyエッジマップを生成"""
     image_np = np.array(image)
     gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
-    canny_img = cv2.Canny(gray, 100, 200)
+    canny_img = cv2.Canny(gray, 80, 160)
     
     control_image = Image.fromarray(canny_img).convert("RGB")
     if isinstance(control_image, Image.Image):
@@ -113,7 +113,7 @@ def find_token_indices(tokenizer, input_ids_tensor, target_word: str):
 # ==========================================
 
 class AgingAttentionProcessor(AttnProcessor):
-    def __init__(self, aging_token_indices, scale_max=2.0, zero_to_one=False):
+    def __init__(self, aging_token_indices, scale_max=10.0, zero_to_one=False):
         super().__init__()
         self.aging_token_indices = aging_token_indices
         self.scale_max = scale_max
@@ -177,12 +177,12 @@ class AgingAttentionProcessor(AttnProcessor):
 # 経年変化モデル
 # ==========================================
 
-class NoControlNetModel(nn.Module):
+class WeatheringModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
     LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 600
+    TRAIN_STEPS = 500
     PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
@@ -200,6 +200,7 @@ class NoControlNetModel(nn.Module):
     NOISE_RATIO = 1.0
     ATTN_SCALE_MAX = 10.0 # アテンション強調最大値
     ATTN_ZERO_TO_ONE = False # アテンションを0.0から1.0の間で補間
+    LORA_SCALE_MIN = 0.3 # 最終フレームでのLoRAスケール (1.0→この値まで低減)
     
     def __init__(self, device: str = None):
         super().__init__()
@@ -228,11 +229,6 @@ class NoControlNetModel(nn.Module):
         self.unet = UNet2DConditionModel.from_pretrained(
             self.PRETRAINED_MODEL, subfolder="unet"
         )
-        # self.controlnet_canny = ControlNetModel.from_pretrained(
-        #     self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
-        # )
-        # self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
-        self.controlnets = []  # ControlNet無効化
         
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device).eval()
 
@@ -240,35 +236,37 @@ class NoControlNetModel(nn.Module):
         self.vae.to(device=self.device, dtype=self.dtype)
         self.text_encoder.to(device=self.device)
         self.unet.to(device=self.device)
-        # for c in self.controlnets:
-        #     c.to(device=self.device)
 
         # デフォルトで重みを固定
         self.unet.requires_grad_(False)
         self.vae.requires_grad_(False)
         self.text_encoder.requires_grad_(False)
-        # for c in self.controlnets:
-        #     c.requires_grad_(False)
+
+    # ControlNetで学習する浅い層の割合 (0.0~1.0, 例: 0.5 = 前半のみ学習)
+    # CONTROLNET_TRAINABLE_RATIO = 0.7
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
+        # UNetを事前学習済み重みから再ロードしてリセット（LoRAも完全に初期化）
+        self.unet = UNet2DConditionModel.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="unet"
+        ).to(self.device)
         self.unet.requires_grad_(False)
+        print("UNetをリセットしました")
+
+
         self.unet.train()
 
-        # for c in self.controlnets:
-        #     c.requires_grad_(True)
-        #     c.train()
-        
+
+            
         unet_lora_config = LoraConfig(
             r=self.RANK,
             lora_alpha=self.RANK,
             init_lora_weights="gaussian",
-            target_modules=["attn2.to_k", "attn2.to_q", "attn2.to_v", "attn2.to_out.0"],
+            target_modules=["attn2.to_v", "attn2.to_out.0"],
             lora_dropout=self.LORA_DROPOUT
         )
-        self.adapter_name = f"train-{uuid.uuid4().hex[:8]}"
-        self.unet.add_adapter(unet_lora_config, adapter_name=self.adapter_name)
-        self.unet.set_adapters([self.adapter_name])
+        self.unet.add_adapter(unet_lora_config)
         
         base_lr = self.LEARNING_RATE
         groups_by_scale = {}
@@ -283,13 +281,8 @@ class NoControlNetModel(nn.Module):
         # UNetとControlNetに異なる学習率を設定
         for n, p in self.unet.named_parameters():
             if p.requires_grad:
-                if "attn2" in n:
-                    _add_param(p, 1.0)
+                _add_param(p, 1.0) # 学習率を少し設定
         
-        # for c in self.controlnets:
-        #     for n, p in c.named_parameters():
-        #         if p.requires_grad:
-        #             _add_param(p, 0.07)
         
         param_groups = [
             {"params": ps, "lr": base_lr * scale}
@@ -333,11 +326,11 @@ class NoControlNetModel(nn.Module):
                 
         return combined_down, combined_mid
 
-    def _generate_preview_image(self, latent, prompt, seed, control_images):
+    def _generate_preview_image(self, latent, prompt, seed, control_images, guidance_scale=1.0):
         """単一のプレビュー画像を生成"""
         self.unet.eval()
-        # for c in self.controlnets:
-        #     c.eval()
+        for c in self.controlnets:
+            c.eval()
             
         height, width = self.RESOLUTION[1], self.RESOLUTION[0]
         h, w = height // 8, width // 8
@@ -365,24 +358,16 @@ class NoControlNetModel(nn.Module):
                 lat_in = torch.cat([latents] * 2, dim=0)
                 lat_in = scheduler.scale_model_input(lat_in, t)
 
-                # 制御画像の準備
-                control_imgs_in = []
-                for ci in control_images:
-                    control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
-                
-                # down_res, mid_res = self._apply_controlnets(
-                #     lat_in, t, text_embeds, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
-                # )
+
+
                 
                 noise_pred = self.unet(
                     lat_in, t, text_embeds,
-                    # down_block_additional_residuals=down_res,
-                    # mid_block_additional_residual=mid_res,
                 ).sample
 
                 eps_u, eps_c = noise_pred.chunk(2, dim=0)
-                # プレビュー用の固定ガイダンススケール
-                eps = eps_u + 1.0 * (eps_c - eps_u)
+                # プレビュー用のガイダンススケール
+                eps = eps_u + guidance_scale * (eps_c - eps_u)
                 latents = scheduler.step(eps, t, latents).prev_sample
 
         pil = latent_to_pil(self.vae, latents)[0]
@@ -399,17 +384,18 @@ class NoControlNetModel(nn.Module):
                     latent=latent,
                     prompt=self.train_prompt,
                     seed=step * 100 + k,
-                    control_images=control_images
+                    guidance_scale=1.0  # ガイダンススケール6.0で評価
                 )
                 # 知覚的距離を計算
                 dist = compute_perceptual_distance(
                     preview_pil, image, self.lpips_model, self.device
                 )
                 dists.append(dist)
+                # preview_pil.save(f"preview_{step}_{k}.png")
             
             return sum(dists) / len(dists)
 
-    def train_model(self):
+    def train_model(self, use_early_stopping: bool = True, progress_callback=None):
         """LoRAを使用してモデルをファインチューニング"""
         image = self.input_image
         
@@ -434,21 +420,17 @@ class NoControlNetModel(nn.Module):
             # 1. 入力の準備
             latent = pil_to_latent(self.vae, image, self.device, self.dtype)
             bsz = latent.shape[0]
-            t = torch.randint(0, len(timesteps)-1, (bsz,), device=self.device, dtype=torch.long)
+            # Logit normal sampling: 中間タイムステップに重点を置くサンプリング
+            u = torch.sigmoid(torch.randn((bsz,), device=self.device) * 1.0 + 0.0)  # logit_std=1.0, logit_mean=0.0
+            t = (u * (len(timesteps) - 1)).long().clamp(0, len(timesteps) - 2)
             
             noise = torch.randn_like(latent, device=self.device, dtype=self.dtype)
             noisy_latent = self.ddpm_scheduler.add_noise(latent, noise, t)
             
-            # 2. ControlNet 順伝播 (無効化)
-            # down_res, mid_res = self._apply_controlnets(
-            #     noisy_latent, t, cond_emb, self.control_images, strengths=[1.0] * len(self.control_images)
-            # )
-            
+
             # 3. UNet 順伝播
             model_pred = self.unet(
                 noisy_latent, t, cond_emb,
-                # down_block_additional_residuals=[s.to(dtype=self.dtype) for s in down_res],
-                # mid_block_additional_residual=mid_res.to(dtype=self.dtype),
             ).sample
             
             # 4. 最適化
@@ -460,35 +442,149 @@ class NoControlNetModel(nn.Module):
             self.scaler.step(self.optimizer)
             self.scaler.update()
             self.optimizer.zero_grad(set_to_none=True)
+
+            # 進捗コールバック（リアルタイム表示用）
+            if progress_callback is not None:
+                progress_callback(step + 1, loss.item(), self.TRAIN_STEPS)
             
-            # 5. 評価と早期停止
-            if step % self.CLIP_EVAL_INTERVAL == 0:
-                avg_dist = self._evaluate(step, latent, self.control_images, image)
+            # # 5. 評価と早期停止
+            # if use_early_stopping and step % self.CLIP_EVAL_INTERVAL == 0 and step > 0:
+            #     avg_dist = self._evaluate(step, latent, self.control_images, image)
                 
-                if prev_lpips is None:
-                    improvement_rate = 0.0
-                    no_improve_streak = 0
-                else:
-                    improvement = prev_lpips - avg_dist
-                    improvement_rate = improvement / (prev_lpips + 1e-12)
+            #     if prev_lpips is None:
+            #         improvement_rate = 0.0
+            #         no_improve_streak = 0
+            #     else:
+            #         improvement = prev_lpips - avg_dist
+            #         improvement_rate = improvement / (prev_lpips + 1e-12)
                     
-                    if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
-                        no_improve_streak = 0
-                    else:
-                        no_improve_streak += 1
-                        if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
-                            tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
-                            break
+            #         if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
+            #             no_improve_streak = 0
+            #         else:
+            #             no_improve_streak += 1
+            #             if no_improve_streak >= self.PERCEPTUAL_PATIENCE:
+            #                 tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
+            #                 break
                 
-                prev_lpips = avg_dist
-                tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
-                sys.stdout.flush()
+            #     prev_lpips = avg_dist
+            #     tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
+            #     sys.stdout.flush()
 
                 
             progress_bar.set_postfix({"Loss": f"{loss.item():.4f}"})
 
+    def train_only(
+        self,
+        input_image: Image.Image,
+        train_prompt: str,
+        inference_prompt: str = None,  # 追加: 評価用（劣化後）プロンプト
+        learning_rate: float = None,
+        train_steps: int = None,
+        use_early_stopping: bool = True,
+        progress_callback=None,
+    ) -> None:
+        """Step 1: ロラを使用してモデルをファインチューニング（学習のみ）"""
+        # パラメータ上書き
+        if learning_rate is not None:
+            self.LEARNING_RATE = learning_rate
+        if train_steps is not None:
+            self.TRAIN_STEPS = train_steps
+
+        # パラメータを保存（RESOLUTION にリサイズして保存）
+        w, h = self.RESOLUTION
+        self.input_image = input_image.resize((w, h), Image.LANCZOS)
+        self.train_prompt = train_prompt
+        self.train_inference_prompt = inference_prompt
+        # 制御画像を前処理（リサイズ済み画像から生成）
+
+        # 学習実行
+        self.train_model(use_early_stopping=use_early_stopping, progress_callback=progress_callback)
+
+    def generate_frames(
+        self,
+        inference_prompt: str,
+        negative_prompt: str,
+        attn_word: str,
+        guidance_scale: float,
+        num_frames: int,
+    ) -> list[Image.Image]:
+        """Step 2: 学習済みLoRAを使って連続フレームを生成"""
+        # 推論のセットアップ
+        torch.manual_seed(1234)
+        self.vae.eval()
+        self.unet.eval()
+        self.text_encoder.eval()
+
+        inference_tokens = self.tokenizer(
+            [inference_prompt], truncation=True, padding="max_length",
+            max_length=self.tokenizer.model_max_length, return_tensors="pt"
+        )
+        negative_tokens = self.tokenizer(
+            [negative_prompt], truncation=True, padding="max_length",
+            max_length=self.tokenizer.model_max_length, return_tensors="pt"
+        )
+
+        cond_emb = self.text_encoder(inference_tokens.input_ids.to(self.device))[0]
+        uncond_emb = self.text_encoder(negative_tokens.input_ids.to(self.device))[0]
+        text_embeddings = torch.cat([uncond_emb, cond_emb], dim=0)
+
+        # 経年変化エフェクト用のアテンションプロセッサを設定
+        # aging_processor = None
+        # if attn_word is not None:
+        #     aging_token_indices = find_token_indices(self.tokenizer, inference_tokens.input_ids, attn_word)
+        #     aging_processor = AgingAttentionProcessor(
+        #         aging_token_indices,
+        #         scale_max=self.ATTN_SCALE_MAX,
+        #         zero_to_one=self.ATTN_ZERO_TO_ONE
+        #     )
+        #     self.unet.set_attn_processor(aging_processor)
+
+        # 潜在変数の準備
+        self.ddim_scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
+        timesteps = self.ddim_scheduler.timesteps
+        start_latent = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
+        noise = torch.randn_like(start_latent, device=self.device, dtype=self.dtype)
+
+        frames = []
+
+        # 生成ループ (フレームごと)
+        for i in range(num_frames):
+            ratio = 1.7
+            normalized_i = (i + 1 + i*(ratio-1)) / (num_frames*ratio) * math.pi / 2.0
+            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
+            t_index = max(0, min(t_index, self.INFER_STEPS - 1))
+
+            noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
+
+            # if aging_processor is not None:
+            #     aging_processor.current_factor = 1.0
+
+            # デノイズ
+            with torch.no_grad():
+                latents = noisy_latent
+                for t in tqdm(timesteps[t_index:], desc=f"{i+1}/{num_frames}"):
+                    with autocast(device_type=self.device.type, enabled=(self.device.type == "cuda"), dtype=self.dtype):
+
+                        lat_in = torch.cat([latents] * 2, dim=0)
+                        lat_in = self.ddim_scheduler.scale_model_input(lat_in, t)
+
+
+                        noise_pred = self.unet(
+                            lat_in, t, text_embeddings,
+                        ).sample
+
+                        noise_uncond, noise_text = noise_pred.chunk(2, dim=0)
+                        noise_pred = noise_uncond + guidance_scale * (noise_text - noise_uncond)
+
+                        latents = self.ddim_scheduler.step(noise_pred, t, latents).prev_sample
+
+                output_image = latent_to_pil(self.vae, latents)[0]
+                frames.append(output_image)
+
+        return frames
+
     def forward(
-        self,    
+        self,
         input_image: Image.Image,
         train_prompt: str,
         inference_prompt: str,
@@ -496,102 +592,10 @@ class NoControlNetModel(nn.Module):
         attn_word: str,
         guidance_scale: float,
         num_frames: int,
+        learning_rate: float = None,
+        train_steps: int = None,
     ) -> list[Image.Image]:
-        
-        # パラメータを保存
-        self.input_image = input_image
-        self.train_prompt = train_prompt
-        # 制御画像を前処理
-        self.control_images = []
-        canny_image = canny_process(input_image, self.device, self.dtype)
-        self.control_images.append(canny_image)
-        # ControlNetの条件画像を追加する場合ここに追加
-        # self.control_image_raw = transforms.ToTensor()(input_image).unsqueeze(0).to(device=self.device, dtype=self.dtype)
-        
-        # 1. モデルのトレーニング
-        self.train_model()
-        
-        # 2. 推論のセットアップ
-        torch.manual_seed(1234)
-        self.vae.eval()
-        self.unet.eval()
-        self.text_encoder.eval()
-        # for c in self.controlnets:
-        #     c.eval()
-            
-        inference_tokens = self.tokenizer([inference_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
-        negative_tokens = self.tokenizer([negative_prompt], truncation=True, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt")
-        
-        cond_emb = self.text_encoder(inference_tokens.input_ids.to(self.device))[0]
-        uncond_emb = self.text_encoder(negative_tokens.input_ids.to(self.device))[0]
-        text_embeddings = torch.cat([uncond_emb, cond_emb], dim=0)
-        
-        # 経年変化エフェクト用のアテンションプロセッサを設定
-        aging_processor = None
-        if attn_word is not None:
-            aging_token_indices = find_token_indices(self.tokenizer, inference_tokens.input_ids, attn_word)
-            aging_processor = AgingAttentionProcessor(
-                aging_token_indices,
-                scale_max=self.ATTN_SCALE_MAX,
-                zero_to_one=self.ATTN_ZERO_TO_ONE
-            )
-            self.unet.set_attn_processor(aging_processor)
-        
-        # 潜在変数の準備
-        self.ddim_scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
-        timesteps = self.ddim_scheduler.timesteps
-        start_latent = pil_to_latent(self.vae, input_image, self.device, self.dtype)
-        noise = torch.randn_like(start_latent, device=self.device, dtype=self.dtype)
-        
-        frames = []
-        
-        # 3. 生成ループ (フレームごと)
-        for i in range(num_frames):
-            # 経年変化係数を計算 (フレームインデックスに基づいて 0.0 から 1.0)
-            # スムーズな遷移効果を作成するため正弦波補間を使用
-            normalized_i = (i + 1) / num_frames * math.pi / 2
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
-            t_index = max(0, min(t_index, self.INFER_STEPS - 1))
-            
-            # 特定のタイムステップで元の画像と混合されたノイズから開始
-            noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
-            
-            # 経年変化の強度を更新
-            if aging_processor is not None:
-                aging_processor.current_factor = math.sin(normalized_i)
-            
-            # デノイズ
-            with torch.no_grad():
-                latents = noisy_latent
-                # タイムステップを反復
-                for t in tqdm(timesteps[t_index:], desc=f"{i+1}/{num_frames}"):
-                    with autocast(device_type=self.device.type, enabled=(self.device.type == "cuda"), dtype=self.dtype):
-                        
-                        lat_in = torch.cat([latents] * 2, dim=0)
-                        lat_in = self.ddim_scheduler.scale_model_input(lat_in, t)
-                        
-                        # 制御入力の準備
-                        control_imgs_in = []
-                        for ci in self.control_images:
-                            control_imgs_in.append(ci.repeat(2, 1, 1, 1) if ci.shape[0] == 1 else ci)
-                            
-                        # down_res, mid_res = self._apply_controlnets(
-                        #     lat_in, t, text_embeddings, control_imgs_in, strengths=self.CONTROLNET_STRENGTHS
-                        # )
-                        
-                        noise_pred = self.unet(
-                            lat_in, t, text_embeddings,
-                            # down_block_additional_residuals=down_res,
-                            # mid_block_additional_residual=mid_res,
-                        ).sample
-                        
-                        # ガイダンスを実行
-                        noise_uncond, noise_text = noise_pred.chunk(2, dim=0)
-                        noise_pred = noise_uncond + guidance_scale * (noise_text - noise_uncond)
-                        
-                        latents = self.ddim_scheduler.step(noise_pred, t, latents).prev_sample
-                
-                output_image = latent_to_pil(self.vae, latents)[0]
-                frames.append(output_image)
-            
-        return frames
+        """後方互換ラッパー: train_only() + generate_frames() を順に実行"""
+        self.train_only(input_image, train_prompt, learning_rate=learning_rate, train_steps=train_steps)
+        return self.generate_frames(inference_prompt, negative_prompt, attn_word, guidance_scale, num_frames)
+
