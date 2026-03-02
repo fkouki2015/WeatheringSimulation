@@ -31,9 +31,9 @@ def extract_gif_frames(gif_path: Path, out_dir: Path, stem: str, model: str) -> 
         n_frames = len(all_frames)
         
         if n_frames == 10:
-            target_indices = [0, 2, 4, 6, 8]
+            target_indices = [1, 3, 5, 7, 9]
         elif n_frames == 8:
-            target_indices = [0, 2, 4, 6, 7]
+            target_indices = [1, 3, 5, 6, 7]
         elif n_frames == 5:
             target_indices = [0, 1, 2, 3, 4]
         else:
@@ -161,13 +161,31 @@ def build_html(samples: list[dict], gif_dir: Path, models: list[str], frames_dir
   }}
   th.model-col {{
     position: sticky; left: 0; z-index: 10; background: #0f3460;
-    border-right: 2px solid #e94560; min-width: 110px;
+    border-right: 1px solid #e94560; min-width: 110px;
+  }}
+  th.input-col {{
+    position: sticky; left: 110px; z-index: 10; background: #0f3460;
+    border-right: 3px solid #e94560; min-width: 192px;
   }}
   td {{ padding: 5px; border: 1px solid #0f3460; vertical-align: middle; }}
   td.model-name {{
     font-size: 0.85rem; font-weight: 700; color: #8ecae6;
     position: sticky; left: 0; z-index: 5; background: #16213e;
-    border-right: 2px solid #e94560; padding: 6px 12px; white-space: nowrap;
+    border-right: 1px solid #e94560; padding: 6px 12px; white-space: nowrap;
+  }}
+  td.input-cell {{
+    position: sticky; left: 110px; z-index: 5; background: #16213e;
+    border-right: 3px solid #e94560;
+    text-align: center;
+    padding: 5px;
+  }}
+  td.input-cell img {{
+    display: block; border-radius: 4px; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }}
+  td.input-cell img:hover {{
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(233,69,96,0.6);
   }}
   td.frame-cell {{ text-align: center; }}
   td.frame-cell img {{
@@ -181,6 +199,28 @@ def build_html(samples: list[dict], gif_dir: Path, models: list[str], frames_dir
   td.no-gif {{ color: #555; font-size: 0.8rem; text-align: center; }}
   tr:hover td {{ background: rgba(14,52,96,0.25); }}
   tr:hover td.model-name {{ background: #1e3e70; }}
+
+  .vote-btn {{
+    margin-left: 10px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    border: 1px solid #4caf50;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }}
+  .vote-btn:hover {{
+    background: #4caf50;
+    color: white;
+  }}
+  .vote-btn.voted {{
+    background: #4caf50;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 0 8px rgba(76,175,80,0.6);
+  }}
 
   /* Lightbox */
   #lightbox {{
@@ -214,6 +254,8 @@ def build_html(samples: list[dict], gif_dir: Path, models: list[str], frames_dir
 
   <button class="btn secondary" onclick="prevSample()">◀ 前へ</button>
   <button class="btn secondary" onclick="nextSample()">次へ ▶</button>
+
+  <button class="btn" style="margin-left:auto; background:#4caf50;" onclick="showResults()">結果集計 / Export</button>
 </div>
 
 <div id="sample-nav"></div>
@@ -236,14 +278,20 @@ const DATA = {data_json};
 const MODELS = {models_json};
 let currentIdx = 0;
 let imgSize = 192;
+let votes = {{}}; // idx -> modelName
 
 function buildNav() {{
   const nav = document.getElementById('sample-nav');
   nav.innerHTML = '';
+  const q = document.getElementById('filter-input').value.toLowerCase();
   DATA.forEach((s, i) => {{
     const btn = document.createElement('button');
     btn.className = 'nav-btn' + (i === currentIdx ? ' active' : '');
-    btn.textContent = s.stem;
+    if (votes[i]) {{
+      btn.style.borderLeft = '3px solid #4caf50';
+    }}
+    btn.textContent = s.stem + (votes[i] ? ' ✓' : '');
+    btn.style.display = s.stem.toLowerCase().includes(q) ? '' : 'none';
     btn.onclick = () => showSample(i);
     nav.appendChild(btn);
   }});
@@ -264,6 +312,12 @@ function renderGrid(idx) {{
   thm.className = 'model-col';
   thm.textContent = 'Model';
   tr.appendChild(thm);
+  
+  const thi = document.createElement('th');
+  thi.className = 'input-col';
+  thi.textContent = 'Input';
+  tr.appendChild(thi);
+
   for (let f = 0; f < maxFrames; f++) {{
     const th = document.createElement('th');
     th.textContent = `Frame ${{f+1}}`;
@@ -275,31 +329,7 @@ function renderGrid(idx) {{
   const body = document.getElementById('grid-body');
   body.innerHTML = '';
 
-  // --- Original 行 ---
-  const origRow = document.createElement('tr');
-  const origName = document.createElement('td');
-  origName.className = 'model-name';
-  origName.textContent = 'Original';
-  origName.style.color = '#f9c74f';
-  origRow.appendChild(origName);
-  const origTd = document.createElement('td');
-  origTd.className = 'frame-cell';
-  if (s.original_path) {{
-    const img = document.createElement('img');
-    img.src = s.original_path;
-    img.width = imgSize; img.height = imgSize;
-    img.loading = 'lazy';
-    img.alt = 'Original';
-    img.onclick = () => openLightbox(s.original_path, `Original / ${{s.stem}}`);
-    origTd.appendChild(img);
-  }}
-  origRow.appendChild(origTd);
-  // 空セルで残りを埋める
-  for (let f = 1; f < maxFrames; f++) {{
-    const td = document.createElement('td');
-    origRow.appendChild(td);
-  }}
-  body.appendChild(origRow);
+
 
   // --- モデル行 ---
   MODELS.forEach(model => {{
@@ -308,8 +338,36 @@ function renderGrid(idx) {{
 
     const tdName = document.createElement('td');
     tdName.className = 'model-name';
-    tdName.textContent = model;
+    tdName.textContent = model + ' ';
+    
+    // 投票ボタン
+    const vBtn = document.createElement('button');
+    vBtn.className = 'vote-btn' + (votes[idx] === model ? ' voted' : '');
+    vBtn.textContent = votes[idx] === model ? 'Voted ★' : 'Vote';
+    vBtn.onclick = (e) => {{
+      e.stopPropagation();
+      votes[idx] = model;
+      renderGrid(idx);
+      buildNav();
+      setTimeout(nextSample, 150);
+    }};
+    tdName.appendChild(vBtn);
+
     row.appendChild(tdName);
+
+    // Input 画像セル
+    const tdInput = document.createElement('td');
+    tdInput.className = 'input-cell';
+    if (s.original_path) {{
+      const img = document.createElement('img');
+      img.src = s.original_path;
+      img.width = imgSize; img.height = imgSize;
+      img.loading = 'lazy';
+      img.alt = 'Original';
+      img.onclick = () => openLightbox(s.original_path, `Original / ${{s.stem}}`);
+      tdInput.appendChild(img);
+    }}
+    row.appendChild(tdInput);
 
     for (let f = 0; f < maxFrames; f++) {{
       const td = document.createElement('td');
@@ -371,6 +429,49 @@ document.addEventListener('keydown', e => {{
   if (e.key === 'ArrowLeft') prevSample();
   if (e.key === 'Escape') closeLightbox();
 }});
+
+function showResults() {{
+  const counts = {{}};
+  MODELS.forEach(m => counts[m] = 0);
+  let totalVotes = 0;
+  
+  Object.keys(votes).forEach(idx => {{
+    const m = votes[idx];
+    if (counts[m] !== undefined) {{
+      counts[m]++;
+      totalVotes++;
+    }}
+  }});
+
+  let msg = `【投票集計】 (総投票数: ${{totalVotes}} / ${{DATA.length}})\\n\\n`;
+  MODELS.forEach(m => {{
+    msg += `${{m}}: ${{counts[m]}} 票\\n`;
+  }});
+  
+  // アラートで集計結果を表示
+  alert(msg);
+  
+  if (confirm("投票結果をJSONとしてダウンロードしますか？")) {{
+    const detailsByStem = {{}};
+    Object.keys(votes).forEach(idx => {{
+      const s = DATA[idx];
+      detailsByStem[s.stem] = votes[idx];
+    }});
+    
+    const exportData = {{
+      summary: counts,
+      details: detailsByStem
+    }};
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {{ type: 'application/json' }});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vote_results.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }}
+}}
 
 buildNav();
 renderGrid(0);
