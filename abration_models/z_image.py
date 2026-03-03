@@ -89,9 +89,9 @@ def encode_prompts(text_encoder, tokenizer, prompts, device, max_sequence_length
 class SD3Model(nn.Module):
     RESOLUTION = (1024, 1024)
     LEARNING_RATE = 1e-4
-    TRAIN_STEPS = 500
+    TRAIN_STEPS = 300
     DEVICE = "cuda"
-    PRETRAINED_MODEL = "Tongyi-MAI/Z-Image"
+    PRETRAINED_MODEL = "Tongyi-MAI/Z-Image-Turbo"
     INFER_STEPS = 50
     NOISE_RATIO = 0.6
     MAX_SEQUENCE_LENGTH = 256

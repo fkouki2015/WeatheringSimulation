@@ -194,8 +194,8 @@ class SD3Model(nn.Module):
     # デフォルト定数
     RESOLUTION = (1024, 1024)
     RANK = 8
-    LEARNING_RATE = 1e-6
-    TRAIN_STEPS = 300
+    LEARNING_RATE = 1e-4
+    TRAIN_STEPS = 500
     PRETRAINED_MODEL = "stabilityai/stable-diffusion-3.5-large"
     CONTROLNET_PATH = "stabilityai/stable-diffusion-3.5-large-controlnet-canny"
     DEVICE = "cuda"
@@ -207,7 +207,7 @@ class SD3Model(nn.Module):
     PERCEPTUAL_PATIENCE = 2
     
     # 推論設定
-    INFER_STEPS = 40
+    INFER_STEPS = 50
     NOISE_RATIO = 0.6
     MAX_SEQUENCE_LENGTH = 256
     
@@ -426,11 +426,9 @@ class SD3Model(nn.Module):
             timesteps = self.noise_scheduler.timesteps # 0..1000のうち、INFER_STEPS個を等間隔で選択したもの
             
             # t_index計算
-            normalized_i = i / max(1, num_frames - 1)
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * (normalized_i ** self.NOISE_RATIO)) - 1
+            normalized_i = (i + 1) / (num_frames)
+            t_index = int((self.INFER_STEPS - 1) * (1.0 - normalized_i)**2.5)
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
-            if num_frames == 1:
-                t_index = 0
             # t_index: 0...INFER_STEPS-1
 
             t_float = timesteps[t_index] / self.noise_scheduler.num_train_timesteps
