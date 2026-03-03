@@ -51,8 +51,8 @@ def canny_process(image, device, dtype):
 
 def depth_process(image, device, dtype):
     """画像から深度マップを生成"""
-    processor = DPTImageProcessor.from_pretrained("Intel/dpt-hybrid-midas")
-    model = DPTForDepthEstimation.from_pretrained("Intel/dpt-hybrid-midas").to(device)
+    processor = DPTImageProcessor.from_pretrained("Intel/dpt-hybrid-midas", local_files_only=True)
+    model = DPTForDepthEstimation.from_pretrained("Intel/dpt-hybrid-midas", local_files_only=True).to(device)
     inputs = processor(images=image, return_tensors="pt").to(device)
     with torch.no_grad():
         outputs = model(**inputs)
@@ -182,8 +182,8 @@ class NoTrainModel(nn.Module):
     RESOLUTION = (512, 512)
     RANK = 8
     LEARNING_RATE = 1e-5
-    TRAIN_STEPS = 500
-    PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
+    TRAIN_STEPS = 0
+    PRETRAINED_MODEL = "stable-diffusion-v1-5/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
     DEVICE = "cuda"
@@ -212,25 +212,25 @@ class NoTrainModel(nn.Module):
     def _init_models(self):
         """すべての拡散モデルとコンポーネントを初期化"""
         self.ddim_scheduler = DDIMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
+            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
         )
         self.ddpm_scheduler = DDPMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
+            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
         )
         self.tokenizer = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer"
+            self.PRETRAINED_MODEL, subfolder="tokenizer", local_files_only=True
         )
         self.text_encoder = CLIPTextModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder"
+            self.PRETRAINED_MODEL, subfolder="text_encoder", local_files_only=True
         )
         self.vae = AutoencoderKL.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="vae"
+            self.PRETRAINED_MODEL, subfolder="vae", local_files_only=True
         )
         self.unet = UNet2DConditionModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="unet"
+            self.PRETRAINED_MODEL, subfolder="unet", local_files_only=True
         )
         self.controlnet_canny = ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
+            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32, local_files_only=True
         )
         self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
         
@@ -257,14 +257,14 @@ class NoTrainModel(nn.Module):
         """トレーニング用にLoRAとオプティマイザを設定"""
         # UNetを事前学習済み重みから再ロードしてリセット（LoRAも完全に初期化）
         self.unet = UNet2DConditionModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="unet"
+            self.PRETRAINED_MODEL, subfolder="unet", local_files_only=True
         ).to(self.device)
         self.unet.requires_grad_(False)
         print("UNetをリセットしました")
 
         # ControlNetを事前学習済み重みにリセット
         self.controlnet_canny = ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
+            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32, local_files_only=True
         ).to(self.device)
         self.controlnets = [self.controlnet_canny]
         for c in self.controlnets:
@@ -369,7 +369,7 @@ class NoTrainModel(nn.Module):
         text_embeds = torch.cat([uncond, cond], dim=0)
 
         # スケジューラの準備
-        scheduler = DDIMScheduler.from_pretrained(self.PRETRAINED_MODEL, subfolder="scheduler")
+        scheduler = DDIMScheduler.from_pretrained(self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True)
         scheduler.set_timesteps(self.CLIP_EVAL_STEPS, device=self.device)
         
         generator = torch.Generator(device=self.device.type).manual_seed(seed)
@@ -540,7 +540,7 @@ class NoTrainModel(nn.Module):
         self.control_images.append(canny_image)
 
         # 学習実行
-        self.train_model(use_early_stopping=use_early_stopping, progress_callback=progress_callback)
+        # self.train_model(use_early_stopping=use_early_stopping, progress_callback=progress_callback)
 
     def generate_frames(
         self,
@@ -649,6 +649,6 @@ class NoTrainModel(nn.Module):
         train_steps: int = None,
     ) -> list[Image.Image]:
         """後方互換ラッパー: train_only() + generate_frames() を順に実行"""
-        # self.train_only(input_image, train_prompt, learning_rate=learning_rate, train_steps=train_steps)
+        self.train_only(input_image, train_prompt, learning_rate=learning_rate, train_steps=train_steps)
         return self.generate_frames(inference_prompt, negative_prompt, attn_word, guidance_scale, num_frames)
 

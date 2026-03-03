@@ -51,8 +51,8 @@ def canny_process(image, device, dtype):
 
 def depth_process(image, device, dtype):
     """画像から深度マップを生成"""
-    processor = DPTImageProcessor.from_pretrained("Intel/dpt-hybrid-midas")
-    model = DPTForDepthEstimation.from_pretrained("Intel/dpt-hybrid-midas").to(device)
+    processor = DPTImageProcessor.from_pretrained("Intel/dpt-hybrid-midas", local_files_only=True)
+    model = DPTForDepthEstimation.from_pretrained("Intel/dpt-hybrid-midas", local_files_only=True).to(device)
     inputs = processor(images=image, return_tensors="pt").to(device)
     with torch.no_grad():
         outputs = model(**inputs)
@@ -183,7 +183,7 @@ class LinearModel(nn.Module):
     RANK = 8
     LEARNING_RATE = 1e-5
     TRAIN_STEPS = 600
-    PRETRAINED_MODEL = "runwayml/stable-diffusion-v1-5"
+    PRETRAINED_MODEL = "stable-diffusion-v1-5/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
     CONTROLNET_STRENGTHS = [1.0]
     DEVICE = "cuda"
@@ -211,25 +211,25 @@ class LinearModel(nn.Module):
     def _init_models(self):
         """すべての拡散モデルとコンポーネントを初期化"""
         self.ddim_scheduler = DDIMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
+            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
         )
         self.ddpm_scheduler = DDPMScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler"
+            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
         )
         self.tokenizer = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer"
+            self.PRETRAINED_MODEL, subfolder="tokenizer", local_files_only=True
         )
         self.text_encoder = CLIPTextModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder"
+            self.PRETRAINED_MODEL, subfolder="text_encoder", local_files_only=True
         )
         self.vae = AutoencoderKL.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="vae"
+            self.PRETRAINED_MODEL, subfolder="vae", local_files_only=True
         )
         self.unet = UNet2DConditionModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="unet"
+            self.PRETRAINED_MODEL, subfolder="unet", local_files_only=True
         )
         self.controlnet_canny = ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32
+            self.CONTROLNET_PATH_CANNY, torch_dtype=torch.float32, local_files_only=True
         )
         self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
         
@@ -351,7 +351,7 @@ class LinearModel(nn.Module):
         text_embeds = torch.cat([uncond, cond], dim=0)
 
         # スケジューラの準備
-        scheduler = DDIMScheduler.from_pretrained(self.PRETRAINED_MODEL, subfolder="scheduler")
+        scheduler = DDIMScheduler.from_pretrained(self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True)
         scheduler.set_timesteps(self.CLIP_EVAL_STEPS, device=self.device)
         
         generator = torch.Generator(device=self.device.type).manual_seed(seed)
