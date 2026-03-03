@@ -16,7 +16,7 @@ from peft import LoraConfig
 from peft.utils import get_peft_model_state_dict
 import lpips
 import diffusers
-from transformers import CLIPTokenizer, PretrainedConfig, T5TokenizerFast
+from transformers import CLIPTextModelWithProjection, CLIPTokenizer, T5EncoderModel, T5TokenizerFast
 from diffusers import (
     AutoencoderKL, 
     SD3Transformer2DModel,
@@ -58,14 +58,27 @@ def canny_process(image, device, dtype):
 
 
 def pil_to_latent(vae: AutoencoderKL, pil: Image.Image, device, dtype):
-    """PIL画像を潜在空間にエンコード (SD3用)"""
-    to_tensor = transforms.ToTensor()
-    x = to_tensor(pil).unsqueeze(0).to(device)
+    x = transforms.ToTensor()(pil).unsqueeze(0).to(device)
     x = (x * 2 - 1).to(dtype=torch.float32)
     with torch.no_grad():
-        posterior = vae.encode(x).latent_dist
-        latents = posterior.sample()
+        latents = vae.encode(x).latent_dist.sample()
 
+    latents = (latents - vae.config.shift_factor) * vae.config.scaling_factor
+    return latents.to(dtype=dtype)
+
+
+def control_pil_to_latent_sd3_canny_equiv(
+    vae: AutoencoderKL,
+    pil: Image.Image,
+    resolution,
+    device,
+    dtype,
+):
+    x = transforms.ToTensor()(pil).unsqueeze(0).to(device=device, dtype=torch.float32)
+    # SD3CannyImageProcessor.preprocess と同等の変換
+    x = x * 255.0 * 0.5 + 0.5
+    with torch.no_grad():
+        latents = vae.encode(x).latent_dist.sample()
     latents = (latents - vae.config.shift_factor) * vae.config.scaling_factor
     return latents.to(dtype=dtype)
 
@@ -81,120 +94,55 @@ def latent_to_pil(vae: AutoencoderKL, latents):
     pil_list = [Image.fromarray(arr) for arr in imgs]
     return pil_list
 
-
-def get_sigmas(scheduler, timesteps, n_dim=4, dtype=torch.float32, device="cuda"):
-    """シグマ値を取得"""
-    sigmas = scheduler.sigmas.to(device=device, dtype=dtype)
-    schedule_timesteps = scheduler.timesteps.to(device)
-    if timesteps.ndim == 0:
-        timesteps = timesteps.unsqueeze(0)
-    step_indices = [(schedule_timesteps == t).nonzero().item() for t in timesteps.to(device)]
-    sigma = sigmas[step_indices].flatten()
-    while len(sigma.shape) < n_dim:
-        sigma = sigma.unsqueeze(-1)
-    return sigma
+def sample_t_logit_normal(batch_size, mu=0.0, sigma=1.0, eps=1e-5, device="cuda"):
+    u = torch.randn(batch_size, device=device) * sigma + mu
+    t = torch.sigmoid(u)
+    return t.clamp(eps, 1.0 - eps)  # avoid exact 0/1
 
 
-def import_model_class(pretrained_model_name_or_path: str, subfolder="text_encoder", local_files_only=False):
-    """モデル設定に基づいて適切なテキストエンコーダクラスをインポート"""
-    config = PretrainedConfig.from_pretrained(
-        pretrained_model_name_or_path, subfolder=subfolder, local_files_only=local_files_only
-    )
-    model_class_name = config.architectures[0]
-    if model_class_name == "CLIPTextModelWithProjection":
-        from transformers import CLIPTextModelWithProjection
-        return CLIPTextModelWithProjection
-    elif model_class_name == "T5EncoderModel":
-        from transformers import T5EncoderModel
-        return T5EncoderModel
-    else:
-        raise ValueError(f"Unsupported model class: {model_class_name}")
-
-
-def tokenize_prompt(tokenizer, prompt_list, max_length, device):
-    """プロンプトをトークナイズ"""
-    text_inputs = tokenizer(
-        prompt_list,
-        padding="max_length",
-        max_length=max_length,
-        truncation=True,
-        return_tensors="pt",
-    )
-    return text_inputs.input_ids.to(device)
-
-
-def _encode_prompt_with_clip(
+def _encode_prompt_clip(
     text_encoder,
     tokenizer,
     prompt_list,
     device,
-    weight_dtype,
-    text_input_ids=None,
-    num_images_per_prompt=1,
+    dtype,
 ):
-    """CLIPテキストエンコーダでプロンプトをエンコード"""
-    batch_size = len(prompt_list)
-    if tokenizer is not None:
-        text_inputs = tokenizer(
-            prompt_list,
-            padding="max_length",
-            max_length=77,
-            truncation=True,
-            return_tensors="pt",
-        )
-        text_input_ids = text_inputs.input_ids.to(device)
-    elif text_input_ids is None:
-        raise ValueError("Either tokenizer or text_input_ids must be provided")
-    else:
-        text_input_ids = text_input_ids.to(device)
+    text_inputs = tokenizer(
+        prompt_list,
+        padding="max_length",
+        max_length=77,
+        truncation=True,
+        return_tensors="pt",
+    )
+    text_input_ids = text_inputs.input_ids.to(device)
 
-    outputs = text_encoder(text_input_ids, output_hidden_states=True, return_dict=True)
-    last_hidden = outputs.hidden_states[-2]
-    pooled = getattr(outputs, "text_embeds", None)
-    if pooled is None:
-        pooled = outputs.pooler_output
-    prompt_embeds = last_hidden.to(dtype=weight_dtype, device=device)
+    outputs = text_encoder(text_input_ids, output_hidden_states=True)
+    pooled_prompt_embeds = outputs[0].to(dtype=dtype, device=device) # shape: (batch, dim) = (1, 768) for SD3.5 large
+    prompt_embeds = outputs.hidden_states[-2].to(dtype=dtype, device=device) # shape: (batch, seq_len, dim) = (1, 77, 768) for SD3.5 large
 
-    _, seq_len, _ = prompt_embeds.shape
-    prompt_embeds = prompt_embeds.repeat(1, num_images_per_prompt, 1)
-    prompt_embeds = prompt_embeds.view(batch_size * num_images_per_prompt, seq_len, -1)
-
-    return prompt_embeds, pooled.to(device=device, dtype=weight_dtype)
+    return prompt_embeds, pooled_prompt_embeds
 
 
-def _encode_prompt_with_t5(
+def _encode_prompt_t5(
     text_encoder,
     tokenizer,
     prompt_list,
     max_sequence_length,
-    num_images_per_prompt,
     device,
-    weight_dtype,
-    text_input_ids=None,
+    dtype,
 ):
-    """T5テキストエンコーダでプロンプトをエンコード"""
-    batch_size = len(prompt_list)
-    if tokenizer is not None:
-        text_inputs = tokenizer(
-            prompt_list,
-            padding="max_length",
-            max_length=max_sequence_length,
-            truncation=True,
-            add_special_tokens=True,
-            return_tensors="pt",
-        )
-        text_input_ids = text_inputs.input_ids.to(device)
-    elif text_input_ids is None:
-        raise ValueError("Either tokenizer or text_input_ids must be provided")
-    else:
-        text_input_ids = text_input_ids.to(device)
+    text_inputs = tokenizer(
+        prompt_list,
+        padding="max_length",
+        max_length=max_sequence_length,
+        truncation=True,
+        add_special_tokens=True,
+        return_tensors="pt",
+    )
+    text_input_ids = text_inputs.input_ids.to(device)
 
-    prompt_embeds = text_encoder(text_input_ids)[0]
-    prompt_embeds = prompt_embeds.to(dtype=weight_dtype, device=device)
-
-    _, seq_len, _ = prompt_embeds.shape
-    prompt_embeds = prompt_embeds.repeat(1, num_images_per_prompt, 1)
-    prompt_embeds = prompt_embeds.view(batch_size * num_images_per_prompt, seq_len, -1)
+    outputs = text_encoder(text_input_ids)[0]
+    prompt_embeds = outputs.to(dtype=dtype, device=device) 
 
     return prompt_embeds
 
@@ -205,72 +153,36 @@ def encode_prompt(
     prompt_list,
     max_sequence_length,
     device,
-    weight_dtype,
-    num_images_per_prompt=1,
-    text_input_ids_list=None,
+    dtype,
 ):
-    """3つのテキストエンコーダ（CLIP x2 + T5）でプロンプトをエンコード"""
-    clip_tokenizers, clip_encoders = tokenizers[:2], text_encoders[:2]
-    clip_embeds_list, pooled_list = [], []
-
-    for i, (tok, enc) in enumerate(zip(clip_tokenizers, clip_encoders)):
-        if tok is not None:
-            token_ids = tokenize_prompt(tok, prompt_list, 77, device)
-        else:
-            token_ids = (
-                text_input_ids_list[i].to(device)
-                if text_input_ids_list and text_input_ids_list[i] is not None
-                else None
-            )
-            if token_ids is None:
-                raise ValueError(f"No tokenizer or token IDs provided for CLIP encoder {i+1}")
-
-        embeds, pooled = _encode_prompt_with_clip(
-            text_encoder=enc,
-            tokenizer=None,
-            prompt_list=prompt_list,
-            device=device,
-            weight_dtype=weight_dtype,
-            text_input_ids=token_ids,
-            num_images_per_prompt=num_images_per_prompt,
-        )
-        clip_embeds_list.append(embeds)
-        pooled_list.append(pooled)
-
-    clip_embeds = torch.cat(clip_embeds_list, dim=-1)
-    pooled_embeds = torch.cat(pooled_list, dim=-1)
-
-    if tokenizers[2] is not None:
-        t5_token_ids = tokenize_prompt(
-            tokenizers[2], prompt_list, max_sequence_length, device
-        )
-    else:
-        t5_token_ids = (
-            text_input_ids_list[2].to(device)
-            if text_input_ids_list and text_input_ids_list[2] is not None
-            else None
-        )
-        if t5_token_ids is None:
-            raise ValueError("No tokenizer or token IDs provided for T5 encoder")
-
-    t5_embeds = _encode_prompt_with_t5(
+    clip1_embed, clip1_pooled = _encode_prompt_clip(
+        text_encoder=text_encoders[0],
+        tokenizer=tokenizers[0],
+        prompt_list=prompt_list,
+        device=device,
+        dtype=dtype,
+    )
+    clip2_embed, clip2_pooled = _encode_prompt_clip(
+        text_encoder=text_encoders[1],
+        tokenizer=tokenizers[1],
+        prompt_list=prompt_list,
+        device=device,
+        dtype=dtype,
+    )
+    t5_embed = _encode_prompt_t5(
         text_encoder=text_encoders[2],
-        tokenizer=None,
+        tokenizer=tokenizers[2],
         prompt_list=prompt_list,
         max_sequence_length=max_sequence_length,
-        num_images_per_prompt=num_images_per_prompt,
         device=device,
-        weight_dtype=weight_dtype,
-        text_input_ids=t5_token_ids,
+        dtype=dtype,
     )
 
-    t5_dim = t5_embeds.shape[-1]
-    clip_embeds = torch.nn.functional.pad(
-        clip_embeds,
-        (0, t5_dim - clip_embeds.shape[-1]),
-    )
-    prompt_embeds = torch.cat([clip_embeds, t5_embeds], dim=-2)
-
+    clip_embeds = torch.cat([clip1_embed, clip2_embed], dim=-1)  # (batch, seq_len, 1536)
+    clip_embeds = torch.nn.functional.pad(clip_embeds, (0, t5_embed.shape[-1] - clip_embeds.shape[-1]))  # 最終次元から左, 右の順でパディング
+    prompt_embeds = torch.cat([clip_embeds, t5_embed], dim=1)  # (batch, seq_len + t5_seq_len, 1536)
+    pooled_embeds = torch.cat([clip1_pooled, clip2_pooled], dim=-1)  # (batch, 1536)
+    
     return prompt_embeds, pooled_embeds
 
 
@@ -283,9 +195,9 @@ class SD3Model(nn.Module):
     RESOLUTION = (1024, 1024)
     RANK = 8
     LEARNING_RATE = 1e-4
-    TRAIN_STEPS = 600
-    PRETRAINED_MODEL = "stabilityai/stable-diffusion-3.5-medium"
-    CONTROLNET_PATH = "InstantX/SD3-Controlnet-Canny"
+    TRAIN_STEPS = 500
+    PRETRAINED_MODEL = "stabilityai/stable-diffusion-3.5-large"
+    CONTROLNET_PATH = "stabilityai/stable-diffusion-3.5-large-controlnet-canny"
     DEVICE = "cuda"
     
     # 評価設定
@@ -295,7 +207,7 @@ class SD3Model(nn.Module):
     PERCEPTUAL_PATIENCE = 2
     
     # 推論設定
-    INFER_STEPS = 40
+    INFER_STEPS = 50
     NOISE_RATIO = 0.6
     MAX_SEQUENCE_LENGTH = 256
     
@@ -303,59 +215,43 @@ class SD3Model(nn.Module):
         super().__init__()
         self.device = torch.device(device if device else self.DEVICE)
         self.dtype = torch.bfloat16
-        self._init_models()
-        
-    def _init_models(self):
-        """すべての拡散モデルとコンポーネントを初期化"""
+
         # スケジューラ
         self.noise_scheduler = diffusers.FlowMatchEulerDiscreteScheduler.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="scheduler", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="scheduler", 
         )
-        self.noise_scheduler_copy = copy.deepcopy(self.noise_scheduler)
-        
         # トークナイザ
         self.tokenizer_one = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="tokenizer", 
         )
         self.tokenizer_two = CLIPTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer_2", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="tokenizer_2", 
         )
         self.tokenizer_three = T5TokenizerFast.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="tokenizer_3", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="tokenizer_3", 
         )
-        
         # テキストエンコーダ
-        text_encoder_cls_one = import_model_class(self.PRETRAINED_MODEL, subfolder="text_encoder")
-        text_encoder_cls_two = import_model_class(self.PRETRAINED_MODEL, subfolder="text_encoder_2")
-        text_encoder_cls_three = import_model_class(self.PRETRAINED_MODEL, subfolder="text_encoder_3")
-        
-        self.text_encoder_one = text_encoder_cls_one.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder", local_files_only=True
+        self.text_encoder_one = CLIPTextModelWithProjection.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="text_encoder"
         )
-        self.text_encoder_two = text_encoder_cls_two.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder_2", local_files_only=True
+        self.text_encoder_two = CLIPTextModelWithProjection.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="text_encoder_2"
         )
-        self.text_encoder_three = text_encoder_cls_three.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="text_encoder_3", local_files_only=True
+        self.text_encoder_three = T5EncoderModel.from_pretrained(
+            self.PRETRAINED_MODEL, subfolder="text_encoder_3"
         )
-        
         # VAE
         self.vae = AutoencoderKL.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="vae", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="vae", 
         )
-        
-        # Transformer (SD3用)
+        # Transformer
         self.transformer = SD3Transformer2DModel.from_pretrained(
-            self.PRETRAINED_MODEL, subfolder="transformer", local_files_only=True
+            self.PRETRAINED_MODEL, subfolder="transformer", 
         )
-        
         # ControlNet
         self.controlnet = SD3ControlNetModel.from_pretrained(
-            self.CONTROLNET_PATH, torch_dtype=self.dtype, local_files_only=True
+            self.CONTROLNET_PATH, torch_dtype=self.dtype
         )
-        self.controlnet.to(device=self.device, dtype=self.dtype)
-        self.controlnet.requires_grad_(False)
-        
         # LPIPS
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device).eval()
 
@@ -365,6 +261,7 @@ class SD3Model(nn.Module):
         self.text_encoder_one.to(device=self.device, dtype=self.dtype)
         self.text_encoder_two.to(device=self.device, dtype=self.dtype)
         self.text_encoder_three.to(device=self.device, dtype=self.dtype)
+        self.controlnet.to(device=self.device, dtype=self.dtype)
 
         # デフォルトで重みを固定
         self.transformer.requires_grad_(False)
@@ -372,6 +269,8 @@ class SD3Model(nn.Module):
         self.text_encoder_one.requires_grad_(False)
         self.text_encoder_two.requires_grad_(False)
         self.text_encoder_three.requires_grad_(False)
+        self.controlnet.requires_grad_(False)
+
 
     def _setup_training(self):
         """トレーニング用にLoRAとオプティマイザを設定"""
@@ -384,8 +283,9 @@ class SD3Model(nn.Module):
                 "attn.to_out.0", "attn.to_v", "attn.to_q", "attn.to_k"
             ]
         )
-        # self.transformer.add_adapter(transformer_lora_config)
-        self.transformer.requires_grad_(True)
+        self.transformer.add_adapter(transformer_lora_config)
+        # self.transformer.requires_grad_(True)
+        # self.controlnet.requires_grad_(True)
         
         groups_by_scale = {}
         
@@ -398,10 +298,14 @@ class SD3Model(nn.Module):
         for n, p in self.transformer.named_parameters():
             if p.requires_grad:
                 _add_param(p, 1.0)
+
+        for n, p in self.controlnet.named_parameters():
+            if p.requires_grad:
+                _add_param(p, 1.0)
         
         param_groups = [
-            {"params": ps, "lr": self.LEARNING_RATE * scale}
-            for scale, ps in groups_by_scale.items()
+            {"params": param, "lr": self.LEARNING_RATE * scale}
+            for scale, param in groups_by_scale.items()
         ]
         
         self.optimizer = torch.optim.AdamW(
@@ -411,121 +315,59 @@ class SD3Model(nn.Module):
             eps=1e-8,
         )
         
-        self.lr_scheduler = get_scheduler(
-            "constant",
-            optimizer=self.optimizer,
-            num_warmup_steps=10,
-            num_training_steps=self.TRAIN_STEPS,
-        )
-        
-        return [p for g in param_groups for p in g["params"]]
-
-    def _apply_controlnet(self, hidden_states, timestep, encoder_hidden_states,
-                          pooled_projections, controlnet_cond, conditioning_scale=1.0):
-        """SD3 ControlNetを適用してblock samplesを返す"""
-        controlnet_block_samples = self.controlnet(
-            hidden_states=hidden_states,
-            controlnet_cond=controlnet_cond,
-            timestep=timestep,
-            encoder_hidden_states=encoder_hidden_states,
-            pooled_projections=pooled_projections,
-            conditioning_scale=conditioning_scale,
-            return_dict=False,
-        )[0]
-        return controlnet_block_samples
+        return
 
     def train_model(self):
-        """LoRAを使用してモデルをファインチューニング"""
-        image = self.input_image
+        self._setup_training()
         
-        trainable_params = self._setup_training()
-        
-        latent = pil_to_latent(self.vae, image, self.device, self.dtype)
-        
+        x_0 = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
+
+        prompt_embeds, pooled_embeds = encode_prompt(
+            [self.text_encoder_one, self.text_encoder_two, self.text_encoder_three],
+            [self.tokenizer_one, self.tokenizer_two, self.tokenizer_three],
+            [self.train_prompt],
+            max_sequence_length=self.MAX_SEQUENCE_LENGTH,
+            device=self.device,
+            dtype=self.dtype,
+        )
+
         self.transformer.train()
+        self.controlnet.train()
+
         progress_bar = tqdm(range(self.TRAIN_STEPS), desc="Train", leave=True)
-        
         for step in progress_bar:
-            # テキスト埋め込みの計算
-            cond_embeds, cond_pooled = encode_prompt(
-                [self.text_encoder_one, self.text_encoder_two, self.text_encoder_three],
-                [self.tokenizer_one, self.tokenizer_two, self.tokenizer_three],
-                [self.train_prompt],
-                max_sequence_length=self.MAX_SEQUENCE_LENGTH,
-                device=self.device,
-                weight_dtype=self.dtype,
-            )
-            uncond_embeds, uncond_pooled = encode_prompt(
-                [self.text_encoder_one, self.text_encoder_two, self.text_encoder_three],
-                [self.tokenizer_one, self.tokenizer_two, self.tokenizer_three],
-                [""],
-                max_sequence_length=self.MAX_SEQUENCE_LENGTH,
-                device=self.device,
-                weight_dtype=self.dtype,
-            )
-            
-            # CFG dropout
-            if random.random() < 0.15:
-                prompt_embeds = uncond_embeds
-                pooled_embeds = uncond_pooled
-            else:
-                prompt_embeds = cond_embeds
-                pooled_embeds = cond_pooled
-            
-            # ノイズ追加
-            noise = torch.randn_like(latent)
-            u = compute_density_for_timestep_sampling(
-                weighting_scheme="logit_normal",
-                batch_size=1,
-                logit_mean=0.0,
-                logit_std=1.0,
-                mode_scale=1.29,
-            )
-            indices = (u * self.noise_scheduler_copy.config.num_train_timesteps).long()
-            timesteps = self.noise_scheduler_copy.timesteps[indices].to(device=latent.device)
-            
-            sigmas = get_sigmas(self.noise_scheduler_copy, timesteps, n_dim=latent.ndim, dtype=latent.dtype, device=latent.device)
-            noisy_latent = (1.0 - sigmas) * latent + sigmas * noise
+            z = torch.randn_like(x_0)
+            t_float = sample_t_logit_normal(batch_size=x_0.shape[0], device=x_0.device)
+            t = t_float.view(-1, 1, 1, 1).to(self.dtype)
+            x_t = (1.0 - t) * x_0 + t * z
             
             # ControlNet順伝播
-            controlnet_block_samples = self._apply_controlnet(
-                hidden_states=noisy_latent,
-                timestep=timesteps,
-                encoder_hidden_states=prompt_embeds,
-                pooled_projections=pooled_embeds,
+            controlnet_block_samples = self.controlnet(
+                hidden_states=self.transformer.pos_embed(x_t),
                 controlnet_cond=self.control_image_tensor,
-            )
-            
-            # Transformer順伝播
-            model_pred_raw = self.transformer(
-                hidden_states=noisy_latent,
-                timestep=timesteps,
-                encoder_hidden_states=prompt_embeds,
+                timestep=t_float * self.noise_scheduler.num_train_timesteps,
                 pooled_projections=pooled_embeds,
-                # block_controlnet_hidden_states=controlnet_block_samples,
+                conditioning_scale=1.0,
                 return_dict=False,
             )[0]
-            model_pred = model_pred_raw * (-sigmas) + noisy_latent
-            target = latent
             
-            # 損失計算
-            weighting = compute_loss_weighting_for_sd3(
-                weighting_scheme="logit_normal", sigmas=sigmas
-            )
-            
-            loss = torch.mean(
-                (weighting.float() * (model_pred.float() - target.float()) ** 2).reshape(target.shape[0], -1),
-                1,
-            )
-            loss = loss.mean()
-            
-            # 最適化
+            # Transformer順伝播
+            pred_v = self.transformer(
+                hidden_states=x_t,
+                timestep=t_float * self.noise_scheduler.num_train_timesteps,
+                encoder_hidden_states=prompt_embeds,
+                pooled_projections=pooled_embeds,
+                block_controlnet_hidden_states=controlnet_block_samples,
+                return_dict=False,
+            )[0]
+
+            pred_x = pred_v * (-t) + x_t
+            loss = torch.nn.functional.mse_loss(pred_x.float(), x_0.float())
             loss.backward()
             self.optimizer.step()
-            self.lr_scheduler.step()
             self.optimizer.zero_grad()
             
-            progress_bar.set_postfix({"loss": loss.item(), "lr": self.lr_scheduler.get_last_lr()[0]})
+            progress_bar.set_postfix({"loss": loss.item()})
 
     def forward(
         self,    
@@ -541,9 +383,15 @@ class SD3Model(nn.Module):
         self.input_image = input_image.resize(self.RESOLUTION, Image.LANCZOS)
         self.train_prompt = train_prompt
         
-        # 制御画像を前処理（VAEで潜在空間にエンコード: SD3 ControlNetは16chの潜在入力を期待）
         self.control_image = canny_process(self.input_image, self.device, self.dtype)
-        self.control_image_tensor = pil_to_latent(self.vae, self.control_image, self.device, self.dtype)
+        self.control_image_tensor = control_pil_to_latent_sd3_canny_equiv(
+            self.vae,
+            self.control_image,
+            self.RESOLUTION,
+            self.device,
+            self.dtype,
+        )
+        
 
         # 1. モデルのトレーニング
         self.train_model()
@@ -552,6 +400,7 @@ class SD3Model(nn.Module):
         torch.manual_seed(1234)
         self.vae.eval()
         self.transformer.eval()
+        self.controlnet.eval()
         self.text_encoder_one.eval()
         self.text_encoder_two.eval()
         self.text_encoder_three.eval()
@@ -563,67 +412,64 @@ class SD3Model(nn.Module):
             [negative_prompt, inference_prompt],
             max_sequence_length=self.MAX_SEQUENCE_LENGTH,
             device=self.device,
-            weight_dtype=self.dtype,
+            dtype=self.dtype,
         )
         
         # 潜在変数の準備
-        base_latent = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
-        control_tensor = self.control_image_tensor
-        
+        x_0 = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
+
         frames = []
-        
         # 3. 生成ループ (フレームごと)
         for i in range(num_frames):
             torch.manual_seed(1234)
-            scheduler = copy.deepcopy(self.noise_scheduler)
-            scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
-            timesteps = scheduler.timesteps
+            self.noise_scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
+            timesteps = self.noise_scheduler.timesteps # 0..1000のうち、INFER_STEPS個を等間隔で選択したもの
             
             # t_index計算
-            normalized_i = i / max(1, num_frames - 1)
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * (normalized_i ** self.NOISE_RATIO)) - 1
+            normalized_i = (i + 1) / (num_frames)
+            t_index = int((self.INFER_STEPS - 1) * (1.0 - normalized_i)**2.5)
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
-            if num_frames == 1:
-                t_index = 0
-            
-            # ノイズ追加
-            sigma = get_sigmas(scheduler, timesteps[t_index], n_dim=base_latent.ndim, dtype=base_latent.dtype, device=base_latent.device)
-            noise = torch.randn_like(base_latent)
-            latents = (1.0 - sigma) * base_latent + sigma * noise
+            # t_index: 0...INFER_STEPS-1
+
+            t_float = timesteps[t_index] / self.noise_scheduler.num_train_timesteps
+            t = t_float.view(-1, 1, 1, 1).to(self.dtype)
+            z = torch.randn_like(x_0)
+            x_t = (1.0 - t) * x_0 + t * z
             
             # デノイズ
             progress = tqdm(range(t_index, len(timesteps)), desc=f"{i+1}/{num_frames}")
             for j, index in enumerate(progress):
-                t = timesteps[index].to(self.device)
-                t_in = t.repeat(2)
-                
                 with torch.no_grad():
-                    latents_in = latents.repeat(2, 1, 1, 1)
-                    control_in = control_tensor.repeat(2, 1, 1, 1)
+                    timestep = timesteps[index].to(self.device) # 0..1000
+                    timestep_in = timestep.repeat(2)
+                
+                    x_t_in = x_t.repeat(2, 1, 1, 1)
+                    control_in = self.control_image_tensor.repeat(2, 1, 1, 1)
                     
-                    controlnet_block_samples = self._apply_controlnet(
-                        hidden_states=latents_in,
-                        timestep=t_in,
-                        encoder_hidden_states=prompt_embeds,
-                        pooled_projections=pooled_embeds,
+                    controlnet_block_samples = self.controlnet(
+                        hidden_states=self.transformer.pos_embed(x_t_in),
                         controlnet_cond=control_in,
-                    )
+                        timestep=timestep_in,
+                        pooled_projections=pooled_embeds,
+                        conditioning_scale=1.0,
+                        return_dict=False,
+                    )[0]
                     
                     model_out = self.transformer(
-                        hidden_states=latents_in,
-                        timestep=t_in,
+                        hidden_states=x_t_in,
+                        timestep=timestep_in,
                         encoder_hidden_states=prompt_embeds,
                         pooled_projections=pooled_embeds,
-                        # block_controlnet_hidden_states=controlnet_block_samples,
+                        block_controlnet_hidden_states=controlnet_block_samples,
                         return_dict=False,
                     )[0]
                     
                     noise_uncond, noise_text = torch.chunk(model_out, 2, dim=0)
                     noise_guided = noise_uncond + guidance_scale * (noise_text - noise_uncond)
-                    latents = scheduler.step(noise_guided, t, latents).prev_sample
+                    x_t = self.noise_scheduler.step(noise_guided, timestep, x_t).prev_sample
             
             # デコード
-            output_image = latent_to_pil(self.vae, latents)[0]
+            output_image = latent_to_pil(self.vae, x_t)[0]
             output_image = output_image.resize((512, 512), Image.LANCZOS)
             frames.append(output_image)
         
@@ -633,11 +479,11 @@ if __name__ == "__main__":
     from PIL import Image
 
     model = SD3Model()
-    input_image = Image.open("wsim/images_test/image_004.jpg").convert("RGB")
-    train_prompt = "A camera."
-    inference_prompt = "A heavily rusted camera."
+    input_image = Image.open("images_test/image_012.jpg").convert("RGB")
+    train_prompt = "A car"
+    inference_prompt = "A heavily rusted car"
     negative_prompt = ""
-    guidance_scale = 7.5
+    guidance_scale = 4
     num_frames = 5
 
     frames = model(

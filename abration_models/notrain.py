@@ -597,6 +597,8 @@ class NoTrainModel(nn.Module):
             normalized_i = (i + 1 + i*(ratio-1)) / (num_frames*ratio) * math.pi / 2.0
             t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
+            # if i == num_frames - 1:
+            #     t_index = 0  # 最終フレームは完全に劣化させる
 
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
 

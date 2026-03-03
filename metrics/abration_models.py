@@ -184,7 +184,7 @@ class ModelProcessor:
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
                         negative_prompt="brilliant, vivid, clean", # 経年変化用
-                        guidance_scale=7.0,
+                        guidance_scale=5.0,
                         num_frames=num_frames,
                     )
         self._unload_model()
