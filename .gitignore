@@ -26,3 +26,5 @@ images_append/
 images_out_abration/
 metrics_out_abration/
 plots_abration/
+*.png
+*.jpg
