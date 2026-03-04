@@ -6,8 +6,10 @@ from PIL import Image
 from torchvision import transforms
 from tqdm import tqdm
 from diffusers import AutoencoderKL, ZImageTransformer2DModel, FlowMatchEulerDiscreteScheduler
+from diffusers import ZImageControlNetModel
 from transformers import AutoModel, AutoTokenizer
 from peft import LoraConfig
+from huggingface_hub import hf_hub_download
 
 
 def pil_to_latent(vae, pil: Image.Image, device, dtype):
@@ -32,18 +34,27 @@ def latent_to_pil(vae, latents):
     imgs = (imgs * 255).round().to(torch.uint8).cpu().permute(0, 2, 3, 1).numpy()
     return [Image.fromarray(arr) for arr in imgs]
 
+def canny_process(image: Image.Image, low_threshold=100, high_threshold=200):
+    import cv2
+    import numpy as np
 
-def calculate_shift(
-    image_seq_len,
-    base_seq_len: int = 256,
-    max_seq_len: int = 4096,
-    base_shift: float = 0.5,
-    max_shift: float = 1.15,
-):
-    m = (max_shift - base_shift) / (max_seq_len - base_seq_len)
-    b = base_shift - m * base_seq_len
-    mu = image_seq_len * m + b
-    return mu
+    image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    edges = cv2.Canny(image_cv, low_threshold, high_threshold)
+    edges_pil = Image.fromarray(edges).convert("RGB")
+    return edges_pil
+
+
+# def calculate_shift(
+#     image_seq_len,
+#     base_seq_len: int = 256,
+#     max_seq_len: int = 4096,
+#     base_shift: float = 0.5,
+#     max_shift: float = 1.15,
+# ):
+#     m = (max_shift - base_shift) / (max_seq_len - base_seq_len)
+#     b = base_shift - m * base_seq_len
+#     mu = image_seq_len * m + b
+#     return mu
 
 
 #  logit normal
@@ -89,7 +100,7 @@ def encode_prompts(text_encoder, tokenizer, prompts, device, max_sequence_length
 class SD3Model(nn.Module):
     RESOLUTION = (1024, 1024)
     LEARNING_RATE = 1e-4
-    TRAIN_STEPS = 300
+    TRAIN_STEPS = 500
     DEVICE = "cuda"
     PRETRAINED_MODEL = "Tongyi-MAI/Z-Image-Turbo"
     INFER_STEPS = 50
@@ -122,13 +133,26 @@ class SD3Model(nn.Module):
             subfolder="scheduler",
         )
 
+        self.controlnet = ZImageControlNetModel.from_single_file(
+            hf_hub_download(
+                "alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union",
+                filename="Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
+            ),
+            torch_dtype=torch.bfloat16,
+        )
+        # Share transformer modules with controlnet
+        self.controlnet = ZImageControlNetModel.from_transformer(self.controlnet, self.transformer)
+        self.controlnet.gradient_checkpointing = False
+
         self.transformer.to(self.device, self.dtype)
         self.vae.to(self.device, self.dtype)
         self.text_encoder.to(self.device, self.dtype)
+        self.controlnet.to(self.device, self.dtype)
 
         self.transformer.requires_grad_(False)
         self.vae.requires_grad_(False)
         self.text_encoder.requires_grad_(False)
+        self.controlnet.requires_grad_(False)
         
     def _setup_training(self):
         self.transformer.train()
@@ -143,6 +167,10 @@ class SD3Model(nn.Module):
         #     ]
         # )
         # self.transformer.add_adapter(transformer_lora_config)
+        # self.controlnet.add_adapter(transformer_lora_config)
+
+        # self.controlnet.train()
+        # self.controlnet.requires_grad_(True)
 
         groups_by_scale = {}
         
@@ -154,12 +182,12 @@ class SD3Model(nn.Module):
         
         for n, p in self.transformer.named_parameters():
             if p.requires_grad:
-                print(n)
-                _add_param(p, 1.0)
+                if "attention" in n:
+                    _add_param(p, 1.0)
 
-        # for n, p in self.controlnet.named_parameters():
-        #     if p.requires_grad:
-        #         _add_param(p, 1.0)
+        for n, p in self.controlnet.named_parameters():
+            if p.requires_grad:
+                _add_param(p, 1.0)
         
         param_groups = [
             {"params": param, "lr": self.LEARNING_RATE * scale}
@@ -180,6 +208,9 @@ class SD3Model(nn.Module):
 
         x_0 = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
 
+        # control_image = pil_to_latent(self.vae, self.control_image, self.device, self.dtype)
+        # control_image = control_image.unsqueeze(2)
+
         prompt_embeds_list = encode_prompts(
             self.text_encoder,
             self.tokenizer,
@@ -198,7 +229,20 @@ class SD3Model(nn.Module):
             t_in = 1.0 - t_float
             x_t_in_list = list(x_t.to(self.dtype).unsqueeze(2).unbind(dim=0))
 
-            pred_out = self.transformer(x_t_in_list, t_in, prompt_embeds_list).sample
+            # controlnet_block_samples = self.controlnet(
+            #     x_t_in_list, 
+            #     t_in, 
+            #     prompt_embeds_list,
+            #     control_image,
+            #     conditioning_scale=1.0,
+            # )
+
+            pred_out = self.transformer(
+                x_t_in_list, 
+                t_in, 
+                prompt_embeds_list,
+                # controlnet_block_samples=controlnet_block_samples
+            ).sample
             pred_v = -torch.stack([p.squeeze(1) for p in pred_out], dim=0)
 
             target = z - x_0
@@ -238,13 +282,15 @@ class SD3Model(nn.Module):
         self.input_image = input_image.resize(self.RESOLUTION, Image.LANCZOS)
         self.train_prompt = train_prompt
 
+        self.control_image = canny_process(self.input_image)
+
         # モデルのトレーニング
         self.train_model()
 
         torch.manual_seed(1234)
         self.vae.eval()
         self.transformer.eval()
-        # self.controlnet.eval()
+        self.controlnet.eval()
         self.text_encoder.eval()
 
         pos_prompt = encode_prompts(
@@ -264,18 +310,20 @@ class SD3Model(nn.Module):
 
         x_0 = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
         frames = []
-        image_seq_len = (x_0.shape[2] // 2) * (x_0.shape[3] // 2)
+        # image_seq_len = (x_0.shape[2] // 2) * (x_0.shape[3] // 2)
+
+        control_image = pil_to_latent(self.vae, self.control_image, self.device, self.dtype)
+        control_image = control_image.unsqueeze(2)
+        control_image_in = control_image.repeat(2, 1, 1, 1, 1)
 
         for i in range(num_frames):
             self.noise_scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
             timesteps = self.noise_scheduler.timesteps
 
             # t_index: 0...INFER_STEPS-1
-            normalized_i = i / max(1, num_frames - 1)
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * (normalized_i ** self.NOISE_RATIO)) - 1
+            normalized_i = (i + 1) / (num_frames)
+            t_index = int((self.INFER_STEPS - 1) * (1.0 - normalized_i)**2.0)
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
-            if num_frames == 1:
-                t_index = 0
 
             t_float = timesteps[t_index] / self.noise_scheduler.num_train_timesteps
             t = t_float.view(-1, 1, 1, 1).to(self.dtype)
@@ -294,8 +342,21 @@ class SD3Model(nn.Module):
                     x_t_in_list = list(x_t_in.unsqueeze(2).unbind(dim=0)) # shape: (2, C, H, W) -> list of (C, F, H, W)
                     
                     prompts_in = pos_prompt + neg_prompt
+
+                    controlnet_block_samples = self.controlnet(
+                        x_t_in_list, 
+                        t_in, 
+                        prompts_in,
+                        control_image_in,
+                        conditioning_scale=1.0,
+                    )
             
-                    pred_out = self.transformer(x_t_in_list, t_in, prompts_in).sample # shape: (C, F, H, W)
+                    pred_out = self.transformer(
+                        x_t_in_list, 
+                        t_in, 
+                        prompts_in,
+                        controlnet_block_samples=controlnet_block_samples
+                    ).sample # shape: list of (2, C, F, H, W)
 
                     pred_v = torch.stack([p.squeeze(1) for p in pred_out], dim=0) # shape: (2, C, H, W)
                     noise_pos, noise_neg = pred_v.chunk(2, dim=0)
