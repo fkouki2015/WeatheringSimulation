@@ -5,34 +5,40 @@ import torch.nn as nn
 from PIL import Image
 from torchvision import transforms
 from tqdm import tqdm
-from diffusers import AutoencoderKL, ZImageTransformer2DModel, FlowMatchEulerDiscreteScheduler
+from diffusers import ZImagePipeline
 from diffusers import ZImageControlNetModel
 from transformers import AutoModel, AutoTokenizer
 from peft import LoraConfig
 from huggingface_hub import hf_hub_download
+import numpy as np
 
+def calculate_shift(
+    image_seq_len,
+    base_seq_len: int = 256,
+    max_seq_len: int = 4096,
+    base_shift: float = 0.5,
+    max_shift: float = 1.15,
+):
+    m = (max_shift - base_shift) / (max_seq_len - base_seq_len)
+    b = base_shift - m * base_seq_len
+    mu = image_seq_len * m + b
+    return mu
 
-def pil_to_latent(vae, pil: Image.Image, device, dtype):
-    x = transforms.ToTensor()(pil).unsqueeze(0).to(device)
-    x = (x * 2 - 1).to(device=device, dtype=dtype)
-
+def pil_to_latent(pipeline, pil: Image.Image, device, dtype):
+    image = pipeline.image_processor.preprocess(pil).to(device=device, dtype=dtype)
     with torch.no_grad():
-        latents = vae.encode(x).latent_dist.mean
+        latent = pipeline.vae.encode(image).latent_dist.mean
 
-    latents = (latents - vae.config.shift_factor) * vae.config.scaling_factor
-    return latents.to(dtype=dtype)
+    latent = (latent - pipeline.vae.config.shift_factor) * pipeline.vae.config.scaling_factor
+    return latent.to(device=device, dtype=dtype)
 
 
-def latent_to_pil(vae, latents):
-    latents_decode = (latents / vae.config.scaling_factor) + vae.config.shift_factor
-    latents_decode = latents_decode.to(dtype=vae.dtype)
-
-    with torch.no_grad():
-        imgs = vae.decode(latents_decode, return_dict=False)[0]
-
-    imgs = (imgs / 2 + 0.5).clamp(0, 1)
-    imgs = (imgs * 255).round().to(torch.uint8).cpu().permute(0, 2, 3, 1).numpy()
-    return [Image.fromarray(arr) for arr in imgs]
+def latent_to_pil(pipeline, latent, dtype):
+    latent = latent.to(device=latent.device, dtype=dtype)
+    latent = (latent / pipeline.vae.config.scaling_factor) + pipeline.vae.config.shift_factor
+    with torch.inference_mode():
+        image = pipeline.vae.decode(latent, return_dict=False)[0]
+    return pipeline.image_processor.postprocess(image, output_type="pil")
 
 def canny_process(image: Image.Image, low_threshold=100, high_threshold=200):
     import cv2
@@ -63,46 +69,12 @@ def sample_t_logit_normal(batch_size, mu=0.0, sigma=1.0, eps=1e-5, device="cuda"
     t = torch.sigmoid(u)
     return t.clamp(eps, 1.0 - eps)  # avoid exact 0/1
 
-def encode_prompts(text_encoder, tokenizer, prompts, device, max_sequence_length=256):
-    formatted = []
-    for p in prompts:
-        messages = [{"role": "user", "content": p}]
-        formatted_prompt = tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
-            enable_thinking=True,
-        )
-        formatted.append(formatted_prompt)
-
-    text_inputs = tokenizer(
-        formatted,
-        padding="max_length",
-        max_length=max_sequence_length,
-        truncation=True,
-        return_tensors="pt",
-    )
-    input_ids = text_inputs.input_ids.to(device)
-    masks = text_inputs.attention_mask.to(device).bool()
-
-    with torch.no_grad():
-        hidden = text_encoder(
-            input_ids=input_ids,
-            attention_mask=masks,
-            output_hidden_states=True,
-        ).hidden_states[-2]
-
-    embeds = []
-    for i in range(len(hidden)):
-        embeds.append(hidden[i][masks[i]])
-    return embeds
-
 class SD3Model(nn.Module):
     RESOLUTION = (1024, 1024)
     LEARNING_RATE = 1e-4
     TRAIN_STEPS = 500
     DEVICE = "cuda"
-    PRETRAINED_MODEL = "Tongyi-MAI/Z-Image-Turbo"
+    PRETRAINED_MODEL = "Tongyi-MAI/Z-Image"
     INFER_STEPS = 50
     NOISE_RATIO = 0.6
     MAX_SEQUENCE_LENGTH = 256
@@ -112,47 +84,34 @@ class SD3Model(nn.Module):
         self.device = torch.device(device if device else self.DEVICE)
         self.dtype = torch.bfloat16 if self.device.type == "cuda" else torch.float32
 
-        self.transformer = ZImageTransformer2DModel.from_pretrained(
+        self.pipeline = ZImagePipeline.from_pretrained(
             self.PRETRAINED_MODEL,
-            subfolder="transformer",
-        )
-        self.vae = AutoencoderKL.from_pretrained(
-            self.PRETRAINED_MODEL,
-            subfolder="vae",
-        )
-        self.text_encoder = AutoModel.from_pretrained(
-            self.PRETRAINED_MODEL,
-            subfolder="text_encoder",
-        )
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.PRETRAINED_MODEL,
-            subfolder="tokenizer",
-        )
-        self.noise_scheduler = FlowMatchEulerDiscreteScheduler.from_pretrained(
-            self.PRETRAINED_MODEL,
-            subfolder="scheduler",
-        )
+            torch_dtype=self.dtype,
+        ).to(self.device)
 
-        self.controlnet = ZImageControlNetModel.from_single_file(
-            hf_hub_download(
-                "alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union",
-                filename="Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
-            ),
-            torch_dtype=torch.bfloat16,
-        )
+        self.transformer = self.pipeline.transformer
+        self.vae = self.pipeline.vae
+        self.text_encoder = self.pipeline.text_encoder
+        self.tokenizer = self.pipeline.tokenizer
+        self.noise_scheduler = self.pipeline.scheduler
+
+        # self.controlnet = ZImageControlNetModel.from_single_file(
+        #     hf_hub_download(
+        #         "alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union",
+        #         filename="Z-Image-Turbo-Fun-Controlnet-Union.safetensors",
+        #     ),
+        #     torch_dtype=torch.bfloat16,
+        # )
         # Share transformer modules with controlnet
-        self.controlnet = ZImageControlNetModel.from_transformer(self.controlnet, self.transformer)
-        self.controlnet.gradient_checkpointing = False
+        # self.controlnet = ZImageControlNetModel.from_transformer(self.controlnet, self.transformer)
+        # self.controlnet.gradient_checkpointing = False
 
-        self.transformer.to(self.device, self.dtype)
-        self.vae.to(self.device, self.dtype)
-        self.text_encoder.to(self.device, self.dtype)
-        self.controlnet.to(self.device, self.dtype)
+        # self.controlnet.to(self.device, self.dtype)
 
         self.transformer.requires_grad_(False)
         self.vae.requires_grad_(False)
         self.text_encoder.requires_grad_(False)
-        self.controlnet.requires_grad_(False)
+        # self.controlnet.requires_grad_(False)
         
     def _setup_training(self):
         self.transformer.train()
@@ -182,12 +141,11 @@ class SD3Model(nn.Module):
         
         for n, p in self.transformer.named_parameters():
             if p.requires_grad:
-                if "attention" in n:
-                    _add_param(p, 1.0)
-
-        for n, p in self.controlnet.named_parameters():
-            if p.requires_grad:
                 _add_param(p, 1.0)
+
+        # for n, p in self.controlnet.named_parameters():
+        #     if p.requires_grad:
+        #         _add_param(p, 1.0)
         
         param_groups = [
             {"params": param, "lr": self.LEARNING_RATE * scale}
@@ -203,30 +161,26 @@ class SD3Model(nn.Module):
         
         return
 
-    def train_model(self):
+    def train_model(self, x_0, train_prompt: str):
         self._setup_training()
-
-        x_0 = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
 
         # control_image = pil_to_latent(self.vae, self.control_image, self.device, self.dtype)
         # control_image = control_image.unsqueeze(2)
 
-        prompt_embeds_list = encode_prompts(
-            self.text_encoder,
-            self.tokenizer,
-            [self.train_prompt],
-            self.device,
-            max_sequence_length=self.MAX_SEQUENCE_LENGTH,
+        prompt_embeds, _ = self.pipeline.encode_prompt(
+            prompt=[train_prompt],
+            device=self.device,
+            do_classifier_free_guidance=False,
         )
 
         progress_bar = tqdm(range(self.TRAIN_STEPS), desc="Train", leave=True)
         for _ in progress_bar:
             z = torch.randn_like(x_0)
-            t_float = sample_t_logit_normal(batch_size=x_0.shape[0], device=x_0.device)
-            t = t_float.view(-1, 1, 1, 1).to(self.dtype)
+            t_scaler = sample_t_logit_normal(batch_size=1, device=self.device)
+            t = t_scaler.view(-1, 1, 1, 1).to(self.dtype)
             x_t = (1.0 - t) * x_0 + t * z
 
-            t_in = 1.0 - t_float
+            t_in = 1.0 - t_scaler.expand(x_t.shape[0])
             x_t_in_list = list(x_t.to(self.dtype).unsqueeze(2).unbind(dim=0))
 
             # controlnet_block_samples = self.controlnet(
@@ -237,18 +191,19 @@ class SD3Model(nn.Module):
             #     conditioning_scale=1.0,
             # )
 
-            pred_out = self.transformer(
+            model_pred = self.transformer(
                 x_t_in_list, 
                 t_in, 
-                prompt_embeds_list,
+                prompt_embeds,
                 # controlnet_block_samples=controlnet_block_samples
-            ).sample
-            pred_v = -torch.stack([p.squeeze(1) for p in pred_out], dim=0)
+            )[0]
+            model_pred = torch.stack(model_pred, dim=0) # shape: (1, C, F, H, W)
+            pred_v = model_pred.squeeze(2) # shape: (1, C, H, W)
+            pred_v = -pred_v
 
             target = z - x_0
-            # pred_x = pred_v * (-t) + x_t
-            loss = torch.nn.functional.mse_loss(pred_v.float(), target.float())
 
+            loss = torch.nn.functional.mse_loss(pred_v.float(), target.float())
             loss.backward()
             self.optimizer.step()
             self.optimizer.zero_grad()
@@ -279,93 +234,101 @@ class SD3Model(nn.Module):
         guidance_scale: float,
         num_frames: int,
     ) -> list[Image.Image]:
-        self.input_image = input_image.resize(self.RESOLUTION, Image.LANCZOS)
-        self.train_prompt = train_prompt
+        input_image = input_image.resize(self.RESOLUTION, Image.LANCZOS)
 
-        self.control_image = canny_process(self.input_image)
+        # self.control_image = canny_process(self.input_image)
+
+        x_0 = pil_to_latent(self.pipeline, input_image, self.device, self.dtype)
 
         # モデルのトレーニング
-        self.train_model()
+        self.train_model(x_0, train_prompt)
 
         torch.manual_seed(1234)
         self.vae.eval()
         self.transformer.eval()
-        self.controlnet.eval()
+        # self.controlnet.eval()
         self.text_encoder.eval()
 
-        pos_prompt = encode_prompts(
-            self.text_encoder,
-            self.tokenizer,
-            [inference_prompt],
-            self.device,
-            max_sequence_length=self.MAX_SEQUENCE_LENGTH,
-        )
-        neg_prompt = encode_prompts(
-            self.text_encoder,
-            self.tokenizer,
-            [negative_prompt],
-            self.device,
-            max_sequence_length=self.MAX_SEQUENCE_LENGTH,
+        pos_prompt_embeds, neg_prompt_embeds = self.pipeline.encode_prompt(
+            prompt=[inference_prompt],
+            negative_prompt=[negative_prompt],
+            device=self.device,
+            do_classifier_free_guidance=True,
         )
 
-        x_0 = pil_to_latent(self.vae, self.input_image, self.device, self.dtype)
-        frames = []
         # image_seq_len = (x_0.shape[2] // 2) * (x_0.shape[3] // 2)
 
-        control_image = pil_to_latent(self.vae, self.control_image, self.device, self.dtype)
-        control_image = control_image.unsqueeze(2)
-        control_image_in = control_image.repeat(2, 1, 1, 1, 1)
+        # control_image = pil_to_latent(self.pipeline, control_image, self.device, self.dtype)
+        # control_image = control_image.unsqueeze(2)
+        # control_image_in = control_image.repeat(2, 1, 1, 1, 1)
 
+        
+        frames = []
         for i in range(num_frames):
-            self.noise_scheduler.set_timesteps(self.INFER_STEPS, device=self.device)
+            sigmas = np.linspace(1.0, 1 / self.INFER_STEPS, self.INFER_STEPS)
+            image_seq_len = (x_0.shape[2] // 2) * (x_0.shape[3] // 2)
+            mu = calculate_shift(
+                image_seq_len,
+                self.noise_scheduler.config.base_image_seq_len,
+                self.noise_scheduler.config.max_image_seq_len,
+                self.noise_scheduler.config.base_shift,
+                self.noise_scheduler.config.max_shift,
+            )
+            self.noise_scheduler.set_timesteps(
+                self.INFER_STEPS, 
+                device=self.device, 
+                sigmas=sigmas,
+                mu=mu
+            )
             timesteps = self.noise_scheduler.timesteps
-
             # t_index: 0...INFER_STEPS-1
             normalized_i = (i + 1) / (num_frames)
             t_index = int((self.INFER_STEPS - 1) * (1.0 - normalized_i)**2.0)
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
 
-            t_float = timesteps[t_index] / self.noise_scheduler.num_train_timesteps
-            t = t_float.view(-1, 1, 1, 1).to(self.dtype)
+            t_scaler = timesteps[t_index] / 1000
+            t = t_scaler.view(-1, 1, 1, 1).to(self.dtype)
             z = torch.randn_like(x_0)
             x_t = (1.0 - t) * x_0 + t * z
 
+            
             # デノイズ
             progress = tqdm(range(t_index, len(timesteps)), desc=f"{i + 1}/{num_frames}")
             for index in progress:
                 with torch.no_grad():
-                    timestep = timesteps[index].to(self.device)
-                    t_in = (self.noise_scheduler.num_train_timesteps - timestep) / self.noise_scheduler.num_train_timesteps
+                    timestep_scaler = timesteps[index].to(self.device)
+                    t_in = (1000 - timestep_scaler.expand(x_t.shape[0])) / 1000
                     t_in = t_in.repeat(2)
-                    
+
                     x_t_in = x_t.to(self.dtype).repeat(2, 1, 1, 1)
                     x_t_in_list = list(x_t_in.unsqueeze(2).unbind(dim=0)) # shape: (2, C, H, W) -> list of (C, F, H, W)
                     
-                    prompts_in = pos_prompt + neg_prompt
+                    prompts_in = pos_prompt_embeds + neg_prompt_embeds
 
-                    controlnet_block_samples = self.controlnet(
-                        x_t_in_list, 
-                        t_in, 
-                        prompts_in,
-                        control_image_in,
-                        conditioning_scale=1.0,
-                    )
+                    # controlnet_block_samples = self.controlnet(
+                    #     x_t_in_list, 
+                    #     t_in, 
+                    #     prompts_in,
+                    #     control_image_in,
+                    #     conditioning_scale=1.0,
+                    # )
             
-                    pred_out = self.transformer(
+                    model_pred_list = self.transformer(
                         x_t_in_list, 
                         t_in, 
                         prompts_in,
-                        controlnet_block_samples=controlnet_block_samples
-                    ).sample # shape: list of (2, C, F, H, W)
+                        # controlnet_block_samples=controlnet_block_samples
+                    ).sample # shape: list of (C, F, H, W)
+                    model_pred = torch.stack(model_pred_list, dim=0) # shape: (2, C, F, H, W)
+                    model_pred = model_pred.squeeze(2) # shape: (2, C, H, W)
+                    noise_pos, noise_neg = model_pred.chunk(2, dim=0) # shape: (1, C, H, W) each
 
-                    pred_v = torch.stack([p.squeeze(1) for p in pred_out], dim=0) # shape: (2, C, H, W)
-                    noise_pos, noise_neg = pred_v.chunk(2, dim=0)
                     noise_guided = noise_pos + guidance_scale * (noise_pos - noise_neg)
                     noise_guided = -noise_guided
 
-                    x_t = self.noise_scheduler.step(noise_guided.to(torch.float32), timestep, x_t).prev_sample
+                    x_t = self.noise_scheduler.step(noise_guided.float(), timestep_scaler, x_t).prev_sample
 
-            output_image = latent_to_pil(self.vae, x_t)[0]
+            output_image = latent_to_pil(self.pipeline, x_t, self.dtype)[0]
             # output_image = output_image.resize((512, 512), Image.LANCZOS)
             frames.append(output_image)
 
@@ -375,11 +338,11 @@ if __name__ == "__main__":
     from PIL import Image
 
     model = SD3Model()
-    input_image = Image.open("images_test/image_012.jpg").convert("RGB")
-    train_prompt = "A car"
-    inference_prompt = "A heavily rusted car"
+    input_image = Image.open("images_test/image_004.jpg").convert("RGB")
+    train_prompt = "A camera"
+    inference_prompt = "A heavily rusted camera"
     negative_prompt = ""
-    guidance_scale = 7
+    guidance_scale = 4
     num_frames = 5
 
     frames = model(
