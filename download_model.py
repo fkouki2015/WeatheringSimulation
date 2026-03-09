@@ -6,7 +6,7 @@ if "HF_HUB_OFFLINE" in os.environ:
 from huggingface_hub import snapshot_download
 
 def download_model():
-    model_id = "stable-diffusion-v1-5/stable-diffusion-v1-5"
+    model_id = "stabilityai/stable-diffusion-3.5-large-controlnet-canny"
     print(f"Downloading {model_id}...")
 
     # Download everything from the repo to a specific local directory

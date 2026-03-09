@@ -21,7 +21,7 @@ from alltrain import AllTrainModel
 from nocontrol import NoControlModel
 from notrain import NoTrainModel
 from linear import LinearModel
-from z_image import SD3Model
+from sd3 import SD3Model
 from sdxl import SDXLModel
 from alltrain_control import AllTrainControlModel
 import gc
@@ -276,7 +276,7 @@ def main():
     parser.add_argument("--json_path", type=str, required=True)
     parser.add_argument("--output_dir", type=str, default="./images_out_abration")
     parser.add_argument("--models", type=str, nargs="+", required=True, choices=["proposed", "alltrain", "nocontrol", "notrain", "linear", "sd3", "sdxl", "alltrain_control"])
-    parser.add_argument("--num_frames", type=int, default=10)
+    parser.add_argument("--num_frames", type=int, default=5)
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--gpu_number", type=int, default=0, help="Current GPU number (0 ~ num_gpus-1)")
     parser.add_argument("--num_gpus", type=int, default=1, help="Total number of GPUs for parallel processing")

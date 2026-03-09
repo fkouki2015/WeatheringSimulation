@@ -35,6 +35,30 @@ def compute_perceptual_distance(pil_image1: Image.Image, pil_image2: Image.Image
         d = lpips_model(to_normed_tensor(pil_image1), to_normed_tensor(pil_image2))
     return float(d.mean().item())
 
+class DinoSimilarity(nn.Module):
+    def __init__(self, model_name: str = "dinov2_vitb14"):
+        super().__init__()
+        self.model = torch.hub.load('facebookresearch/dinov2', model_name)
+        self.model.eval()
+        for p in self.model.parameters():
+            p.requires_grad = False
+        
+        self.register_buffer("mean", torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
+        self.register_buffer("std", torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
+    
+    def encode(self, images: torch.Tensor) -> torch.Tensor:
+        images = (images + 1) / 2
+        images = (images - self.mean) / self.std
+        images = F.interpolate(images, size=(224, 224), mode='bicubic', align_corners=False)
+        return self.model(images)
+    
+    def forward(self, img1: torch.Tensor, img2: torch.Tensor) -> torch.Tensor:
+        feat1 = self.encode(img1)
+        feat2 = self.encode(img2)
+        feat1 = F.normalize(feat1, dim=-1)
+        feat2 = F.normalize(feat2, dim=-1)
+        return (feat1 * feat2).sum(dim=-1)
+
 
 def canny_process(image, device, dtype):
     """画像からCannyエッジマップを生成"""
@@ -235,6 +259,7 @@ class WeatheringModel(nn.Module):
         self.controlnets = [self.controlnet_canny] # ControlNetを追加する場合ここに追加
         
         self.lpips_model = lpips.LPIPS(net="vgg").to(self.device).eval()
+        self.dino_model = DinoSimilarity().to(self.device).eval()
 
         # デバイスへ移動
         self.vae.to(device=self.device, dtype=self.dtype)
@@ -409,9 +434,14 @@ class WeatheringModel(nn.Module):
         return pil
 
     def _evaluate(self, step, latent, control_images, image):
-        """LPIPSを使用して現在のモデルパフォーマンスを評価する。"""
+        """DINO similarityを使用して現在のモデルパフォーマンスを評価する。"""
+        def _to_tensor(pil_img: Image.Image) -> torch.Tensor:
+            return transforms.ToTensor()(pil_img).unsqueeze(0).to(self.device) * 2.0 - 1.0
+
+        ref_tensor = _to_tensor(image)
+
         with torch.no_grad():
-            dists = []
+            sims = []
             # シードを変えて3回プレビューを生成
             for k in range(3):
                 preview_pil = self._generate_preview_image(
@@ -419,16 +449,15 @@ class WeatheringModel(nn.Module):
                     prompt=self.train_prompt,
                     seed=step * 100 + k,
                     control_images=control_images,
-                    guidance_scale=1.0  # ガイダンススケール6.0で評価
+                    guidance_scale=1.0
                 )
-                # 知覚的距離を計算
-                dist = compute_perceptual_distance(
-                    preview_pil, image, self.lpips_model, self.device
-                )
-                dists.append(dist)
+                # DINO cosine similarity を計算
+                preview_tensor = _to_tensor(preview_pil)
+                sim = self.dino_model(preview_tensor, ref_tensor)
+                sims.append(float(sim.mean().item()))
                 # preview_pil.save(f"preview_{step}_{k}.png")
-            
-            return sum(dists) / len(dists)
+
+            return sum(sims) / len(sims)
 
     def train_model(self, use_early_stopping: bool = True, progress_callback=None):
         """LoRAを使用してモデルをファインチューニング"""
@@ -446,7 +475,7 @@ class WeatheringModel(nn.Module):
         cond_emb = self.text_encoder(cond_tokens.input_ids.to(self.device))[0]
         
         timesteps = self.ddpm_scheduler.timesteps
-        prev_lpips = None
+        prev_sim = None
         no_improve_streak = 0
         
         progress_bar = tqdm(range(self.TRAIN_STEPS), desc="Train", leave=True)
@@ -490,14 +519,14 @@ class WeatheringModel(nn.Module):
             
             # 5. 評価と早期停止
             if use_early_stopping and step % self.CLIP_EVAL_INTERVAL == 0 and step > 0:
-                avg_dist = self._evaluate(step, latent, self.control_images, image)
+                avg_sim = self._evaluate(step, latent, self.control_images, image)
                 
-                if prev_lpips is None:
+                if prev_sim is None:
                     improvement_rate = 0.0
                     no_improve_streak = 0
                 else:
-                    improvement = prev_lpips - avg_dist
-                    improvement_rate = improvement / (prev_lpips + 1e-12)
+                    improvement = avg_sim - prev_sim  # similarityは高いほど良い
+                    improvement_rate = improvement / (abs(prev_sim) + 1e-12)
                     
                     if improvement_rate >= self.PERCEPTUAL_THRESHOLD:
                         no_improve_streak = 0
@@ -507,8 +536,8 @@ class WeatheringModel(nn.Module):
                             tqdm.write(f"早期停止: 改善率 {improvement_rate:.4f} < {self.PERCEPTUAL_THRESHOLD} が {self.PERCEPTUAL_PATIENCE} 回連続")
                             break
                 
-                prev_lpips = avg_dist
-                tqdm.write(f"\nLPIPS={avg_dist:.4f}, 改善率={improvement_rate*100:.2f}%")
+                prev_sim = avg_sim
+                tqdm.write(f"\nDINO Similarity={avg_sim:.4f}, 改善率={improvement_rate*100:.2f}%")
                 sys.stdout.flush()
 
                 
@@ -595,9 +624,8 @@ class WeatheringModel(nn.Module):
 
         # 生成ループ (フレームごと)
         for i in range(num_frames):
-            ratio = 1.7
-            normalized_i = (i + 1 + i*(ratio-1)) / (num_frames*ratio) * math.pi / 2.0
-            t_index = self.INFER_STEPS - int((self.INFER_STEPS - 1) * math.sin(normalized_i)) - 1
+            normalized_i = (i + 1) / (num_frames)
+            t_index = int((self.INFER_STEPS - 1) * (1.0 - normalized_i)**2.0)
             t_index = max(0, min(t_index, self.INFER_STEPS - 1))
 
             noisy_latent = self.ddim_scheduler.add_noise(start_latent, noise, timesteps[t_index])
