@@ -175,7 +175,7 @@ class SD3Model(nn.Module):
             latents=x_0,
         )
 
-        x_0_packed = self.pipeline._pack_latents(x_0, batch_size, latent_channels, latent_h, latent_w)
+        x_0_packed = self.pipeline._pack_latents(x_0, batch_size, latent_channels, latent_h, latent_w) # shape: [B, S, D]
 
         # モデル学習
         self.train_model(x_0_packed, latent_image_ids, train_prompt)
