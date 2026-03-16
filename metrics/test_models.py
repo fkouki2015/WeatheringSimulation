@@ -12,9 +12,8 @@ sys.path.append("./")
 sys.path.append("/work/DDIPM/kfukushima/FlowEdit")
 
 from weathering_model import WeatheringModel
-from FlowEdit_utils import FlowEditFLUX
-sys.path.append("/work/DDIPM/kfukushima/turbo-edit")
-from turbo import encode_image, set_pipeline, run, load_pipe
+
+
 import gc
 
 
@@ -108,6 +107,7 @@ class ModelProcessor:
 
         elif model_name == "flowedit":
             print("Loading FlowEdit (FLUX)...")
+            
             from diffusers import FluxPipeline
             self.pipeline = FluxPipeline.from_pretrained(
                 "black-forest-labs/FLUX.1-dev",
@@ -116,6 +116,8 @@ class ModelProcessor:
             ).to(self.device)
 
         elif model_name == "turboedit":
+            sys.path.append("/work/DDIPM/kfukushima/turbo-edit")
+            from turbo import encode_image, set_pipeline, run, load_pipe
             print("Loading TurboEdit...")
             self.pipeline = load_pipe(False, None)
         
@@ -141,8 +143,8 @@ class ModelProcessor:
         frames = pipe(input_image=image,
                         train_prompt=input_prompt, 
                         inference_prompt=output_prompt, 
-                        negative_prompt="brilliant, vivid, clean", # 経年変化用
-                        # negative_prompt="",
+                        # negative_prompt="brilliant, vivid, clean", # 経年変化用
+                        negative_prompt="",
                         attn_word=None,
                         guidance_scale=7.0,
                         num_frames=num_frames,
@@ -231,6 +233,7 @@ class ModelProcessor:
         return frames
     
     def process_flowedit(self, image: Image.Image, src_prompt: str, tar_prompt: str, num_frames: int = 10, height: int = 512, width: int = 512) -> List[Image.Image]:
+        from FlowEdit_utils import FlowEditFLUX
         """Process with FlowEdit (FLUX), varying tar_guidance_scale from 1.0 to 10.0."""
         pipe = self.pipeline
         scheduler = pipe.scheduler
