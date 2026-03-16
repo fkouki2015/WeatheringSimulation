@@ -86,7 +86,7 @@ def vlm_inference(mode: str = "age", image_path: str = None):
     if mode == "age":
         caption_text = "Write the object or scene name in this image. Do not include color name and textual information. You must write only one word. Do not describe the background. Example: car"
     else:
-        caption_text = "Write the object or scene name in this image. Do not include color information and textual information. Do not describe the background. Write only few words. Example: rusted car"
+        caption_text = "Write the object or scene name in this image. Do not include color information and textual information. Do not describe the background. Write only a few words. Example: rusted car"
 
     messages_caption = [
         {
@@ -121,8 +121,8 @@ def vlm_inference(mode: str = "age", image_path: str = None):
         modify_text = (
             f"The following caption describes an aged or deteriorated object: '{caption.strip()}'. "
             f"Rewrite this caption to describe the same object in its original clean, pristine state. "
-            f"Do not include color name. Write only a few words. "
-            f"Example: 'rusted car' -> 'clean car'"
+            # f"Do not include color name. Write only a few words. "
+            f"Example: 'rusted car' -> 'new clean car'"
         )
 
     messages_modify = [
