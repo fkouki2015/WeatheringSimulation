@@ -62,9 +62,9 @@ def build_prompts_json(
 
 def main():
     parser = argparse.ArgumentParser(description="Generate prompts JSON from images using VLM")
-    parser.add_argument("--image_dir", type=str, required=True)
-    parser.add_argument("--json_out", type=str, required=True)
-    parser.add_argument("--mode", type=str, default="age", choices=["age", "restore"])
+    parser.add_argument("--image_dir", type=str, default="/work/xg25g011/x10575/wsim/images_test")
+    parser.add_argument("--json_out", type=str, default="/work/xg25g011/x10575/wsim/prompts_new.json")
+    parser.add_argument("--mode", type=str, default="restore", choices=["age", "restore"])
     args = parser.parse_args()
     
     build_prompts_json(
