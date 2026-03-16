@@ -8,6 +8,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn
 
+import matplotlib_fontja
 import japanize_matplotlib
 
 plt.rcParams.update({'font.size': 10})
@@ -53,7 +54,7 @@ def plot_metrics(
         print("No data found!")
         return
     
-    seaborn.set_style("darkgrid")
+    # seaborn.set_style("darkgrid")
     
     # Metrics to plot (y-axis)
     metrics_to_plot = [
@@ -61,7 +62,7 @@ def plot_metrics(
         ("mse", "MSE"),
         ("lpips", "LPIPS"),
         ("ssim", "SSIM"),
-        ("dino", "DINO Similarity"),
+        ("dino", "DINO Image Similarity"),
     ]
     
     markers = ["o", "s", "^", "D", "v", "<", ">", "p", "*", "H"]
@@ -69,20 +70,57 @@ def plot_metrics(
     
     # Create individual plots for each metric
     for metric_key, metric_label in metrics_to_plot:
-        fig, ax = plt.subplots(figsize=(8, 6), dpi=150)
-        
+        fig, ax = plt.subplots(figsize=(7, 5))
+
+
         for i, (model_name, data) in enumerate(all_data.items()):
             if not data:
                 continue
+
+            # if model_name == "proposed":
+            #     label_name = "提案手法"
+            # elif model_name == "flux":
+            #     label_name = "Flux.1 Kontext"
+            # elif model_name == "qwen":
+            #     label_name = "Qwen-Image Edit"
+            # elif model_name == "ip2p":
+            #     label_name = "InstructPix2Pix"
+            # elif model_name == "sd":
+            #     label_name = "Stable Diffusion 1.5"
+            # elif model_name == "sdedit":
+            #     label_name = "SD Edit"
+            # elif model_name == "flowedit":
+            #     label_name = "FlowEdit"
+            # elif model_name == "turboedit":
+            #     label_name = "TurboEdit"
+            # else:
+            #     label_name = model_name
+
+            if model_name == "proposed":
+                label_name = "提案手法"
+            elif model_name == "sd":
+                label_name = "Stable Diffusion 1.5"
+            elif model_name == "notrain":
+                label_name = "パーソナライゼーションなし"
+            elif model_name == "nocontrol":
+                label_name = "ControlNetなし"
+            elif model_name == "alltrain_control":
+                label_name = "デノイジングネットワーク全体学習"
+            elif model_name == "alltrain":
+                label_name = "全体学習，ControlNetなし"
+            else:
+                label_name = model_name
+
+
             
             xs = [d["clip_text"] for d in data]
             ys = [d[metric_key] for d in data]
             
             marker = markers[i % len(markers)]
             color = colors[i % len(colors)]
-            
             ax.plot(xs, ys, marker=marker, linewidth=2, markersize=6, 
-                   label=model_name, color=color)
+                   label=label_name, color=color, zorder=100-i)
+            
         
         ax.set_xlabel("CLIP Text Similarity", fontsize=12)
         ax.set_ylabel(metric_label, fontsize=12)
@@ -104,8 +142,8 @@ def plot_metrics(
 
 def main():
     parser = argparse.ArgumentParser(description="Plot metrics from compute_metrics output")
-    parser.add_argument("--metrics_dir", type=str, default="metrics_out",)
-    parser.add_argument("--models", type=str, nargs="+", default=["proposed", "flux", "qwen", "ip2p", "sd", "sdedit", "flowedit", "turboedit"])
+    parser.add_argument("--metrics_dir", type=str, default="metrics_out_abration",)
+    parser.add_argument("--models", type=str, nargs="+", default=["proposed", "sd", "notrain", "nocontrol","alltrain_control", "alltrain"])
     parser.add_argument("--output_path", type=str, default="plots_abration")
     args = parser.parse_args()
     
