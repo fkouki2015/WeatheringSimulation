@@ -181,7 +181,7 @@ class NoControlModel(nn.Module):
     # デフォルト定数
     RESOLUTION = (512, 512)
     RANK = 8
-    LEARNING_RATE = 1e-5
+    LEARNING_RATE = 4e-5
     TRAIN_STEPS = 500
     PRETRAINED_MODEL = "stable-diffusion-v1-5/stable-diffusion-v1-5"
     CONTROLNET_PATH_CANNY = "lllyasviel/sd-controlnet-canny"
@@ -192,7 +192,7 @@ class NoControlModel(nn.Module):
     # 評価設定
     CLIP_EVAL_INTERVAL = 50
     CLIP_EVAL_STEPS = 20
-    PERCEPTUAL_THRESHOLD = 0.05
+    PERCEPTUAL_THRESHOLD = -50.05
     PERCEPTUAL_PATIENCE = 2
     
     # 推論設定
@@ -263,7 +263,7 @@ class NoControlModel(nn.Module):
             r=self.RANK,
             lora_alpha=self.RANK,
             init_lora_weights="gaussian",
-            target_modules=["attn2.to_v", "attn2.to_out.0"],
+            target_modules=["attn2.to_v", "attn2.to_out.0", "attn2.to_q", "attn2.to_k"],
             lora_dropout=self.LORA_DROPOUT
         )
         self.unet.add_adapter(unet_lora_config)
@@ -383,7 +383,7 @@ class NoControlModel(nn.Module):
                 preview_pil = self._generate_preview_image(
                     latent=latent,
                     prompt=self.train_prompt,
-                    seed=step * 100 + k,
+                    seed= 100 + k,
                     guidance_scale=1.0  # ガイダンススケール6.0で評価
                 )
                 # 知覚的距離を計算
