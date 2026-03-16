@@ -28,3 +28,8 @@ metrics_out_abration/
 plots_abration/
 *.png
 *.jpg
+*.pdf
+*.jsonl
+flux_kontext_interpolated_edit.py
+qwen_interpolated_edit.py
+qwen3_single_style_lora.py
