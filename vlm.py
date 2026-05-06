@@ -11,7 +11,7 @@ from PIL import Image
 from tqdm import tqdm
 import sys
 
-# モデルは遅延ロード（import vlm してもすぐには読み込まない）
+# モデルは遅延ロード
 _vlm_model = None
 _vlm_processor = None
 
